@@ -1,4 +1,24 @@
 ﻿services:
+  users.database:
+    image: postgres:latest
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d users" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    container_name: users.database
+    environment:
+      - POSTGRES_DB=users
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/users-db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - proxyBackend
+      
   users.api:
     image: users.api
     build:
@@ -9,6 +29,11 @@
       - "5101:5101"
     environment:
       - ASPNETCORE_URLS=http://+:5100
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      users.database:
+        condition: service_healthy
+        restart: true
     networks:
       - proxyBackend
         
