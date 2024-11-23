@@ -1,7 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerce-Microservices", "ECommerce-Microservices\ECommerce-Microservices.csproj", "{66A8FD33-313D-4499-B9D8-4582382EC9A7}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{FFE6BE3A-81B0-40D3-B605-2BC56F0EB170}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Api", "Users.Api\Users.Api.csproj", "{D050A73C-FDEF-4C5A-A7BA-6807D0E08C12}"
@@ -25,10 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{66A8FD33-313D-4499-B9D8-4582382EC9A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{66A8FD33-313D-4499-B9D8-4582382EC9A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{66A8FD33-313D-4499-B9D8-4582382EC9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{66A8FD33-313D-4499-B9D8-4582382EC9A7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D050A73C-FDEF-4C5A-A7BA-6807D0E08C12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D050A73C-FDEF-4C5A-A7BA-6807D0E08C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D050A73C-FDEF-4C5A-A7BA-6807D0E08C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
