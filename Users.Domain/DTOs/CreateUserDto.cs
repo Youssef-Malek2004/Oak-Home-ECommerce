@@ -1,14 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Users.Domain.Entities;
+namespace Users.Domain.DTOs;
 
-public class User 
+public class CreateUserDto
 {
-    [Key]
-    public Guid Id { get; set; } = Guid.NewGuid();
-    
-    [MaxLength(50)]
     public string? Username { get; set; }
     
     [MaxLength(50)]

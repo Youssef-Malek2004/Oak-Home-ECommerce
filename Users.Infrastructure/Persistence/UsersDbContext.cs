@@ -23,10 +23,10 @@ public class UsersDbContext : DbContext, IUsersDbContext
         
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(u => u.Id);
             entity.Property(u => u.Username).IsRequired().HasMaxLength(50);
             entity.Property(u => u.Email).IsRequired();
             entity.Property(u => u.Role).HasDefaultValue("User");
+            entity.Property(u => u.PasswordHash).IsRequired();
         });
     }
 }
