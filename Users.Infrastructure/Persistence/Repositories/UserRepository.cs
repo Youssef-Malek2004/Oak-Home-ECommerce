@@ -65,8 +65,8 @@ public class UserRepository(UsersDbContext dbContext) : IUserRepository
             dbContext.Users.Update(user);
             return Result.Success();
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex)        
+        {   
             return UserErrors.UserEditFailed(ex.Message);
         }
     }

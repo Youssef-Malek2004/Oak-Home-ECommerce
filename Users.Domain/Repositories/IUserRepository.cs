@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Abstractions.ResultsPattern;
+using Microsoft.EntityFrameworkCore.Query;
 using Users.Domain.Entities;
 
 namespace Users.Domain.Repositories;

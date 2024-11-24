@@ -12,6 +12,7 @@ public class SignUpCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<Sign
     public async Task<Result<User>> Handle(SignUpCommand request, CancellationToken cancellationToken)
     {
         var userExists = await unitOfWork.UserRepository.GetUserByEmailAsync(request.SignUpDto.Email, cancellationToken);
+        
         if (userExists.IsSuccess)
         {
             return Result<User>.Failure(UserErrors.UserAlreadyExists(request.SignUpDto.Email));

@@ -1,13 +1,17 @@
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Users.Api.Extensions;
+using Users.Api.OptionsSetup;
 using Users.Application.CQRS.Commands;
+using Users.Application.Services;
 using Users.Domain;
 using Users.Domain.DTOs;
 using Users.Domain.Mappers;
 using Users.Domain.Repositories;
 using Users.Infrastructure;
+using Users.Infrastructure.Authentication;
 using Users.Infrastructure.CQRS.CommandHandlers;
 using Users.Infrastructure.Persistence;
 
@@ -18,9 +22,15 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<SignUpCommandHandler>());
-
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<LoginCommandHandler>());
+builder.Services.AddSingleton<IJwtProvider, JwtProvider>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer();
+
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
 var app = builder.Build();
 
@@ -39,20 +49,17 @@ app.MapPost("/signup", async ([FromBody] SignUpDto signUpDto ,IMediator mediator
     return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
 });
 
+app.MapPost("/login", async ([FromBody] LoginDto loginDto, IMediator mediator, CancellationToken cancellationToken) =>
+{
+    var result = await mediator.Send(new LoginCommand(loginDto), cancellationToken);
+    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+});
+
 app.MapGet("/users", async (HttpContext context, UsersDbContext usersDbContext) =>
 {
     var users = await usersDbContext.Users.ToListAsync();
     return Results.Ok(users);
-});
-
-app.MapPost("/users", async ([FromBody]CreateUserDto createUserDto, IUserRepository userRepository, IUnitOfWork unitOfWork) =>
-{
-    var user = Mappers.CreateUserToUser(createUserDto);
-    await userRepository.AddUserAsync(user);
-    await unitOfWork.SaveChangesAsync();
-    return Results.Created($"/users/{user.Id}", user);
-    
-}).WithName("CreateUser");
+}).RequireAuthorization();
 
 app.MapGet("/users/{id:guid}", async (Guid id, IUnitOfWork unitOfWork) =>
 {
@@ -87,6 +94,8 @@ app.MapGet("/users/{email}", async (string email, IUnitOfWork unitOfWork) =>
 });
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
