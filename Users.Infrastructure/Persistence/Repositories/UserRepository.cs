@@ -41,7 +41,7 @@ public class UserRepository(UsersDbContext dbContext) : IUserRepository
         }
         catch (Exception ex)
         {
-            return Result.Failure(UserErrors.UserAddFailed(ex.Message));
+            return UserErrors.UserAddFailed(ex.Message);
         }
     }
 
@@ -54,7 +54,7 @@ public class UserRepository(UsersDbContext dbContext) : IUserRepository
         }
         catch (Exception ex)
         {
-            return Result.Failure(UserErrors.UserRemoveFailed(ex.Message));
+            return UserErrors.UserRemoveFailed(ex.Message);
         }
     }
 
@@ -67,7 +67,7 @@ public class UserRepository(UsersDbContext dbContext) : IUserRepository
         }
         catch (Exception ex)
         {
-            return Result.Failure(UserErrors.UserEditFailed(ex.Message));
+            return UserErrors.UserEditFailed(ex.Message);
         }
     }
 }

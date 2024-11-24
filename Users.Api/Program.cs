@@ -2,13 +2,13 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Users.Api.Extensions;
-using Users.Application.Services;
+using Users.Application.CQRS.Commands;
 using Users.Domain;
 using Users.Domain.DTOs;
-using Users.Domain.Entities;
 using Users.Domain.Mappers;
 using Users.Domain.Repositories;
 using Users.Infrastructure;
+using Users.Infrastructure.CQRS.CommandHandlers;
 using Users.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +18,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<SignUpCommandHandler>());
 
 builder.Services.AddPersistence(builder.Configuration);
 
@@ -31,6 +32,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     
 }
+
+app.MapPost("/signup", async ([FromBody] SignUpDto signUpDto ,IMediator mediator) =>
+{
+    var result = await mediator.Send(new SignUpCommand(signUpDto));
+    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+});
 
 app.MapGet("/users", async (HttpContext context, UsersDbContext usersDbContext) =>
 {
