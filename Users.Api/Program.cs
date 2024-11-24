@@ -10,7 +10,6 @@ using Users.Domain.Mappers;
 using Users.Domain.Repositories;
 using Users.Infrastructure;
 using Users.Infrastructure.Persistence;
-using Users.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,14 +49,34 @@ app.MapPost("/users", async ([FromBody]CreateUserDto createUserDto, IUserReposit
 
 app.MapGet("/users/{id:guid}", async (Guid id, IUnitOfWork unitOfWork) =>
 {
-    var user = await unitOfWork.UserRepository.GetUserByIdAsync(id);
-    return user != null ? Results.Ok(user) : Results.NotFound();
+    var result = await unitOfWork.UserRepository.GetUserByIdAsync(id);
+
+    if (result.IsFailure)
+    {
+        return Results.NotFound(new
+        {
+            Code = result.Error.Code,
+            Message = result.Error.Description
+        });
+    }
+
+    return Results.Ok(result.Value);
 });
 
 app.MapGet("/users/{email}", async (string email, IUnitOfWork unitOfWork) =>
 {
-    var user = await unitOfWork.UserRepository.GetUserByEmailAsync(email);
-    return user != null ? Results.Ok(user) : Results.NotFound();
+    var result = await unitOfWork.UserRepository.GetUserByEmailAsync(email);
+
+    if (result.IsFailure)
+    {
+        return Results.NotFound(new
+        {
+            Code = result.Error.Code,
+            Message = result.Error.Description
+        });
+    }
+
+    return Results.Ok(result.Value);
 });
 
 app.UseHttpsRedirection();

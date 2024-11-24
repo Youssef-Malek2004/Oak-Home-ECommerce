@@ -1,16 +1,17 @@
+using Abstractions.ResultsPattern;
 using Users.Domain.Entities;
 
 namespace Users.Domain.Repositories;
 
 public interface IUserRepository
 {
-    Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Result<User?>> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
     
-    Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<Result<User?>> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default);
 
-    Task AddUserAsync(User user);
+    Task<Result> AddUserAsync(User user);
 
-    Task RemoveUserAsync(User user);
+   Task<Result> RemoveUserAsync(User user);
 
-    Task EditUserAsync(User user);
+    Task<Result> EditUserAsync(User user);
 }

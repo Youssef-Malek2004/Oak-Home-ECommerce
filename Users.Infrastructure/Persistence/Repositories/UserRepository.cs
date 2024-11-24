@@ -1,41 +1,73 @@
+using Abstractions.ResultsPattern;
 using Microsoft.EntityFrameworkCore;
 using Users.Domain.Entities;
+using Users.Domain.Errors;
 using Users.Domain.Repositories;
-using Users.Infrastructure.Persistence;
 
-namespace Users.Infrastructure.Repositories;
+namespace Users.Infrastructure.Persistence.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(UsersDbContext dbContext) : IUserRepository
 {
-    private readonly UsersDbContext _dbContext;
-
-    public UserRepository(UsersDbContext dbContext)
+    public async Task<Result<User?>> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _dbContext = dbContext;
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+        if (user == null)
+        {
+            return Result<User?>.Failure(UserErrors.UserNotFoundId(id));
+        }
+
+        return Result<User?>.Success(user);
     }
 
-    public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<User?>> GetUserByEmailAsync(string email , CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        
+        if (user == null)
+        {
+            return Result<User?>.Failure(UserErrors.UserNotFoundEmail(email));
+        }
+
+        return Result<User?>.Success(user);
     }
 
-    public async Task<User?> GetUserByEmailAsync(string email , CancellationToken cancellationToken = default)
+    public async Task<Result> AddUserAsync(User user)
     {
-        return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        try
+        {
+            await dbContext.Users.AddAsync(user);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(UserErrors.UserAddFailed(ex.Message));
+        }
     }
 
-    public async Task AddUserAsync(User user)
+    public async Task<Result> RemoveUserAsync(User user)
     {
-        await _dbContext.Users.AddAsync(user);
+        try
+        {
+            dbContext.Users.Remove(user);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(UserErrors.UserRemoveFailed(ex.Message));
+        }
     }
 
-    public async Task RemoveUserAsync(User user)
+    public async Task<Result> EditUserAsync(User user)
     {
-        _dbContext.Users.Remove(user);
-    }
-
-    public async Task EditUserAsync(User user)
-    {
-        _dbContext.Users.Update(user);
+        try
+        {
+            dbContext.Users.Update(user);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(UserErrors.UserEditFailed(ex.Message));
+        }
     }
 }

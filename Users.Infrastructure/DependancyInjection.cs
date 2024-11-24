@@ -5,7 +5,7 @@ using Users.Application.Services;
 using Users.Domain;
 using Users.Domain.Repositories;
 using Users.Infrastructure.Persistence;
-using Users.Infrastructure.Repositories;
+using Users.Infrastructure.Persistence.Repositories;
 
 namespace Users.Infrastructure;
 
