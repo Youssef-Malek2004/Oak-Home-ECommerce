@@ -24,7 +24,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<LoginCommandHandler>());
+builder.Services.ConfigureMediatR();
 
 builder.Services.AddAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();

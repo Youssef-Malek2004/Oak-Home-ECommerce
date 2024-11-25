@@ -7,6 +7,7 @@ using Users.Application.Services;
 using Users.Domain;
 using Users.Domain.Repositories;
 using Users.Infrastructure.Authentication;
+using Users.Infrastructure.CQRS.CommandHandlers;
 using Users.Infrastructure.Persistence;
 using Users.Infrastructure.Persistence.Repositories;
 
@@ -36,5 +37,10 @@ public static class DependancyInjection
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
         
         return services;
+    }
+
+    public static IServiceCollection ConfigureMediatR(this IServiceCollection services)
+    {
+        return services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<LoginCommandHandler>());
     }
 }
