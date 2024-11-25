@@ -1,6 +1,7 @@
 using Abstractions.ResultsPattern;
 using MediatR;
 using Users.Application.CQRS.Commands;
+using Users.Application.Services;
 using Users.Domain;
 using Users.Domain.Entities;
 using Users.Domain.Errors;
@@ -8,20 +9,20 @@ using Users.Infrastructure.Persistence;
 
 namespace Users.Infrastructure.CQRS.CommandHandlers;
 
-public class SignUpCommandHandler(IUnitOfWork unitOfWork, UsersDbContext dbContext) : IRequestHandler<SignUpCommand, Result<User>>
+public class AddAdminCommandHandler(IUnitOfWork unitOfWork, UsersDbContext dbContext) : IRequestHandler<AddAdminCommand, Result<User>>
 {
-    public async Task<Result<User>> Handle(SignUpCommand request, CancellationToken cancellationToken)
+    public async Task<Result<User>> Handle(AddAdminCommand request, CancellationToken cancellationToken)
     {
-        var userExists = await unitOfWork.UserRepository.GetUserByEmailAsync(request.SignUpDto.Email, cancellationToken);
+        var userExists = await unitOfWork.UserRepository.GetUserByEmailAsync(request.AddAdminDto.Email, cancellationToken);
         
         if (userExists.IsSuccess)
         {
-            return Result<User>.Failure(UserErrors.UserAlreadyExists(request.SignUpDto.Email));
+            return Result<User>.Failure(UserErrors.UserAlreadyExists(request.AddAdminDto.Email));
         }
 
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.SignUpDto.PasswordHash);
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.AddAdminDto.PasswordHash);
 
-        var registeredRole = await dbContext.Set<Role>().FindAsync(Role.Registered.Id);
+        var registeredRole = await dbContext.Set<Role>().FindAsync(Role.Admin.Id);
 
         if (registeredRole == null)
         {
@@ -30,8 +31,8 @@ public class SignUpCommandHandler(IUnitOfWork unitOfWork, UsersDbContext dbConte
         
         var user = new User
         {
-            Username = request.SignUpDto.Username,
-            Email = request.SignUpDto.Email,
+            Username = request.AddAdminDto.Username,
+            Email = request.AddAdminDto.Email,
             PasswordHash = hashedPassword,
             Roles = new List<Role>() { registeredRole }
         };

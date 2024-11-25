@@ -14,9 +14,10 @@ public class User
     [MaxLength(50)]
     public string? Email { get; set; }
 
-    [MaxLength(10)]
-    public string? Role { get; set; }
+    public ICollection<Role>? Roles { get; set; }
     
     [MaxLength(1000)]
     public string? PasswordHash { get; set; }
+
+    public bool IsDeleted { get; set; } = false;
 }

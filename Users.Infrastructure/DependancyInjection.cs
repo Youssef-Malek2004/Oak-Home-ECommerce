@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Users.Application.Services;
 using Users.Domain;
 using Users.Domain.Repositories;
+using Users.Infrastructure.Authentication;
 using Users.Infrastructure.Persistence;
 using Users.Infrastructure.Persistence.Repositories;
 
@@ -18,6 +21,20 @@ public static class DependancyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services)
+    {
+        services.AddSingleton<IJwtProvider, JwtProvider>();
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+        services.AddAuthorization();
+        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+        
         return services;
     }
 }

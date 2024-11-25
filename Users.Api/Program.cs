@@ -1,15 +1,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Users.Api.Endpoints;
 using Users.Api.Extensions;
 using Users.Api.OptionsSetup;
 using Users.Application.CQRS.Commands;
 using Users.Application.Services;
 using Users.Domain;
 using Users.Domain.DTOs;
-using Users.Domain.Mappers;
-using Users.Domain.Repositories;
+using Users.Domain.Entities;
 using Users.Infrastructure;
 using Users.Infrastructure.Authentication;
 using Users.Infrastructure.CQRS.CommandHandlers;
@@ -24,11 +25,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<LoginCommandHandler>());
-builder.Services.AddSingleton<IJwtProvider, JwtProvider>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer();
-
+builder.Services.AddAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
@@ -43,55 +41,13 @@ if (app.Environment.IsDevelopment())
     
 }
 
-app.MapPost("/signup", async ([FromBody] SignUpDto signUpDto ,IMediator mediator) =>
-{
-    var result = await mediator.Send(new SignUpCommand(signUpDto));
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-});
+var endpoints = app.MapGroup("api");
 
-app.MapPost("/login", async ([FromBody] LoginDto loginDto, IMediator mediator, CancellationToken cancellationToken) =>
-{
-    var result = await mediator.Send(new LoginCommand(loginDto), cancellationToken);
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-});
+endpoints.MapGlobalEndpoints();
+endpoints.MapCrudEndpoints();
+endpoints.MapUserEndpoints();
+endpoints.MapAdminEndpoints(); 
 
-app.MapGet("/users", async (HttpContext context, UsersDbContext usersDbContext) =>
-{
-    var users = await usersDbContext.Users.ToListAsync();
-    return Results.Ok(users);
-}).RequireAuthorization();
-
-app.MapGet("/users/{id:guid}", async (Guid id, IUnitOfWork unitOfWork) =>
-{
-    var result = await unitOfWork.UserRepository.GetUserByIdAsync(id);
-
-    if (result.IsFailure)
-    {
-        return Results.NotFound(new
-        {
-            Code = result.Error.Code,
-            Message = result.Error.Description
-        });
-    }
-
-    return Results.Ok(result.Value);
-});
-
-app.MapGet("/users/{email}", async (string email, IUnitOfWork unitOfWork) =>
-{
-    var result = await unitOfWork.UserRepository.GetUserByEmailAsync(email);
-
-    if (result.IsFailure)
-    {
-        return Results.NotFound(new
-        {
-            Code = result.Error.Code,
-            Message = result.Error.Description
-        });
-    }
-
-    return Results.Ok(result.Value);
-});
 
 app.UseHttpsRedirection();
 

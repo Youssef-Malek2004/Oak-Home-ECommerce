@@ -12,7 +12,6 @@ public static class Mappers
             Email = createUserDto.Email,
             Username = createUserDto.Username,
             PasswordHash = createUserDto.PasswordHash,
-            Role = createUserDto.Role
         };
     }
 }
