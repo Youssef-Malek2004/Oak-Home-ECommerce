@@ -17,7 +17,9 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
             Create(Role.Admin, Permissions.ReadUsers),
             Create(Role.Admin, Permissions.UpdateUsers),
             Create(Role.Admin, Permissions.SoftDeleteUsers),
-            Create(Role.Admin, Permissions.PerformCrud));
+            Create(Role.Admin, Permissions.PerformCrud),
+            Create(Role.Admin, Permissions.MustBeSameUser),
+            Create(Role.Registered, Permissions.MustBeSameUser));
     }
 
     private static RolePermission Create(
@@ -26,7 +28,7 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
         return new RolePermission
         {
             RoleId = role.Id,
-            PermissionId = (int)permission
+            PermissionId = (int)permission.Id
         };
     }
 }

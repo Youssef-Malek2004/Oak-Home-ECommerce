@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Users.Application.Services;
@@ -28,6 +29,20 @@ public class PermissionAuthorizationHandler(IServiceScopeFactory serviceScopeFac
 
         if (permissions.Contains(requirement.Permission))
         {
+            if (requirement.Permission.Equals("MustBeSameUser"))
+            {
+                string? targetUserId = context.Resource switch
+                {
+                    HttpContext httpContext => httpContext.Request.RouteValues["id"]?.ToString(),
+                    _ => null
+                };
+                
+                if (!Guid.TryParse(targetUserId, out Guid targetParsedUserId) || targetParsedUserId != parsedUserId)
+                {
+                    return;
+                }
+            }
+            
             context.Succeed(requirement);
         }
     }

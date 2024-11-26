@@ -13,11 +13,11 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         
         builder.HasKey(x => x.Id);
 
-        var permissions = Enum.GetValues<Permissions>()
+        var permissions = Permissions.GetValues()
             .Select(p => new Permission()
             {
-                Id = (int)p,
-                Name = p.ToString()
+                Id = (int)p.Id,
+                Name = p.Name.ToString()
             });
 
         builder.HasData(permissions);

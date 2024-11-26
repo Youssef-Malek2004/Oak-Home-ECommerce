@@ -1,20 +1,7 @@
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Users.Api.Endpoints;
 using Users.Api.Extensions;
 using Users.Api.OptionsSetup;
-using Users.Application.CQRS.Commands;
-using Users.Application.Services;
-using Users.Domain;
-using Users.Domain.DTOs;
-using Users.Domain.Entities;
 using Users.Infrastructure;
-using Users.Infrastructure.Authentication;
-using Users.Infrastructure.CQRS.CommandHandlers;
-using Users.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 

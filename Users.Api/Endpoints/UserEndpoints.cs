@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.CQRS.Commands;
 using Users.Domain.DTOs;
+using Users.Infrastructure.Authentication;
 
 namespace Users.Api.Endpoints;
 
@@ -19,7 +20,7 @@ public static class UserEndpoints
             var result = await mediator.Send(new ChangePasswordCommand(id, changePasswordDto));
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
 
-        });
+        }).HasPermission(Permissions.MustBeSameUser);
         
         userEndpoints.MapPut("{id:guid}/edit-profile", async (
             Guid id
@@ -29,6 +30,6 @@ public static class UserEndpoints
             var result = await mediator.Send(new EditProfileCommand(id, editProfileDto));
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
 
-        });
+        }).HasPermission(Permissions.MustBeSameUser);
     }
 }
