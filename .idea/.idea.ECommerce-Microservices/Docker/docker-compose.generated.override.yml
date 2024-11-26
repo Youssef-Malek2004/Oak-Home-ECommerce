@@ -1,5 +1,23 @@
 # This is a generated file. Not intended for manual editing.
 services:
+  products.api:
+    build:
+      context: "/Users/youssefmalek/RiderProjects/ECommerce-Microservices"
+      dockerfile: "Services/Products.Api/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Products.Api.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "products.api:dev"
+    ports: []
+    volumes:
+    - "/Users/youssefmalek/.nuget/packages:/home/app/.nuget/packages"
+    - "/Users/youssefmalek/RiderProjects/ECommerce-Microservices/Services/Products.Api:/app:rw"
+    - "/Users/youssefmalek/RiderProjects/ECommerce-Microservices:/src:rw"
+    working_dir: "/app"
   users.api:
     build:
       context: "/Users/youssefmalek/RiderProjects/ECommerce-Microservices"

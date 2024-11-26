@@ -17,6 +17,7 @@ public static class CrudEndpoints
         crudEndpoints.MapDelete("/{id:Guid}", async (Guid id, IMediator mediator, CancellationToken cancellationToken ) =>
         {
             var result = await mediator.Send(new SoftDeleteCommand(id), cancellationToken);
+            return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
         }).HasPermission(Permissions.PerformCrud);
 
         crudEndpoints.MapGet("/", async (UsersDbContext usersDbContext) =>
