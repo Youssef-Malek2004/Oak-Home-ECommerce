@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using Products.Api.Settings;
 using Products.Application.Services;
+using Products.Application.Settings;
 
 namespace Products.Infrastructure.Persistence;
 
