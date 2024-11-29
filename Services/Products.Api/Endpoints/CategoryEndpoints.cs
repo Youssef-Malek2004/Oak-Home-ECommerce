@@ -1,5 +1,6 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Products.Application.Services;
+using Products.Application.CQRS.CommandsAndQueries.Categories;
 using Products.Domain.DTOs.CategoryDtos;
 
 namespace Products.Api.Endpoints;
@@ -8,45 +9,45 @@ public static class CategoryEndpoints
 {
     public static void MapCategoryCrudEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("categories", async (ICategoryRepository categoryRepository) =>
+        app.MapGet("categories", async (IMediator mediator) =>
         {
-            var result = await categoryRepository.GetCategories();
+            var result = await mediator.Send(new GetAllCategoriesQuery());
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error.Description);
         });
 
-        app.MapGet("categories/{id}", async (string id, ICategoryRepository categoryRepository) =>
+        app.MapGet("categories/{id}", async (string id, IMediator mediator) =>
         {
-            var result = await categoryRepository.GetCategoryById(id);
+            var result = await mediator.Send(new GetCategoryByIdQuery(id));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error.Description);
         });
 
-        app.MapPost("categories", async ([FromBody] CreateCategoryDto createCategoryDto, ICategoryRepository categoryRepository) =>
+        app.MapPost("categories", async ([FromBody] CreateCategoryDto createCategoryDto, IMediator mediator) =>
         {
-            var result = await categoryRepository.CreateCategory(createCategoryDto);
+            var result = await mediator.Send(new CreateCategoryCommand(createCategoryDto));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error.Description);
         });
 
-        app.MapPut("categories/{id}", async (string id, [FromBody] UpdateCategoryDto updateCategoryDto, ICategoryRepository categoryRepository) =>
+        app.MapPut("categories/{id}", async (string id, [FromBody] UpdateCategoryDto updateCategoryDto, IMediator mediator) =>
         {
-            var result = await categoryRepository.UpdateCategory(id, updateCategoryDto);
+            var result = await mediator.Send(new UpdateCategoryCommand(id, updateCategoryDto));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error.Description);
         });
 
-        app.MapDelete("categories/{id}", async (string id, ICategoryRepository categoryRepository) =>
+        app.MapDelete("categories/{id}", async (string id, IMediator mediator) =>
         {
-            var result = await categoryRepository.DeleteCategory(id);
+            var result = await mediator.Send(new DeleteCategoryCommand(id));
             return result.IsSuccess ? Results.Ok() : Results.NotFound(result.Error.Description);
         });
 
-        app.MapGet("categories/exists/{id}", async (string id, ICategoryRepository categoryRepository) =>
+        app.MapGet("categories/exists/{id}", async (string id, IMediator mediator) =>
         {
-            var result = await categoryRepository.CategoryExists(id);
-            return Results.Ok(result.Value); 
+            var result = await mediator.Send(new CategoryExistsQuery(id));
+            return Results.Ok(result.Value);
         });
 
-        app.MapGet("categories/search/{searchTerm}", async (string searchTerm, ICategoryRepository categoryRepository) =>
+        app.MapGet("categories/search/{searchTerm}", async (string searchTerm, IMediator mediator) =>
         {
-            var result = await categoryRepository.SearchCategories(searchTerm);
+            var result = await mediator.Send(new SearchCategoriesQuery(searchTerm));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error.Description);
         });
     }

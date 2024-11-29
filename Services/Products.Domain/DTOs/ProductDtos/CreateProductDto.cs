@@ -1,8 +1,4 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using Products.Domain.Entities;
-
-namespace Products.Domain.DTOs;
+namespace Products.Domain.DTOs.ProductDtos;
 
 public class CreateProductDto
 {

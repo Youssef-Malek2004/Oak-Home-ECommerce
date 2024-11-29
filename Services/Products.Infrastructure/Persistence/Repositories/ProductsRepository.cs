@@ -1,8 +1,12 @@
+using System.Text.Json;
 using Abstractions.ResultsPattern;
+using MongoDB.Bson;
 using MongoDB.Entities;
 using Products.Application.Services;
 using Products.Domain.DTOs;
+using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
+using Products.Domain.Entities.Products;
 using Products.Domain.Errors;
 using Products.Domain.Mappers;
 
@@ -21,9 +25,18 @@ public class ProductsRepository : IProductsRepository
         return Result<IEnumerable<Product>>.Success(products);
     }
     
-    public async Task<Result<Product>> CreateProduct(CreateProductDto createProductDto)
+    public async Task<Result<Product>> CreateProduct(CreateProductDto createProductDto, IDictionary<string, object>? dynamicFields)
     {
-        var product = ProductMappers.MapCreateProductDtoToProduct(createProductDto);
+        // var result = await ProductMappers.MapCreateProductDtoToProductAsync(createProductDto);
+        //
+        // if(result.IsFailure) return Result<Product>.Failure(result.Error);
+        //
+        // var product = result.Value;
+        
+        var result = await ProductMappers.MapCreateProductDtoToProductAsync(createProductDto, dynamicFields);
+        var product = result.Value;
+        
+        if (product is null) return Result<Product>.Failure(Error.None);
         
         await product.SaveAsync();
         return Result<Product>.Success(product);
@@ -73,4 +86,5 @@ public class ProductsRepository : IProductsRepository
 
         return Result<IEnumerable<Product>>.Success(products);
     }
+    
 }

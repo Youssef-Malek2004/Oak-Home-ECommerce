@@ -4,6 +4,7 @@ using MongoDB.Entities;
 
 namespace Products.Domain.Entities;
 [Collection("Products")]
+[BsonDiscriminator(RootClass = true)]
 public class Product : Entity
 {
     public string Name { get; set; } = null!;

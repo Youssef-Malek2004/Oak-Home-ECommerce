@@ -1,4 +1,4 @@
-namespace Products.Domain.DTOs;
+namespace Products.Domain.DTOs.ProductDtos;
 
 public class UpdateProductDto
 {

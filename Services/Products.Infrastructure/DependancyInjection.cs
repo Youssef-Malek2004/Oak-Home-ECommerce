@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Products.Application.CQRS.CommandHandlers.Products;
 using Products.Application.Services;
 using Products.Infrastructure.Persistence;
 using Products.Infrastructure.Persistence.Repositories;
@@ -12,5 +13,10 @@ public static class DependencyInjection
         services.AddSingleton<IMongoDbService, MongoDbService>();
         services.AddSingleton<IProductsRepository, ProductsRepository>();
         services.AddSingleton<ICategoryRepository, CategoryRepository>();
+    }
+    
+    public static IServiceCollection ConfigureMediatR(this IServiceCollection services)
+    {
+        return services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CreateProductHandler>());
     }
 }

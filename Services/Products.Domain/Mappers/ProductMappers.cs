@@ -1,27 +1,56 @@
-using MongoDB.Bson;
+using System.Text.Json;
+using Abstractions.ResultsPattern;
+using MongoDB.Entities;
 using Products.Domain.DTOs;
+using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
+using Products.Domain.Entities.Products;
+using Products.Domain.Errors;
 
 namespace Products.Domain.Mappers;
 
 public static class ProductMappers
 {
-    public static Product MapCreateProductDtoToProduct(CreateProductDto createProductDto)
+    public static async Task<Result<Product>> MapCreateProductDtoToProductAsync(CreateProductDto createProductDto, IDictionary<string, object>? dynamicFields = null)
+{
+    var category = await DB.Find<Category>().Match(c => c.ID == createProductDto.CategoryId).ExecuteFirstAsync();
+    if (category == null)
     {
-        return new Product
-        {
-            Name = createProductDto.Name,
-            Description = createProductDto.Description,
-            CreatedAt = DateTime.UtcNow, 
-            UpdatedAt = DateTime.UtcNow,
-            CategoryId = createProductDto.CategoryId,
-            Price = createProductDto.Price,
-            VendorId = createProductDto.VendorId,
-            ImageUrls = createProductDto.ImageUrls, 
-            Sku = createProductDto.Sku,
-            Tags = createProductDto.Tags ?? [] 
-        };
+        return Result<Product>.Failure(CategoryErrors.CategoryNotFoundId(createProductDto.CategoryId));
     }
+    
+    Product product = category.Name switch
+    {
+        "Electronics" => new ElectronicsProduct
+        {
+            Brand = dynamicFields?["Brand"]?.ToString() ?? throw new Exception("Missing field: Brand"),
+            Model = dynamicFields?["Model"]?.ToString() ?? throw new Exception("Missing field: Model"),
+            WarrantyPeriod = dynamicFields.TryGetValue("WarrantyPeriod", out var value) ? GetInt(value)
+                : throw new Exception("Missing field: WarrantyPeriod")
+        },
+        "Clothing" => new ClothingProduct
+        {
+            Size = dynamicFields?["Size"]?.ToString() ?? throw new Exception("Missing field: Size"),
+            Material = dynamicFields?["Material"]?.ToString() ?? throw new Exception("Missing field: Material"),
+            Gender = dynamicFields?["Gender"]?.ToString() ?? throw new Exception("Missing field: Gender")
+        },
+        _ => throw new Exception($"Unsupported category: {category.Name}")
+    };
+
+    product.Name = createProductDto.Name;
+    product.Description = createProductDto.Description;
+    product.CreatedAt = DateTime.UtcNow;
+    product.UpdatedAt = DateTime.UtcNow;
+    product.CategoryId = createProductDto.CategoryId;
+    product.Price = createProductDto.Price;
+    product.VendorId = createProductDto.VendorId;
+    product.ImageUrls = createProductDto.ImageUrls;
+    product.Sku = createProductDto.Sku;
+    product.Tags = createProductDto.Tags;
+
+    return Result<Product>.Success(product);
+}
+
     public static void MapUpdateProductDtoToProduct(UpdateProductDto productDto, Product product)
     {
         if (!string.IsNullOrEmpty(productDto.Name))
@@ -46,5 +75,23 @@ public static class ProductMappers
             product.ImageUrls = productDto.ImageUrls;
 
         product.UpdatedAt = DateTime.UtcNow;
+    }
+    
+    private static decimal GetDecimal(object value)
+    {
+        if (value is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return jsonElement.GetDecimal();
+        }
+        return Convert.ToDecimal(value);
+    }
+
+    private static int GetInt(object value)
+    {
+        if (value is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return jsonElement.GetInt32();
+        }
+        return Convert.ToInt32(value);
     }
 }

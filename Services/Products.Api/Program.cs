@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using Products.Api.Endpoints;
 using Products.Api.Middlewares;
+using Products.Application.Services;
 using Products.Application.Settings;
 using Products.Infrastructure;
 
@@ -11,6 +13,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection("MongoSettings"));
 builder.Services.AddPersistence();
+builder.Services.ConfigureMediatR();
 
 var app = builder.Build();
 
@@ -26,6 +29,7 @@ var endpoints = app.MapGroup("api");
 
 endpoints.MapProductsCrudEndpoints();
 endpoints.MapCategoryCrudEndpoints();
+
 
 app.UseHttpsRedirection();
 
