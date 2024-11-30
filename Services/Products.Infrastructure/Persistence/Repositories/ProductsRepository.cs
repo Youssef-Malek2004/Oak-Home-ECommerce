@@ -1,12 +1,8 @@
-using System.Text.Json;
 using Abstractions.ResultsPattern;
-using MongoDB.Bson;
 using MongoDB.Entities;
 using Products.Application.Services;
-using Products.Domain.DTOs;
 using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
-using Products.Domain.Entities.Products;
 using Products.Domain.Errors;
 using Products.Domain.Mappers;
 
@@ -16,9 +12,9 @@ public class ProductsRepository : IProductsRepository
 {
     // private readonly IMongoCollection<Product>? _products = mongoDbService.Database?.GetCollection<Product>("product");
 
-    public ProductsRepository(/*IMongoDbService mongoDbService*/)
-    {
-    }
+    // public ProductsRepository(/*IMongoDbService mongoDbService*/)
+    // {
+    // }
     public async Task<Result<IEnumerable<Product>>> GetProducts()
     {
         var products =  await DB.Find<Product>().ExecuteAsync();
@@ -27,13 +23,11 @@ public class ProductsRepository : IProductsRepository
     
     public async Task<Result<Product>> CreateProduct(CreateProductDto createProductDto, IDictionary<string, object>? dynamicFields)
     {
-        // var result = await ProductMappers.MapCreateProductDtoToProductAsync(createProductDto);
-        //
-        // if(result.IsFailure) return Result<Product>.Failure(result.Error);
-        //
-        // var product = result.Value;
         
         var result = await ProductMappers.MapCreateProductDtoToProductAsync(createProductDto, dynamicFields);
+
+        if (result.IsFailure) return result;
+        
         var product = result.Value;
         
         if (product is null) return Result<Product>.Failure(Error.None);

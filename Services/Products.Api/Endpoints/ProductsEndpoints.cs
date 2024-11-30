@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Products.Application.CQRS.CommandsAndQueries.Products;
-using Products.Domain.DTOs;
 using Products.Domain.DTOs.ProductDtos;
 
 namespace Products.Api.Endpoints;

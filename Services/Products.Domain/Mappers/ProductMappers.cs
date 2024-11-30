@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Abstractions.ResultsPattern;
 using MongoDB.Entities;
-using Products.Domain.DTOs;
 using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
 using Products.Domain.Entities.Products;
@@ -18,24 +17,14 @@ public static class ProductMappers
     {
         return Result<Product>.Failure(CategoryErrors.CategoryNotFoundId(createProductDto.CategoryId));
     }
-    
-    Product product = category.Name switch
-    {
-        "Electronics" => new ElectronicsProduct
-        {
-            Brand = dynamicFields?["Brand"]?.ToString() ?? throw new Exception("Missing field: Brand"),
-            Model = dynamicFields?["Model"]?.ToString() ?? throw new Exception("Missing field: Model"),
-            WarrantyPeriod = dynamicFields.TryGetValue("WarrantyPeriod", out var value) ? GetInt(value)
-                : throw new Exception("Missing field: WarrantyPeriod")
-        },
-        "Clothing" => new ClothingProduct
-        {
-            Size = dynamicFields?["Size"]?.ToString() ?? throw new Exception("Missing field: Size"),
-            Material = dynamicFields?["Material"]?.ToString() ?? throw new Exception("Missing field: Material"),
-            Gender = dynamicFields?["Gender"]?.ToString() ?? throw new Exception("Missing field: Gender")
-        },
-        _ => throw new Exception($"Unsupported category: {category.Name}")
-    };
+
+    var result = MapDynamicFieldsToProduct(category, dynamicFields);
+
+    if (result.IsFailure) return result;
+
+    var product = result.Value;
+
+    if (product is null) return Result<Product>.Failure(ProductErrors.ProductAddFailed("Product is Null"));
 
     product.Name = createProductDto.Name;
     product.Description = createProductDto.Description;
@@ -76,7 +65,259 @@ public static class ProductMappers
 
         product.UpdatedAt = DateTime.UtcNow;
     }
+    private static Result<Product> MapDynamicFieldsToProduct(Category category, IDictionary<string, object>? dynamicFields)
+    {
+        if (dynamicFields == null)
+        {
+            return Result<Product>.Failure(ProductValidationErrors.NullDynamicFields);
+        }
+
+        return category.Name switch
+        {
+            "Electronics" => Result<Product>.Success((MapElectronicsProduct(dynamicFields).Value)!),
+            "Clothing" => Result<Product>.Success((MapClothingProduct(dynamicFields).Value)!),
+            "Books" => Result<Product>.Success((MapBookProduct(dynamicFields).Value)!),
+            "HomeAppliances" => Result<Product>.Success((MapHomeAppliancesProduct(dynamicFields).Value)!),
+            "Toys" => Result<Product>.Success(MapToyProduct(dynamicFields).Value!),
+            "Sports" => Result<Product>.Success(MapSportsProduct(dynamicFields).Value!),
+            "Health" => Result<Product>.Success(MapHealthProduct(dynamicFields).Value!),
+            "Beauty" => Result<Product>.Success(MapBeautyProduct(dynamicFields).Value!),
+            "Automotive" => Result<Product>.Success(MapAutomotiveProduct(dynamicFields).Value!),
+            "FoodAndBeverages" => Result<Product>.Success(MapFoodAndBeverageProduct(dynamicFields).Value!),
+            _ => Result<Product>.Failure(ProductValidationErrors.UnsupportedCategory(category.Name))
+        };
+    }
+
+    private static Result<ElectronicsProduct> MapElectronicsProduct(IDictionary<string, object> dynamicFields)
+    {
+        var brandResult = GetRequiredField(dynamicFields, "Brand");
+        var modelResult = GetRequiredField(dynamicFields, "Model");
+        var warrantyPeriodResult = GetOptionalField<int>(dynamicFields, "WarrantyPeriod");
+
+        if (!brandResult.IsSuccess) return Result<ElectronicsProduct>.Failure(brandResult.Error);
+        if (!modelResult.IsSuccess) return Result<ElectronicsProduct>.Failure(modelResult.Error);
+        if (!warrantyPeriodResult.IsSuccess) return Result<ElectronicsProduct>.Failure(warrantyPeriodResult.Error);
+
+        return Result<ElectronicsProduct>.Success(new ElectronicsProduct
+        {
+            Brand = brandResult.Value!,
+            Model = modelResult.Value!,
+            WarrantyPeriod = warrantyPeriodResult.Value
+        });
+    }
+
+    private static Result<ClothingProduct> MapClothingProduct(IDictionary<string, object> dynamicFields)
+    {
+        var sizeResult = GetRequiredField(dynamicFields, "Size");
+        var materialResult = GetRequiredField(dynamicFields, "Material");
+        var genderResult = GetRequiredField(dynamicFields, "Gender");
+
+        if (!sizeResult.IsSuccess) return Result<ClothingProduct>.Failure(sizeResult.Error);
+        if (!materialResult.IsSuccess) return Result<ClothingProduct>.Failure(materialResult.Error);
+        if (!genderResult.IsSuccess) return Result<ClothingProduct>.Failure(genderResult.Error);
+
+        return Result<ClothingProduct>.Success(new ClothingProduct
+        {
+            Size = sizeResult.Value!,
+            Material = materialResult.Value!,
+            Gender = genderResult.Value!
+        });
+    }
     
+    private static Result<BookProduct> MapBookProduct(IDictionary<string, object> dynamicFields)
+    {
+        var authorResult = GetRequiredField(dynamicFields, "Author");
+        var publisherResult = GetRequiredField(dynamicFields, "Publisher");
+        var pagesResult = GetOptionalField<int>(dynamicFields, "Pages");
+        var isbnResult = GetRequiredField(dynamicFields, "Isbn");
+
+        if (!authorResult.IsSuccess) return Result<BookProduct>.Failure(authorResult.Error);
+        if (!publisherResult.IsSuccess) return Result<BookProduct>.Failure(publisherResult.Error);
+        if (!pagesResult.IsSuccess) return Result<BookProduct>.Failure(pagesResult.Error);
+        if (!isbnResult.IsSuccess) return Result<BookProduct>.Failure(isbnResult.Error);
+
+        return Result<BookProduct>.Success(new BookProduct
+        {
+            Author = authorResult.Value!,
+            Publisher = publisherResult.Value!,
+            Pages = pagesResult.Value,
+            Isbn = isbnResult.Value!
+        });
+    }
+    
+    private static Result<HomeAppliancesProduct> MapHomeAppliancesProduct(IDictionary<string, object> dynamicFields)
+    {
+        var brandResult = GetRequiredField(dynamicFields, "Brand");
+        var powerConsumptionResult = GetOptionalField<int>(dynamicFields, "PowerConsumption");
+        var isEnergyEfficientResult = GetOptionalField<bool>(dynamicFields, "IsEnergyEfficient");
+
+        if (!brandResult.IsSuccess) return Result<HomeAppliancesProduct>.Failure(brandResult.Error);
+        if (!powerConsumptionResult.IsSuccess) return Result<HomeAppliancesProduct>.Failure(powerConsumptionResult.Error);
+        if (!isEnergyEfficientResult.IsSuccess) return Result<HomeAppliancesProduct>.Failure(isEnergyEfficientResult.Error);
+
+        return Result<HomeAppliancesProduct>.Success(new HomeAppliancesProduct
+        {
+            Brand = brandResult.Value!,
+            PowerConsumption = powerConsumptionResult.Value,
+            IsEnergyEfficient = isEnergyEfficientResult.Value
+        });
+    }
+    private static Result<ToyProduct> MapToyProduct(IDictionary<string, object> dynamicFields)
+    {
+        var minimumAgeResult = GetOptionalField<int>(dynamicFields, "MinimumAge");
+        var materialResult = GetRequiredField(dynamicFields, "Material");
+        var isEducationalResult = GetOptionalField<bool>(dynamicFields, "IsEducational");
+
+        if (!minimumAgeResult.IsSuccess) return Result<ToyProduct>.Failure(minimumAgeResult.Error);
+        if (!materialResult.IsSuccess) return Result<ToyProduct>.Failure(materialResult.Error);
+        if (!isEducationalResult.IsSuccess) return Result<ToyProduct>.Failure(isEducationalResult.Error);
+
+        return Result<ToyProduct>.Success(new ToyProduct
+        {
+            MinimumAge = minimumAgeResult.Value,
+            Material = materialResult.Value!,
+            IsEducational = isEducationalResult.Value
+        });
+    }
+
+    private static Result<SportsProduct> MapSportsProduct(IDictionary<string, object> dynamicFields)
+    {
+        var sportTypeResult = GetRequiredField(dynamicFields, "SportType");
+        var brandResult = GetRequiredField(dynamicFields, "Brand");
+        var sizeResult = GetRequiredField(dynamicFields, "Size");
+
+        if (!sportTypeResult.IsSuccess) return Result<SportsProduct>.Failure(sportTypeResult.Error);
+        if (!brandResult.IsSuccess) return Result<SportsProduct>.Failure(brandResult.Error);
+        if (!sizeResult.IsSuccess) return Result<SportsProduct>.Failure(sizeResult.Error);
+
+        return Result<SportsProduct>.Success(new SportsProduct
+        {
+            SportType = sportTypeResult.Value!,
+            Brand = brandResult.Value!,
+            Size = sizeResult.Value!
+        });
+    }
+
+    private static Result<HealthProduct> MapHealthProduct(IDictionary<string, object> dynamicFields)
+    {
+        var ingredientsResult = GetRequiredField(dynamicFields, "Ingredients");
+        var isOrganicResult = GetOptionalField<bool>(dynamicFields, "IsOrganic");
+        var usageInstructionsResult = GetRequiredField(dynamicFields, "UsageInstructions");
+
+        if (!ingredientsResult.IsSuccess) return Result<HealthProduct>.Failure(ingredientsResult.Error);
+        if (!isOrganicResult.IsSuccess) return Result<HealthProduct>.Failure(isOrganicResult.Error);
+        if (!usageInstructionsResult.IsSuccess) return Result<HealthProduct>.Failure(usageInstructionsResult.Error);
+
+        return Result<HealthProduct>.Success(new HealthProduct
+        {
+            Ingredients = ingredientsResult.Value!,
+            IsOrganic = isOrganicResult.Value,
+            UsageInstructions = usageInstructionsResult.Value!
+        });
+    }
+
+    private static Result<BeautyProduct> MapBeautyProduct(IDictionary<string, object> dynamicFields)
+    {
+        var ingredientsResult = GetRequiredField(dynamicFields, "Ingredients");
+        var skinTypeResult = GetRequiredField(dynamicFields, "SkinType");
+        var volumeResult = GetOptionalField<int>(dynamicFields, "Volume");
+
+        if (!ingredientsResult.IsSuccess) return Result<BeautyProduct>.Failure(ingredientsResult.Error);
+        if (!skinTypeResult.IsSuccess) return Result<BeautyProduct>.Failure(skinTypeResult.Error);
+        if (!volumeResult.IsSuccess) return Result<BeautyProduct>.Failure(volumeResult.Error);
+
+        return Result<BeautyProduct>.Success(new BeautyProduct
+        {
+            Ingredients = ingredientsResult.Value!,
+            SkinType = skinTypeResult.Value!,
+            Volume = volumeResult.Value
+        });
+    }
+
+    private static Result<AutomotiveProduct> MapAutomotiveProduct(IDictionary<string, object> dynamicFields)
+    {
+        var brandResult = GetRequiredField(dynamicFields, "Brand");
+        var modelResult = GetRequiredField(dynamicFields, "Model");
+        var yearResult = GetOptionalField<int>(dynamicFields, "Year");
+        var compatibilityResult = GetRequiredField(dynamicFields, "Compatibility");
+
+        if (!brandResult.IsSuccess) return Result<AutomotiveProduct>.Failure(brandResult.Error);
+        if (!modelResult.IsSuccess) return Result<AutomotiveProduct>.Failure(modelResult.Error);
+        if (!yearResult.IsSuccess) return Result<AutomotiveProduct>.Failure(yearResult.Error);
+        if (!compatibilityResult.IsSuccess) return Result<AutomotiveProduct>.Failure(compatibilityResult.Error);
+
+        return Result<AutomotiveProduct>.Success(new AutomotiveProduct
+        {
+            Brand = brandResult.Value!,
+            Model = modelResult.Value!,
+            Year = yearResult.Value,
+            Compatibility = compatibilityResult.Value!
+        });
+    }
+
+    private static Result<FoodAndBeverageProduct> MapFoodAndBeverageProduct(IDictionary<string, object> dynamicFields)
+    {
+        var ingredientsResult = GetRequiredField(dynamicFields, "Ingredients");
+        var expiryDateResult = GetOptionalField<DateTime>(dynamicFields, "ExpiryDate");
+        var isVegetarianResult = GetOptionalField<bool>(dynamicFields, "IsVegetarian");
+        var volumeOrWeightResult = GetOptionalField<int>(dynamicFields, "VolumeOrWeight");
+
+        if (!ingredientsResult.IsSuccess) return Result<FoodAndBeverageProduct>.Failure(ingredientsResult.Error);
+        if (!expiryDateResult.IsSuccess) return Result<FoodAndBeverageProduct>.Failure(expiryDateResult.Error);
+        if (!isVegetarianResult.IsSuccess) return Result<FoodAndBeverageProduct>.Failure(isVegetarianResult.Error);
+        if (!volumeOrWeightResult.IsSuccess) return Result<FoodAndBeverageProduct>.Failure(volumeOrWeightResult.Error);
+
+        return Result<FoodAndBeverageProduct>.Success(new FoodAndBeverageProduct
+        {
+            Ingredients = ingredientsResult.Value!,
+            ExpiryDate = expiryDateResult.Value,
+            IsVegetarian = isVegetarianResult.Value,
+            VolumeOrWeight = volumeOrWeightResult.Value
+        });
+    }
+
+    private static Result<string> GetRequiredField(IDictionary<string, object> dynamicFields, string key)
+    {
+        if (!dynamicFields.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value.ToString()))
+        {
+            return Result<string>.Failure(ProductValidationErrors.MissingField(key));
+        }
+        return Result<string>.Success(value.ToString()!);
+    }
+
+    private static Result<T> GetOptionalField<T>(IDictionary<string, object> dynamicFields, string key)
+    {
+        if (!dynamicFields.TryGetValue(key, out var value))
+            return Result<T>.Failure(ProductValidationErrors.MissingField(key));
+        try
+        {
+            if (typeof(T) == typeof(int))
+            {
+                return Result<T>.Success((T)(object)GetInt(value));
+            }
+            if (typeof(T) == typeof(decimal))
+            {
+                return Result<T>.Success((T)(object)GetDecimal(value));
+            }
+            if (typeof(T) == typeof(bool))
+            {
+                return Result<T>.Success((T)(object)GetBool(value));
+            }
+            if (typeof(T) == typeof(DateTime))
+            {
+                return Result<T>.Success((T)(object)GetDateTime(value));
+            }
+            return Result<T>.Success((T)Convert.ChangeType(value, typeof(T)));
+        }
+        catch (InvalidCastException)
+        {
+            return Result<T>.Failure(ProductValidationErrors.InvalidField(key));
+        }
+        catch (FormatException)
+        {
+            return Result<T>.Failure(ProductValidationErrors.InvalidField(key));
+        }
+    }
     private static decimal GetDecimal(object value)
     {
         if (value is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Number)
@@ -85,7 +326,6 @@ public static class ProductMappers
         }
         return Convert.ToDecimal(value);
     }
-
     private static int GetInt(object value)
     {
         if (value is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Number)
@@ -94,4 +334,37 @@ public static class ProductMappers
         }
         return Convert.ToInt32(value);
     }
+    private static bool GetBool(object value)
+    {
+        if (value is JsonElement jsonElement && (jsonElement.ValueKind == JsonValueKind.True || jsonElement.ValueKind == JsonValueKind.False))
+        {
+            return jsonElement.GetBoolean();
+        }
+        return Convert.ToBoolean(value);
+    }
+    
+    private static DateTime GetDateTime(object value)
+    {
+        if (value is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.String)
+        {
+            if (DateTime.TryParse(jsonElement.GetString(), out var dateTime))
+            {
+                return dateTime;
+            }
+            throw new FormatException($"Invalid date format: {jsonElement.GetString()}");
+        }
+
+        if (value is string stringValue)
+        {
+            if (DateTime.TryParse(stringValue, out var dateTime))
+            {
+                return dateTime;
+            }
+            throw new FormatException($"Invalid date format: {stringValue}");
+        }
+
+        return Convert.ToDateTime(value);
+    }
+
+
 }

@@ -1,10 +1,15 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Entities;
+using Products.Domain.Entities.Products;
 
 namespace Products.Domain.Entities;
 [Collection("Products")]
 [BsonDiscriminator(RootClass = true)]
+[BsonKnownTypes(typeof(ElectronicsProduct), typeof(ClothingProduct),
+    typeof(BookProduct), typeof(HomeAppliancesProduct), typeof(ToyProduct),
+    typeof(SportsProduct), typeof(BeautyProduct), typeof(HealthProduct),
+    typeof(AutomotiveProduct), typeof(FoodAndBeverageProduct))]
 public class Product : Entity
 {
     public string Name { get; set; } = null!;
