@@ -25,7 +25,10 @@ public class UserRepository(UsersDbContext dbContext) : IUserRepository
 
     public async Task<Result<User?>> GetUserByEmailAsync(string email , CancellationToken cancellationToken = default)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        var user = await dbContext.Users
+            .Include(u => u.Roles)!
+            .ThenInclude(r => r.Permissions)
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
         
         if (user == null)
         {
