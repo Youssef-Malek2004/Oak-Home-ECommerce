@@ -48,6 +48,29 @@
     environment:
       - ASPNETCORE_URLS=http://+:5200
       - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      products.database:
+        condition: service_healthy
+    restart: always
+    networks:
+      - proxyBackend
+      
+  products.database:
+    image: mongo:latest
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    container_name: products.database
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    volumes:
+      - ./.containers/mongo-db:/data/db
     networks:
       - proxyBackend
         

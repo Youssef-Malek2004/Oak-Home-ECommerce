@@ -12,5 +12,7 @@ public static class ProductErrors
     public static Error ProductEditFailed(string exceptionMessage) => new("Products.ProductEditFailed", $"Failed to edit product: {exceptionMessage}");
     public static Error ProductAlreadyExists(string sku) => new("Products.ProductAlreadyExists", $"A product with SKU '{sku}' already exists.");
     public static Error InvalidProductData(string reason) => new("Products.InvalidProductData", $"Invalid product data: {reason}");
+    public static Error ProductUpdateFailedDeleted(string id) => new("Products.ProductUpdateFailedDeleted", $"Product {id} is marked as deleted and cannot be updated");
+    public static Error ProductToggleFeatureFailed(string message) => new("Product.ToggleFeatureFailed", message);
     
 }

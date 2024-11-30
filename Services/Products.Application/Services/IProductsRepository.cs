@@ -14,4 +14,6 @@ public interface IProductsRepository
     Task<Result> DeleteProduct(string id); 
     Task<Result<IEnumerable<Product>>> GetProductsByCategory(string categoryId);
     Task<Result<IEnumerable<Product>>> SearchProducts(string searchTerm);
+    Task<Result> ToggleSoftDeleteProduct(string id);
+    Task<Result<Product>> ToggleFeaturedStatus(string productId);
 }

@@ -5,7 +5,6 @@ using Products.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -15,7 +14,7 @@ builder.Services.ConfigureMediatR();
 
 var app = builder.Build();
 
-app.InitializeDatabaseConnection();
+app.InitializeDatabaseConnection(true, app.Services);
 
 if (app.Environment.IsDevelopment())
 {

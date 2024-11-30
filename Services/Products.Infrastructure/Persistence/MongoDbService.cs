@@ -11,7 +11,7 @@ public class MongoDbService : IMongoDbService
 
     public MongoDbService(IOptions<MongoSettings> mongoSettings)
     {
-        var mongoUrl = MongoUrl.Create(mongoSettings.Value.ConnectionString);
+        var mongoUrl = MongoUrl.Create(mongoSettings.Value.ConnectionStringLocal);
         var mongoClient = new MongoClient(mongoUrl);
         _mongoDatabase = mongoClient.GetDatabase(mongoUrl.DatabaseName);
     }

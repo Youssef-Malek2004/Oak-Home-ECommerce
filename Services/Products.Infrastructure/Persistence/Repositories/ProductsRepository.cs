@@ -52,11 +52,17 @@ public class ProductsRepository : IProductsRepository
             return Result<Product>.Failure(ProductErrors.ProductNotFoundId(id));
         }
         
+        if (product.IsDeleted)
+        {
+            return Result<Product>.Failure(ProductErrors.ProductUpdateFailedDeleted(id));
+        }
+        
         ProductMappers.MapUpdateProductDtoToProduct(productDto, product); 
 
         if (dynamicFields != null)
         {
-            var category = await DB.Find<Category>().Match(c => c.ID == product.CategoryId).ExecuteFirstAsync();
+            var productNoWarning = product;
+            var category = await DB.Find<Category>().Match(c => c.ID == productNoWarning.CategoryId).ExecuteFirstAsync();
             
             if (category == null)
             {
@@ -89,6 +95,23 @@ public class ProductsRepository : IProductsRepository
 
         return result.DeletedCount == 0 ? Result.Failure(ProductErrors.ProductRemoveFailed("Check Product Id as unsuccessful Deletion")) : Result.Success();
     }
+    
+    public async Task<Result> ToggleSoftDeleteProduct(string id)
+    {
+        var product = await DB.Find<Product>().Match(p => p.ID == id).ExecuteFirstAsync();
+
+        if (product == null)
+        {
+            return Result.Failure(ProductErrors.ProductNotFoundId(id));
+        }
+        
+        product.IsDeleted = !product.IsDeleted;
+        product.UpdatedAt = DateTime.UtcNow; 
+        
+        await DB.SaveAsync(product);
+
+        return Result.Success();
+    }
 
     public async Task<Result<IEnumerable<Product>>> GetProductsByCategory(string categoryId)
     {
@@ -98,11 +121,37 @@ public class ProductsRepository : IProductsRepository
 
     public async Task<Result<IEnumerable<Product>>> SearchProducts(string searchTerm)
     {
+        var lowerCaseSearchTerm = searchTerm.ToLower();
+
         var products = await DB.Find<Product>()
-            .Match(p => p.Name.ToLower().Contains(searchTerm.ToLower()) || p.Description.ToLower().Contains(searchTerm.ToLower()))
+            .Match(p => p.Name.ToLower().Contains(lowerCaseSearchTerm) ||
+                        p.Description.ToLower().Contains(lowerCaseSearchTerm) ||
+                        p.Tags.Any(tag => tag.ToLower().Contains(lowerCaseSearchTerm)))
             .ExecuteAsync();
 
         return Result<IEnumerable<Product>>.Success(products);
+    }
+    
+    public async Task<Result<Product>> ToggleFeaturedStatus(string productId)
+    {
+        var product = await DB.Find<Product>().Match(p => p.ID == productId).ExecuteFirstAsync();
+
+        if (product == null)
+        {
+            return Result<Product>.Failure(ProductErrors.ProductNotFoundId(productId));
+        }
+        
+        if (product.IsDeleted)
+        {
+            return Result<Product>.Failure(ProductErrors.ProductToggleFeatureFailed("Product is marked as deleted and cannot have its featured status toggled."));
+        }
+        
+        product.Featured = !product.Featured;
+        product.UpdatedAt = DateTime.UtcNow;
+        
+        await DB.SaveAsync(product);
+
+        return Result<Product>.Success(product);
     }
     
 }

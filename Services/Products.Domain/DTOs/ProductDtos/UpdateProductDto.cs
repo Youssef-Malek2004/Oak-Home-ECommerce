@@ -8,5 +8,6 @@ public class UpdateProductDto
     public string? Sku { get; set; } 
     public string? VendorId { get; set; } 
     public string? CategoryId { get; set; } 
-    public List<string>? ImageUrls { get; set; } 
+    public List<string>? ImageUrls { get; set; }
+    public bool Featured { get; set; }
 }

@@ -28,5 +28,7 @@ public class Product : Entity
     public List<string> Tags { get; set; } = [];
     public string Sku { get; set; } = null!;
     public decimal Price { get; set; }
+    public bool IsDeleted { get; set; } = false; 
+    public bool Featured { get; set; } = false;  
 
 }

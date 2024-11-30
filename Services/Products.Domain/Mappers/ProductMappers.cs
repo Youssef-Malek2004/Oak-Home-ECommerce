@@ -62,7 +62,8 @@ public static class ProductMappers
 
         if (productDto.ImageUrls != null && productDto.ImageUrls.Any())
             product.ImageUrls = productDto.ImageUrls;
-
+        
+        product.Featured = productDto.Featured;
         product.UpdatedAt = DateTime.UtcNow;
     }
     public static Result<Product> MapDynamicFieldsToProduct(Category category, IDictionary<string, object>? dynamicFields)
