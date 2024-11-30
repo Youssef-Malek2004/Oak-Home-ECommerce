@@ -27,9 +27,9 @@ public static class ProductsEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
 
-        app.MapPut("products/{id}", async (string id, [FromBody] UpdateProductDto updateProductDto, IMediator mediator) =>
+        app.MapPut("products/{id}", async (string id, [FromBody] UpdateProductRequest updateProductRequest, IMediator mediator) =>
         {
-            var result = await mediator.Send(new UpdateProductCommand(id, updateProductDto));
+            var result = await mediator.Send(new UpdateProductCommand(id, updateProductRequest.UpdateProductDto, updateProductRequest.DynamicFields));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
 

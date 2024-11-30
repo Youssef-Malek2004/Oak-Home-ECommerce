@@ -65,7 +65,7 @@ public static class ProductMappers
 
         product.UpdatedAt = DateTime.UtcNow;
     }
-    private static Result<Product> MapDynamicFieldsToProduct(Category category, IDictionary<string, object>? dynamicFields)
+    public static Result<Product> MapDynamicFieldsToProduct(Category category, IDictionary<string, object>? dynamicFields)
     {
         if (dynamicFields == null)
         {
@@ -366,5 +366,75 @@ public static class ProductMappers
         return Convert.ToDateTime(value);
     }
 
+    public static Product CopyDynamicFieldsToExistingProduct(Product existingProduct, Product updatedProduct)
+    {
+        switch (existingProduct)
+        {
+            case ElectronicsProduct electronics when updatedProduct is ElectronicsProduct updatedElectronics:
+                electronics.Brand = updatedElectronics.Brand;
+                electronics.Model = updatedElectronics.Model;
+                electronics.WarrantyPeriod = updatedElectronics.WarrantyPeriod;
+                break;
+
+            case ClothingProduct clothing when updatedProduct is ClothingProduct updatedClothing:
+                clothing.Size = updatedClothing.Size;
+                clothing.Material = updatedClothing.Material;
+                clothing.Gender = updatedClothing.Gender;
+                break;
+
+            case BookProduct book when updatedProduct is BookProduct updatedBook:
+                book.Author = updatedBook.Author;
+                book.Publisher = updatedBook.Publisher;
+                book.Pages = updatedBook.Pages;
+                book.Isbn = updatedBook.Isbn;
+                break;
+
+            case HomeAppliancesProduct homeAppliance when updatedProduct is HomeAppliancesProduct updatedHomeAppliance:
+                homeAppliance.Brand = updatedHomeAppliance.Brand;
+                homeAppliance.PowerConsumption = updatedHomeAppliance.PowerConsumption;
+                homeAppliance.IsEnergyEfficient = updatedHomeAppliance.IsEnergyEfficient;
+                break;
+
+            case ToyProduct toy when updatedProduct is ToyProduct updatedToy:
+                toy.MinimumAge = updatedToy.MinimumAge;
+                toy.Material = updatedToy.Material;
+                toy.IsEducational = updatedToy.IsEducational;
+                break;
+
+            case SportsProduct sports when updatedProduct is SportsProduct updatedSports:
+                sports.SportType = updatedSports.SportType;
+                sports.Brand = updatedSports.Brand;
+                sports.Size = updatedSports.Size;
+                break;
+
+            case HealthProduct health when updatedProduct is HealthProduct updatedHealth:
+                health.Ingredients = updatedHealth.Ingredients;
+                health.IsOrganic = updatedHealth.IsOrganic;
+                health.UsageInstructions = updatedHealth.UsageInstructions;
+                break;
+
+            case BeautyProduct beauty when updatedProduct is BeautyProduct updatedBeauty:
+                beauty.Ingredients = updatedBeauty.Ingredients;
+                beauty.SkinType = updatedBeauty.SkinType;
+                beauty.Volume = updatedBeauty.Volume;
+                break;
+
+            case AutomotiveProduct automotive when updatedProduct is AutomotiveProduct updatedAutomotive:
+                automotive.Brand = updatedAutomotive.Brand;
+                automotive.Model = updatedAutomotive.Model;
+                automotive.Year = updatedAutomotive.Year;
+                automotive.Compatibility = updatedAutomotive.Compatibility;
+                break;
+
+            case FoodAndBeverageProduct food when updatedProduct is FoodAndBeverageProduct updatedFood:
+                food.Ingredients = updatedFood.Ingredients;
+                food.ExpiryDate = updatedFood.ExpiryDate;
+                food.IsVegetarian = updatedFood.IsVegetarian;
+                food.VolumeOrWeight = updatedFood.VolumeOrWeight;
+                break;
+        }
+
+        return existingProduct;
+    }
 
 }

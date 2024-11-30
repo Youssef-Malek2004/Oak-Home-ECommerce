@@ -43,7 +43,7 @@ public class ProductsRepository : IProductsRepository
         return product == null ? Result<Product>.Failure(ProductErrors.ProductNotFoundId(id)) : Result<Product>.Success(product);
     }
 
-    public async Task<Result<Product>> UpdateProduct(string id, UpdateProductDto productDto)
+    public async Task<Result<Product>> UpdateProduct(string id, UpdateProductDto productDto, IDictionary<string, object>? dynamicFields)
     {
         var product = await DB.Find<Product>().Match(p => p.ID == id).ExecuteFirstAsync();
 
@@ -52,8 +52,32 @@ public class ProductsRepository : IProductsRepository
             return Result<Product>.Failure(ProductErrors.ProductNotFoundId(id));
         }
         
-        ProductMappers.MapUpdateProductDtoToProduct(productDto, product);
+        ProductMappers.MapUpdateProductDtoToProduct(productDto, product); 
 
+        if (dynamicFields != null)
+        {
+            var category = await DB.Find<Category>().Match(c => c.ID == product.CategoryId).ExecuteFirstAsync();
+            
+            if (category == null)
+            {
+                return Result<Product>.Failure(CategoryErrors.CategoryNotFoundId(product.CategoryId));
+            }
+
+            var dynamicFieldsResult = ProductMappers.MapDynamicFieldsToProduct(category, dynamicFields);
+
+            if (dynamicFieldsResult.IsFailure)
+            {
+                return Result<Product>.Failure(dynamicFieldsResult.Error);
+            }
+
+            var updatedProduct = dynamicFieldsResult.Value;
+
+            if (updatedProduct != null)
+            {
+                product = ProductMappers.CopyDynamicFieldsToExistingProduct(product, updatedProduct);
+            }
+        }
+        
         await DB.SaveAsync(product);
         return Result<Product>.Success(product);
     }

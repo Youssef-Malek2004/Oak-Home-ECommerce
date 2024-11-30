@@ -11,6 +11,6 @@ public class UpdateProductHandler(IProductsRepository repository)
 {
     public async Task<Result<Product>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
-        return await repository.UpdateProduct(request.Id, request.Product);
+        return await repository.UpdateProduct(request.Id, request.Product, request.DynamicFields);
     }
 }
