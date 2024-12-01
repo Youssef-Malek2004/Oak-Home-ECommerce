@@ -80,11 +80,35 @@
       context: .
       dockerfile: Services/Inventory.Api/Dockerfile
     ports:
-      - "5200:5200"
-      - "5201:5201"
+      - "5300:5300"
+      - "5301:5301"
     environment:
-      - ASPNETCORE_URLS=http://+:5200
+      - ASPNETCORE_URLS=http://+:5300
       - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      inventory.database:
+        condition: service_healthy
+        restart: true
+    networks:
+      - proxyBackend
+
+  inventory.database:
+    image: postgres:latest
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d inventory" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    container_name: inventory.database
+    environment:
+      - POSTGRES_DB=inventory
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/inventory-db-3:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
     networks:
       - proxyBackend
   

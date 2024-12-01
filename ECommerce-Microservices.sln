@@ -1,6 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{FFE6BE3A-81B0-40D3-B605-2BC56F0EB170}"
+	ProjectSection(SolutionItems) = preProject
+		Services\docker-compose.dev.yml = Services\docker-compose.dev.yml
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Api", "Users.Api\Users.Api.csproj", "{D050A73C-FDEF-4C5A-A7BA-6807D0E08C12}"
 EndProject
