@@ -1,5 +1,23 @@
 # This is a generated file. Not intended for manual editing.
 services:
+  inventory.api:
+    build:
+      context: "/Users/youssefmalek/RiderProjects/ECommerce-Microservices"
+      dockerfile: "Services/Inventory.Api/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Inventory.Api.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "inventory.api:dev"
+    ports: []
+    volumes:
+    - "/Users/youssefmalek/.nuget/packages:/home/app/.nuget/packages"
+    - "/Users/youssefmalek/RiderProjects/ECommerce-Microservices/Services/Inventory.Api:/app:rw"
+    - "/Users/youssefmalek/RiderProjects/ECommerce-Microservices:/src:rw"
+    working_dir: "/app"
   products.api:
     build:
       context: "/Users/youssefmalek/RiderProjects/ECommerce-Microservices"
