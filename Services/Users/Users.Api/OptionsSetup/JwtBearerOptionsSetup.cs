@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +15,7 @@ public class JwtBearerOptionsSetup(IOptions<JwtOptions> jwtOptions) : IConfigure
         var rsa = new RSACryptoServiceProvider();
         rsa.ImportFromPem(_jwtOptions.PublicKey);
         
-        options.TokenValidationParameters = new()
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
@@ -24,7 +23,6 @@ public class JwtBearerOptionsSetup(IOptions<JwtOptions> jwtOptions) : IConfigure
             ValidateIssuerSigningKey = true,
             ValidIssuer = _jwtOptions.Issuer,
             ValidAudience = _jwtOptions.Audience,
-            // IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey))
             IssuerSigningKey = new RsaSecurityKey(rsa),
         };
     }

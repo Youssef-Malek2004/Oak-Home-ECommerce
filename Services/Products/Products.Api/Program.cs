@@ -52,6 +52,7 @@ app.Lifetime.ApplicationStopped.Register(() =>
     Console.WriteLine("Application stopped.");
 });
 
+app.UseMiddleware<CookieToJwtMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

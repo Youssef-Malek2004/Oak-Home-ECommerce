@@ -1,5 +1,6 @@
 using Abstractions.ResultsPattern;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Users.Application.CQRS.Commands;
 using Users.Application.Services;
 using Users.Domain;
@@ -25,7 +26,17 @@ public class LoginCommandHandler(IUnitOfWork unitOfWork, IJwtProvider jwtProvide
             return Result<string>.Failure(UserErrors.InvalidCredentials);
         }
 
+        if (user is null) return Result<string>.Failure(UserErrors.UserNotFoundEmail("Error during Login"));
+        
         var token = jwtProvider.Generate(user);
+        
+        request.HttpContext.Response.Cookies.Append("auth_token", token, new CookieOptions
+        {
+            HttpOnly = true, 
+            Secure = true,   
+            SameSite = SameSiteMode.Strict, 
+            Expires = DateTime.UtcNow.AddDays(7) 
+        });
 
         return Result<string>.Success(token);
     }

@@ -10,7 +10,7 @@ public static class GlobalEndpoints
 {
     public static void MapGlobalEndpoints(this IEndpointRouteBuilder app)
     {
-        var globalEndpoints = app.MapGroup("");
+        var globalEndpoints = app.MapGroup("users");
         
         globalEndpoints.MapPost("/signup/user", async ([FromBody] SignUpDto signUpDto ,IMediator mediator) =>
         {
@@ -30,10 +30,20 @@ public static class GlobalEndpoints
         //     return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         // });
 
-        globalEndpoints.MapPost("/login", async ([FromBody] LoginDto loginDto, IMediator mediator, CancellationToken cancellationToken) =>
+        globalEndpoints.MapPost("/login", async ([FromBody] LoginDto loginDto, HttpContext httpContext, IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new LoginCommand(loginDto), cancellationToken);
+            var result = await mediator.Send(new LoginCommand(loginDto, httpContext), cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+        });
+        
+        globalEndpoints.MapPost("/logout", (HttpContext httpContext) =>
+        {
+            httpContext.Response.Cookies.Append("auth_token", "", new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(-1)
+            });
+
+            return Results.Ok();
         });
     }
 }

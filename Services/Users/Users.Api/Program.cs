@@ -1,5 +1,6 @@
 using Users.Api.Endpoints;
 using Users.Api.Extensions;
+using Users.Api.Middlewares;
 using Users.Api.OptionsSetup;
 using Users.Infrastructure;
 
@@ -37,8 +38,8 @@ endpoints.MapAdminEndpoints();
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<CookieToJwtMiddleware>();
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();
