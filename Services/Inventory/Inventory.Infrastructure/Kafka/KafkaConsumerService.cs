@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Inventory.Infrastructure.Kafka;
 
-public class KafkaConsumerService(IOptions<KafkaSettings> settings) : IKafkaConsumerService
+public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient adminClient) : IKafkaConsumerService
 {
     private const string InitialGroupInstanceId = "inventory-service-instance";
     public void StartConsuming<T>(string topic ,string groupInstanceName,
@@ -21,6 +21,15 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings) : IKafkaCons
             GroupInstanceId = InitialGroupInstanceId + groupInstanceName, //Works Fine without it now :)
             AutoOffsetReset = AutoOffsetReset.Earliest,
         };
+        
+        var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(10));
+        
+        if (!metadata.Topics.Any(t => t.Topic == topic && t.Error.Code == ErrorCode.NoError))
+        {
+            Console.WriteLine($"Error: Topic '{topic}' does not exist.");
+            return;
+        }
+        
         using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
         
         consumer.Subscribe(topic);
