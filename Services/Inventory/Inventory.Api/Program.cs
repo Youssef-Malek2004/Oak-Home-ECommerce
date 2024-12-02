@@ -1,5 +1,8 @@
 using Inventory.Api.Extensions;
+using Inventory.Application.CQRS.EventHandlers;
 using Inventory.Application.KafkaSettings;
+using Inventory.Application.Services;
+using Inventory.Domain;
 using Inventory.Infrastructure;
 using Inventory.Infrastructure.Kafka;
 using Shared.Contracts.Events;
@@ -11,9 +14,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddPersistence(builder.Configuration);
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
-builder.Services.AddSingleton<KafkaProducerService>();
-builder.Services.AddSingleton<KafkaConsumerService>();
+builder.Services.AddSingleton<IKafkaProducerService,KafkaProducerService>();
+builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 builder.Services.AddSingleton<KafkaDispatcher>();
+
+builder.Services.AddMediatR(cfg => 
+    cfg.RegisterServicesFromAssemblyContaining<ProductCreatedHandler>());
 
 builder.Services.AddHostedService<KafkaHostedService>();
 
@@ -26,18 +32,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("test", async (HttpContext context, HttpRequest request, KafkaProducerService kafkaProducer, CancellationToken cancellationToken ) =>
+app.MapGet("test", async ( IKafkaProducerService kafkaProducer, CancellationToken cancellationToken ) =>
 {
     await kafkaProducer.SendMessageAsync("testing-events", new TestEvent
     {
         Name = $"Sample Product {DateTime.UtcNow}",
     }, cancellationToken);
-    
-    // await kafkaProducer.SendMessageAsync("testing-events", new Test2
-    // {
-    //     Name = $"Sample Product 2 {DateTime.UtcNow}",
-    //     Num = 2
-    // }, cancellationToken);
+});
+
+app.MapGet("GetInventories", async (IUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+{
+    var result = await unitOfWork.InventoryRepository.GetInventoriesAsync(cancellationToken);
+    return Results.Ok(result.Value);
 });
 
 app.Lifetime.ApplicationStarted.Register(() =>

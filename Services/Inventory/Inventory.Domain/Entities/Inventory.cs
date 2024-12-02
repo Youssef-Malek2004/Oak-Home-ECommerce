@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inventory.Domain.Entities;
 
-public class Inventory
+public class Inventories
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();

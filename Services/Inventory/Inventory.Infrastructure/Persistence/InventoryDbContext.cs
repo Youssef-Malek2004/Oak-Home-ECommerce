@@ -1,4 +1,5 @@
 using Inventory.Application.Services;
+using Inventory.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Infrastructure.Persistence;
@@ -14,7 +15,7 @@ public class InventoryDbContext : DbContext, IInventoryDbContext
     {
     }
     
-    public DbSet<Domain.Entities.Inventory> Inventory { get; set; }
+    public DbSet<Inventories> Inventory { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

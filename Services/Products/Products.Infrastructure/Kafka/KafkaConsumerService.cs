@@ -12,7 +12,7 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings)
         BootstrapServers = settings.Value.BootstrapServers,
         GroupId = settings.Value.GroupId,
         AllowAutoCreateTopics = true,
-        // GroupInstanceId = "inventory-service-instance",
+        GroupInstanceId = "products-service-instance",
         AutoOffsetReset = AutoOffsetReset.Earliest,
     };
 

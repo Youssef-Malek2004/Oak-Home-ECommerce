@@ -1,18 +1,20 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using Inventory.Application.KafkaSettings;
+using Inventory.Application.Services;
 using Microsoft.Extensions.Options;
 
 namespace Inventory.Infrastructure.Kafka;
 
-public class KafkaConsumerService(IOptions<KafkaSettings> settings)
+public class KafkaConsumerService(IOptions<KafkaSettings> settings) : IKafkaConsumerService
 {
     private readonly ConsumerConfig _config = new()
     {
         BootstrapServers = settings.Value.BootstrapServers,
         GroupId = settings.Value.GroupId,
         AllowAutoCreateTopics = true,
-        // GroupInstanceId = "inventory-service-instance",
+        EnableAutoCommit = true,
+        GroupInstanceId = "inventory-service-instance",
         AutoOffsetReset = AutoOffsetReset.Earliest,
     };
 

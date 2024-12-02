@@ -1,11 +1,12 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using Inventory.Application.KafkaSettings;
+using Inventory.Application.Services;
 using Microsoft.Extensions.Options;
 
 namespace Inventory.Infrastructure.Kafka;
 
-public class KafkaProducerService
+public class KafkaProducerService : IKafkaProducerService
 {
     private readonly IProducer<string, string> _producer;
 

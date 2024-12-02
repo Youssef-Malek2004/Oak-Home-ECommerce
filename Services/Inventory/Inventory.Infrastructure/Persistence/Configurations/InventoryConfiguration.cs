@@ -1,11 +1,12 @@
+using Inventory.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Inventory.Infrastructure.Persistence.Configurations;
 
-public class InventoryConfiguration : IEntityTypeConfiguration<Domain.Entities.Inventory>
+public class InventoryConfiguration : IEntityTypeConfiguration<Inventories>
 {
-    public void Configure(EntityTypeBuilder<Domain.Entities.Inventory> builder)
+    public void Configure(EntityTypeBuilder<Inventories> builder)
     {
         builder.HasKey(i => i.Id);
 
