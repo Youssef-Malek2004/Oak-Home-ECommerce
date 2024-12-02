@@ -1,7 +1,5 @@
 using Abstractions.ResultsPattern;
 using MediatR;
-using Products.Domain.DTOs;
-using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
 using Shared.Contracts.RequestDtosAndMappers.ProductDtos;
 

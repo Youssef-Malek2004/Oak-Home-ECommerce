@@ -2,7 +2,6 @@ using Inventory.Application.CQRS.Events;
 using Inventory.Application.Services;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Contracts.Events;
 using Shared.Contracts.Events.ProductEvents;
 using Shared.Contracts.Topics;
 

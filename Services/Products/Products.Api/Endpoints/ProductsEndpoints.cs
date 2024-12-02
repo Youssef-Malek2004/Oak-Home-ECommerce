@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Products.Application.CQRS.CommandsAndQueries.Products;
 using Products.Domain.DTOs.ProductDtos;
+using Products.Domain.Entities;
+using Products.Infrastructure.Authentication;
 
 namespace Products.Api.Endpoints;
 
@@ -27,7 +29,7 @@ public static class ProductsEndpoints
         {
             var result = await mediator.Send(new CreateProductCommand(request.AddProductInventoryFields, request.CreateProductDto, request.DynamicFields));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        });
+        }).HasRole(Roles.Vendor.Name);
 
         productsEndpoints.MapPut("{id}", async (string id, [FromBody] UpdateProductRequest updateProductRequest, IMediator mediator) =>
         {
