@@ -1,8 +1,11 @@
 using Products.Api.Endpoints;
 using Products.Api.Middlewares;
 using Products.Api.OptionsSetup;
+using Products.Application.KafkaSettings;
+using Products.Application.Services.Kafka;
 using Products.Application.Settings;
 using Products.Infrastructure;
+using Products.Infrastructure.Kafka;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,13 @@ builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection("MongoSettings"));
 builder.Services.AddPersistence();
 builder.Services.ConfigureMediatR();
+
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
+builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
+builder.Services.AddSingleton<KafkaConsumerService>();
+builder.Services.AddSingleton<KafkaDispatcher>();
+
+builder.Services.AddHostedService<KafkaHostedService>();
 
 var app = builder.Build();
 
@@ -31,6 +41,16 @@ var endpoints = app.MapGroup("api");
 
 endpoints.MapProductsCrudEndpoints();
 endpoints.MapCategoryCrudEndpoints();
+
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    Console.WriteLine("Application started.");
+});
+
+app.Lifetime.ApplicationStopped.Register(() =>
+{
+    Console.WriteLine("Application stopped.");
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,8 +1,8 @@
 using Inventory.Api.Extensions;
-using Inventory.Application.Events;
 using Inventory.Application.KafkaSettings;
 using Inventory.Infrastructure;
 using Inventory.Infrastructure.Kafka;
+using Shared.Contracts.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,16 +28,16 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("test", async (HttpContext context, HttpRequest request, KafkaProducerService kafkaProducer, CancellationToken cancellationToken ) =>
 {
-    await kafkaProducer.SendMessageAsync("testing-events", new Test
+    await kafkaProducer.SendMessageAsync("testing-events", new TestEvent
     {
         Name = $"Sample Product {DateTime.UtcNow}",
     }, cancellationToken);
     
-    await kafkaProducer.SendMessageAsync("testing-events", new Test2
-    {
-        Name = $"Sample Product 2 {DateTime.UtcNow}",
-        Num = 2
-    }, cancellationToken);
+    // await kafkaProducer.SendMessageAsync("testing-events", new Test2
+    // {
+    //     Name = $"Sample Product 2 {DateTime.UtcNow}",
+    //     Num = 2
+    // }, cancellationToken);
 });
 
 app.Lifetime.ApplicationStarted.Register(() =>

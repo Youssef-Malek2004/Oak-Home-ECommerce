@@ -5,6 +5,7 @@ using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
 using Products.Domain.Errors;
 using Products.Domain.Mappers;
+using Shared.Contracts.RequestDtosAndMappers.ProductDtos;
 
 namespace Products.Infrastructure.Persistence.Repositories;
 

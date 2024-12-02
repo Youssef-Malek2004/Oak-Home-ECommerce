@@ -2,6 +2,7 @@ using Abstractions.ResultsPattern;
 using Products.Domain.DTOs;
 using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
+using Shared.Contracts.RequestDtosAndMappers.ProductDtos;
 
 namespace Products.Application.Services;
 

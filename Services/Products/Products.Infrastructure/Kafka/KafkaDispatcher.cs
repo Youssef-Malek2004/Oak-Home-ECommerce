@@ -1,6 +1,6 @@
 using Shared.Contracts.Events;
 
-namespace Inventory.Infrastructure.Kafka;
+namespace Products.Infrastructure.Kafka;
 
 public class KafkaDispatcher
 {
@@ -17,20 +17,10 @@ public class KafkaDispatcher
         {
             _consumer.StartConsuming<TestEvent>("testing-events", async message =>
             {
-                Console.WriteLine($"Test received: {message.Name} @ Inventory Serivce");
+                Console.WriteLine($"Test received: {message.Name} @ Products Consumer");
                 // Handle product creation logic
                 await Task.CompletedTask;
             }, stoppingToken);
         }, stoppingToken);
-        
-        // await Task.Run(() =>
-        // {
-        //     _consumer.StartConsuming<Test2>("testing-events", async message =>
-        //     {
-        //         Console.WriteLine($"Test 2 received: {message.Name} {message.Num}");
-        //         await Task.CompletedTask;
-        //     }, stoppingToken);
-        // }, stoppingToken);
-        
     }
 }

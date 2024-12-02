@@ -25,7 +25,7 @@ public static class ProductsEndpoints
 
         productsEndpoints.MapPost("", async ([FromBody] CreateProductRequest request, IMediator mediator) =>
         {
-            var result = await mediator.Send(new CreateProductCommand(request.CreateProductDto, request.DynamicFields));
+            var result = await mediator.Send(new CreateProductCommand(request.AddProductInventoryFields, request.CreateProductDto, request.DynamicFields));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
 

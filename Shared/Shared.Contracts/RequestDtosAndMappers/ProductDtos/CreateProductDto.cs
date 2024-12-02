@@ -1,4 +1,4 @@
-namespace Products.Domain.DTOs.ProductDtos;
+namespace Shared.Contracts.RequestDtosAndMappers.ProductDtos;
 
 public class CreateProductDto
 {
