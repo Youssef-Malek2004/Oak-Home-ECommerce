@@ -5,7 +5,6 @@ using Inventory.Application.Services;
 using Inventory.Domain;
 using Inventory.Infrastructure;
 using Inventory.Infrastructure.Kafka;
-using Shared.Contracts.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,14 +31,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("test", async ( IKafkaProducerService kafkaProducer, CancellationToken cancellationToken ) =>
-{
-    await kafkaProducer.SendMessageAsync("testing-events", new TestEvent
-    {
-        Name = $"Sample Product {DateTime.UtcNow}",
-    }, cancellationToken);
-});
-
 app.MapGet("GetInventories", async (IUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
 {
     var result = await unitOfWork.InventoryRepository.GetInventoriesAsync(cancellationToken);
@@ -55,6 +46,7 @@ app.Lifetime.ApplicationStopped.Register(() =>
 {
     Console.WriteLine("Application stopped.");
 });
+
 
 app.UseHttpsRedirection();
 

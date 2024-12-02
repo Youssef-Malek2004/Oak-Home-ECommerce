@@ -12,7 +12,7 @@ public class KafkaHostedService(KafkaDispatcher dispatcher) : BackgroundService
     
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        Console.WriteLine("Stopping Kafka consumer...");
+        Console.WriteLine("Stopping Kafka consumers...");
         await base.StopAsync(cancellationToken);
     }
 }

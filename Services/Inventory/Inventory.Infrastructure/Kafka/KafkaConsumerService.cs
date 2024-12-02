@@ -8,19 +8,20 @@ namespace Inventory.Infrastructure.Kafka;
 
 public class KafkaConsumerService(IOptions<KafkaSettings> settings) : IKafkaConsumerService
 {
-    private readonly ConsumerConfig _config = new()
+    private const string InitialGroupInstanceId = "inventory-service-instance";
+    public void StartConsuming<T>(string topic ,string groupInstanceName,
+        Func<T, Task> processMessage, CancellationToken stoppingToken)
     {
-        BootstrapServers = settings.Value.BootstrapServers,
-        GroupId = settings.Value.GroupId,
-        AllowAutoCreateTopics = true,
-        EnableAutoCommit = true,
-        GroupInstanceId = "inventory-service-instance",
-        AutoOffsetReset = AutoOffsetReset.Earliest,
-    };
-
-    public void StartConsuming<T>(string topic, Func<T, Task> processMessage, CancellationToken stoppingToken)
-    {
-        using var consumer = new ConsumerBuilder<Ignore, string>(_config).Build();
+        ConsumerConfig config = new()
+        {
+            BootstrapServers = settings.Value.BootstrapServers,
+            GroupId = settings.Value.GroupId,
+            AllowAutoCreateTopics = true,
+            EnableAutoCommit = true,
+            GroupInstanceId = InitialGroupInstanceId + groupInstanceName, //Works Fine without it now :)
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+        };
+        using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
         
         consumer.Subscribe(topic);
 
@@ -39,14 +40,14 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings) : IKafkaCons
 
                 if (message != null)
                 {
-                    // Console.WriteLine($"Message received: {consumeResult.Message.Value} Offset: {consumeResult.Offset}");
+                    Console.WriteLine($"Message received: {topic} Offset: {consumeResult.Offset}");
                     processMessage(message).Wait(stoppingToken);
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            Console.WriteLine("Kafka consumer operation canceled.");
+            Console.WriteLine($"Kafka consumer: {consumer.MemberId} operation canceled.");
         }
         finally
         {

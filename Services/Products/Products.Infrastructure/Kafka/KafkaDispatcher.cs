@@ -8,7 +8,8 @@ public class KafkaDispatcher(KafkaConsumerService consumer)
     {
         await Task.Run(() =>
         {
-            consumer.StartConsuming<TestEvent>("testing-events", async message =>
+            consumer.StartConsuming<TestEvent>("testing-events","testing",
+                async message =>
             {
                 Console.WriteLine($"Test received: {message.Name} @ Products Consumer");
                 // Handle product creation logic

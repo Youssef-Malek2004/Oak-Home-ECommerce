@@ -7,18 +7,19 @@ namespace Products.Infrastructure.Kafka;
 
 public class KafkaConsumerService(IOptions<KafkaSettings> settings)
 {
-    private readonly ConsumerConfig _config = new()
+    private const string InitialGroupInstanceId = "products-service-instance";
+    public void StartConsuming<T>(string topic,string groupInstanceName, Func<T, Task> processMessage, CancellationToken stoppingToken)
     {
-        BootstrapServers = settings.Value.BootstrapServers,
-        GroupId = settings.Value.GroupId,
-        AllowAutoCreateTopics = true,
-        GroupInstanceId = "products-service-instance",
-        AutoOffsetReset = AutoOffsetReset.Earliest,
-    };
-
-    public void StartConsuming<T>(string topic, Func<T, Task> processMessage, CancellationToken stoppingToken)
-    {
-        using var consumer = new ConsumerBuilder<Ignore, string>(_config).Build();
+        ConsumerConfig config = new()
+        {
+            BootstrapServers = settings.Value.BootstrapServers,
+            GroupId = settings.Value.GroupId,
+            AllowAutoCreateTopics = true,
+            GroupInstanceId = InitialGroupInstanceId + groupInstanceName,
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+        };
+        
+        using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
         
         consumer.Subscribe(topic);
 
@@ -44,7 +45,7 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings)
         }
         catch (OperationCanceledException)
         {
-            Console.WriteLine("Kafka consumer operation canceled.");
+            Console.WriteLine($"Kafka consumer: {consumer.Name} operation canceled.");
         }
         finally
         {

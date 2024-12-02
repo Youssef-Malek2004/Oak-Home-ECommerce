@@ -13,7 +13,9 @@ public class KafkaDispatcher(IKafkaConsumerService consumer, IServiceScopeFactor
     {
         await Task.Run(() =>
         {
-            consumer.StartConsuming<ProductCreated>(Topics.ProductCreatedTopic.Name, async message =>
+            consumer.StartConsuming<ProductCreated>(Topics.ProductCreatedTopic.Name,
+                "product-created-1",
+                async message =>
             {
                 using var scope = serviceScope.CreateScope();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -22,6 +24,22 @@ public class KafkaDispatcher(IKafkaConsumerService consumer, IServiceScopeFactor
             }, stoppingToken);
             
         }, stoppingToken);
-        
+    }
+    
+    public async Task StartConsumingProductSoftDeleted(CancellationToken stoppingToken)
+    {
+        await Task.Run(() =>
+        {
+            consumer.StartConsuming<ProductSoftDeleted>(Topics.ProductSoftDeleted.Name,
+                "product-soft-deleted-1",
+                async message =>
+            {
+                using var scope = serviceScope.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                
+                await mediator.Send(new ProductSoftDeletedEvent(message), stoppingToken); 
+            }, stoppingToken);
+            
+        }, stoppingToken);
     }
 }

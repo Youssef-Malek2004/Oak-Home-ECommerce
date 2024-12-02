@@ -97,13 +97,13 @@ public class ProductsRepository : IProductsRepository
         return result.DeletedCount == 0 ? Result.Failure(ProductErrors.ProductRemoveFailed("Check Product Id as unsuccessful Deletion")) : Result.Success();
     }
     
-    public async Task<Result> ToggleSoftDeleteProduct(string id)
+    public async Task<Result<bool>> ToggleSoftDeleteProduct(string id)
     {
         var product = await DB.Find<Product>().Match(p => p.ID == id).ExecuteFirstAsync();
 
         if (product == null)
         {
-            return Result.Failure(ProductErrors.ProductNotFoundId(id));
+            return Result<bool>.Failure(ProductErrors.ProductNotFoundId(id));
         }
         
         product.IsDeleted = !product.IsDeleted;
@@ -111,7 +111,7 @@ public class ProductsRepository : IProductsRepository
         
         await DB.SaveAsync(product);
 
-        return Result.Success();
+        return Result<bool>.Success(product.IsDeleted);
     }
 
     public async Task<Result<IEnumerable<Product>>> GetProductsByCategory(string categoryId)

@@ -37,18 +37,17 @@ public class InventoryRepository(InventoryDbContext dbContext) : IInventoryRepos
         return Result<Inventories?>.Success(inventory);
     }
 
-    public async Task<Result<IEnumerable<Inventories>>> GetInventoriesByProductIdAsync(string productId, CancellationToken cancellationToken = default)
+    public async Task<Result<Inventories>> GetInventoriesByProductIdAsync(string productId, CancellationToken cancellationToken = default)
     {
         var inventories = await dbContext.Inventory
-            .Where(i => i.ProductId == productId)
-            .ToListAsync(cancellationToken);
+            .FirstOrDefaultAsync(i => i.ProductId == productId, cancellationToken: cancellationToken);
 
-        if (!inventories.Any())
+        if (inventories is null)
         {
-            return Result<IEnumerable<Inventories>>.Failure(InventoryErrors.InventoryNotFoundProductId(productId));
+            return Result<Inventories>.Failure(InventoryErrors.InventoryNotFoundProductId(productId));
         }
 
-        return Result<IEnumerable<Inventories>>.Success(inventories);
+        return Result<Inventories>.Success(inventories);
     }
 
     public async Task<Result> AddInventoryAsync(Inventories inventory)
@@ -62,6 +61,21 @@ public class InventoryRepository(InventoryDbContext dbContext) : IInventoryRepos
         catch (Exception ex)
         {
             return InventoryErrors.InventoryAddFailed(ex.Message);
+        }
+    }
+    
+    public async Task<Result> SetSoftDelete(Inventories inventory, bool isDeleted, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            inventory.IsDeleted = isDeleted;
+            dbContext.Inventory.Update(inventory);
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(InventoryErrors.InventoryUpdateFailed(ex.Message));
         }
     }
 

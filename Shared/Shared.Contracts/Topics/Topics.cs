@@ -8,5 +8,6 @@ public class Topics : Enumeration<Topics>
     {
     }
 
-    public static readonly Topics ProductCreatedTopic = new Topics(1, "ProductCreatedTopic");
+    public static readonly Topics ProductCreatedTopic = new Topics(1, "product-created-topic");
+    public static readonly Topics ProductSoftDeleted = new Topics(1, "product-soft-deleted-topic");
 }

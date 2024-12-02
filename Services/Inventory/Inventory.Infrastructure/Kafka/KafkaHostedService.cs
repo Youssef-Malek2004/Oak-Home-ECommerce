@@ -8,9 +8,11 @@ public class KafkaHostedService(KafkaDispatcher dispatcher) : BackgroundService
     protected override async  Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Task.Yield();
+        
         var consumingTasks = new List<Task>
         {
-            Task.Run(() => dispatcher.StartConsumingProductCreated(stoppingToken), stoppingToken)
+            Task.Run(() => dispatcher.StartConsumingProductCreated(stoppingToken), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingProductSoftDeleted(stoppingToken), stoppingToken)
         };
 
         await Task.WhenAll(consumingTasks);
@@ -18,7 +20,7 @@ public class KafkaHostedService(KafkaDispatcher dispatcher) : BackgroundService
     
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        Console.WriteLine("Stopping Kafka consumer...");
+        Console.WriteLine("Stopping Kafka consumers...");
         await base.StopAsync(cancellationToken);
     }
 }
