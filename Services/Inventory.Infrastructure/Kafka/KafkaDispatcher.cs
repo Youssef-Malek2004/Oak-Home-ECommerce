@@ -23,14 +23,14 @@ public class KafkaDispatcher
             }, stoppingToken);
         }, stoppingToken);
         
-        // await Task.Run(() =>
-        // {
-        //     _consumer.StartConsuming<Test2>("testing-events", async message =>
-        //     {
-        //         Console.WriteLine($"Test 2 received: {message.Name} {message.Num}");
-        //         await Task.CompletedTask;
-        //     }, stoppingToken);
-        // }, stoppingToken);
+        await Task.Run(() =>
+        {
+            _consumer.StartConsuming<Test2>("testing-events", async message =>
+            {
+                Console.WriteLine($"Test 2 received: {message.Name} {message.Num}");
+                await Task.CompletedTask;
+            }, stoppingToken);
+        }, stoppingToken);
         
     }
 }
