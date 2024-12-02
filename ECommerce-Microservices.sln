@@ -24,13 +24,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abstractions", "Services\Ab
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Products", "Products", "{959AEFF5-2F02-4971-AD01-B240E7541BA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Api", "Services\Products.Api\Products.Api.csproj", "{F92EFBF2-3C0F-4379-AF0D-E81A07E33FC4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Api", "Services\Products\Products.Api\Products.Api.csproj", "{F92EFBF2-3C0F-4379-AF0D-E81A07E33FC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Infrastructure", "Services\Products.Infrastructure\Products.Infrastructure.csproj", "{B109D929-6A98-4458-BF52-324EBB7C3109}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Infrastructure", "Services\Products\Products.Infrastructure\Products.Infrastructure.csproj", "{B109D929-6A98-4458-BF52-324EBB7C3109}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Domain", "Services\Products.Domain\Products.Domain.csproj", "{C4DAFC1B-EBD8-4900-A41C-D00BEF8D462C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Domain", "Services\Products\Products.Domain\Products.Domain.csproj", "{C4DAFC1B-EBD8-4900-A41C-D00BEF8D462C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Application", "Services\Products.Application\Products.Application.csproj", "{C0F0FC5A-207B-4366-B37C-42AB840AAC7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Application", "Services\Products\Products.Application\Products.Application.csproj", "{C0F0FC5A-207B-4366-B37C-42AB840AAC7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory", "Inventory", "{0DA4219E-1352-42A5-9881-15FD12C4E1C9}"
 EndProject
