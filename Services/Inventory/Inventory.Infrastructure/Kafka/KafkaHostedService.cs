@@ -1,3 +1,4 @@
+
 using Microsoft.Extensions.Hosting;
 
 namespace Inventory.Infrastructure.Kafka;

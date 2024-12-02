@@ -34,13 +34,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.Application", "Ser
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory", "Inventory", "{0DA4219E-1352-42A5-9881-15FD12C4E1C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Infrastructure", "Services\Inventory.Infrastructure\Inventory.Infrastructure.csproj", "{2AA00AD1-1628-4672-B19D-0292DFE01BEC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Infrastructure", "Services\Inventory\Inventory.Infrastructure\Inventory.Infrastructure.csproj", "{2AA00AD1-1628-4672-B19D-0292DFE01BEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Domain", "Services\Inventory.Domain\Inventory.Domain.csproj", "{31C6E2F2-4AE0-4CA3-A772-A5D3E524ED84}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Domain", "Services\Inventory\Inventory.Domain\Inventory.Domain.csproj", "{31C6E2F2-4AE0-4CA3-A772-A5D3E524ED84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Application", "Services\Inventory.Application\Inventory.Application.csproj", "{26143A50-0D16-406C-8E0C-3C9CCDFDF7BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Application", "Services\Inventory\Inventory.Application\Inventory.Application.csproj", "{26143A50-0D16-406C-8E0C-3C9CCDFDF7BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Api", "Services\Inventory.Api\Inventory.Api.csproj", "{2B822F2E-8445-4A22-981F-62390F2555E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Api", "Services\Inventory\Inventory.Api\Inventory.Api.csproj", "{2B822F2E-8445-4A22-981F-62390F2555E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
