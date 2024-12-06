@@ -11,8 +11,6 @@ public class KafkaHostedService(KafkaDispatcher dispatcher) : BackgroundService
         
         var consumingTasks = new List<Task>
         {
-            // Task.Run(() => dispatcher.StartConsumingProductCreated(stoppingToken), stoppingToken),
-            // Task.Run(() => dispatcher.StartConsumingProductSoftDeleted(stoppingToken), stoppingToken)
             Task.Run(() => dispatcher.StartConsumingProductEvents(stoppingToken), stoppingToken),
             Task.Run(() => dispatcher.StartConsumingOrderEvents(stoppingToken), stoppingToken)
         };
