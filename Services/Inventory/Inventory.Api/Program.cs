@@ -4,8 +4,10 @@ using Inventory.Application.CQRS.EventHandlers;
 using Inventory.Application.KafkaSettings;
 using Inventory.Application.Services;
 using Inventory.Domain;
+using Inventory.Domain.Entities;
 using Inventory.Infrastructure;
 using Inventory.Infrastructure.Kafka;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,13 @@ app.MapGet("GetInventories", async (IUnitOfWork unitOfWork, CancellationToken ca
 {
     var result = await unitOfWork.InventoryRepository.GetInventoriesAsync(cancellationToken);
     return Results.Ok(result.Value);
+});
+
+app.MapPut("update", async ([FromBody]Inventories inventories,IUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+{
+    var result = await unitOfWork.InventoryRepository.UpdateInventoryAsync(inventories);
+    await unitOfWork.SaveChangesAsync();
+    return Results.Ok();
 });
 
 app.AddLifetimeEvents();
