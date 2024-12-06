@@ -2,6 +2,7 @@ using Users.Domain;
 using Users.Domain.Repositories;
 using Users.Infrastructure.Persistence;
 using Users.Infrastructure.Persistence.Repositories;
+using static System.GC;
 
 namespace Users.Infrastructure;
 
@@ -18,6 +19,7 @@ public class UnitOfWork(UsersDbContext dbContext) : IUnitOfWork
 
     public void Dispose()
     {
+        // SuppressFinalize(this);
         dbContext.Dispose();
     }
 }

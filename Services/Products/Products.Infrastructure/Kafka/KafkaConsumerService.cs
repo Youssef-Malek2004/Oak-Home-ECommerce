@@ -7,12 +7,26 @@ namespace Products.Infrastructure.Kafka;
 
 public class KafkaConsumerService(IOptions<KafkaSettings> settings)
 {
+    
+    public static void PrintAllEnvironmentVariables()
+    {
+        Console.WriteLine("Environment Variables:");
+        foreach (System.Collections.DictionaryEntry variable in Environment.GetEnvironmentVariables())
+        {
+            Console.WriteLine($"{variable.Key}: {variable.Value}");
+        }
+    }
+    
     private const string InitialGroupInstanceId = "products-service-instance";
     public void StartConsuming<T>(string topic,string groupInstanceName, Func<T, Task> processMessage, CancellationToken stoppingToken)
     {
+        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
+
+        PrintAllEnvironmentVariables();
+        
         ConsumerConfig config = new()
         {
-            BootstrapServers = settings.Value.BootstrapServers,
+            BootstrapServers = kafkaConnectionString,
             GroupId = settings.Value.GroupId,
             AllowAutoCreateTopics = true,
             GroupInstanceId = InitialGroupInstanceId + groupInstanceName,

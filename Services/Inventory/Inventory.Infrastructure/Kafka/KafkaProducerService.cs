@@ -12,9 +12,11 @@ public class KafkaProducerService : IKafkaProducerService
 
     public KafkaProducerService(IOptions<KafkaSettings> settings)
     {
+        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
+        
         var config = new ProducerConfig
         {
-            BootstrapServers = settings.Value.BootstrapServers,
+            BootstrapServers = kafkaConnectionString,
             AllowAutoCreateTopics = true,
             Acks = Acks.All
         };

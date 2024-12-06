@@ -12,9 +12,11 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient
     public void StartConsuming<T>(string topic ,string groupInstanceName,
         Func<T, Task> processMessage, CancellationToken stoppingToken)
     {
+        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
+        
         ConsumerConfig config = new()
         {
-            BootstrapServers = settings.Value.BootstrapServers,
+            BootstrapServers = kafkaConnectionString,
             GroupId = settings.Value.GroupId,
             AllowAutoCreateTopics = true,
             EnableAutoCommit = true,

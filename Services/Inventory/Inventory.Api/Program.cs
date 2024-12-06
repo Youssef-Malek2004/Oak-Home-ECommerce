@@ -1,4 +1,5 @@
 using Inventory.Api.Extensions;
+using Inventory.Api.Middlewares;
 using Inventory.Application.CQRS.EventHandlers;
 using Inventory.Application.KafkaSettings;
 using Inventory.Application.Services;
@@ -38,17 +39,7 @@ app.MapGet("GetInventories", async (IUnitOfWork unitOfWork, CancellationToken ca
     return Results.Ok(result.Value);
 });
 
-app.Lifetime.ApplicationStarted.Register(() =>
-{
-    Console.WriteLine("Application started.");
-});
-
-app.Lifetime.ApplicationStopped.Register(() =>
-{
-    Console.WriteLine("Application stopped.");
-});
-
-
+app.AddLifetimeEvents();
 app.UseHttpsRedirection();
 
 app.Run();
