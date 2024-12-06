@@ -4,6 +4,7 @@ using Products.Application.CQRS.CommandsAndQueries.Products;
 using Products.Application.Services;
 using Products.Application.Services.Kafka;
 using Products.Domain.Errors;
+using Shared.Contracts.Events;
 using Shared.Contracts.Events.ProductEvents;
 using Shared.Contracts.Topics;
 
@@ -19,11 +20,11 @@ public class ToggleSoftDeletionProductHandler(IProductsRepository repository, IK
 
         var isDeleted = result.Value;
 
-        await kafkaProducerService.SendMessageAsync(Topics.ProductSoftDeleted.Name, new ProductSoftDeleted
+        await kafkaProducerService.SendMessageAsync(Topics.ProductEvents.Name, new ProductSoftDeleted
         {
             ProductId = request.Id,
             IsDeleted = isDeleted
-        }, cancellationToken);
+        }, cancellationToken, Event.ProductSoftDeleted.Name);
 
         return Result<bool>.Success(isDeleted);
     }

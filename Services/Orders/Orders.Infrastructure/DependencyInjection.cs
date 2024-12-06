@@ -1,9 +1,15 @@
+using Confluent.Kafka;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Orders.Application.KafkaSettings;
 using Orders.Application.Services.Data;
 using Orders.Domain;
 using Orders.Domain.Repositories;
+using Orders.Infrastructure.Authentication;
 using Orders.Infrastructure.Persistence;
 using Orders.Infrastructure.Persistence.Repositories;
 
@@ -20,6 +26,34 @@ public static class DependencyInjection
         
         services.AddScoped<IOrdersRepository, OrdersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        return services;
+    }
+    
+    public static IServiceCollection ConfigureAuthenticationAndAuthorization(this IServiceCollection services)
+    {
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+        services.AddAuthorization();
+        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
+        return services;
+    }
+    
+    public static IServiceCollection AddKafkaAdminClient(this IServiceCollection services)
+    {
+        
+        services.AddSingleton<IAdminClient>(serviceProvider =>
+        {
+            var kafkaSettings = serviceProvider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+
+            var adminClientConfig = new AdminClientConfig
+            {
+                BootstrapServers = kafkaSettings.BootstrapServers
+            };
+
+            return new AdminClientBuilder(adminClientConfig).Build();
+        });
 
         return services;
     }

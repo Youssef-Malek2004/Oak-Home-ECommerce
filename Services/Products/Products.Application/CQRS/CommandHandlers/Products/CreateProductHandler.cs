@@ -5,6 +5,7 @@ using Products.Application.Services;
 using Products.Application.Services.Kafka;
 using Products.Domain.Entities;
 using Products.Domain.Errors;
+using Shared.Contracts.Events;
 using Shared.Contracts.RequestDtosAndMappers.SharedMappers.ProductMappers;
 using Shared.Contracts.Topics;
 
@@ -31,7 +32,7 @@ public class CreateProductHandler(IProductsRepository repository, IKafkaProducer
         );
 
         await kafkaProducerService.SendMessageAsync(
-            Topics.ProductCreatedTopic.Name, productCreatedEvent, cancellationToken);
+            Topics.ProductEvents.Name, productCreatedEvent, cancellationToken, Event.ProductCreated.Name);
         
         return Result<Product>.Success(product);
         

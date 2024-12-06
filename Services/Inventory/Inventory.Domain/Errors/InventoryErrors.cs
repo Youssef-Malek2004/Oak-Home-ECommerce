@@ -21,4 +21,7 @@ public static class InventoryErrors
 
     public static Error InventoryQueryFailed(string message) =>
         new Error($"Failed to query inventories. Error: {message}");
+    
+    public static Error InventoryNotEnough(string message) =>
+        new Error($"Error: {message}");
 }

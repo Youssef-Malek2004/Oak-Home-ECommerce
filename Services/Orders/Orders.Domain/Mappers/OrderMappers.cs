@@ -1,5 +1,6 @@
 using Orders.Domain.DTOs.Orders;
 using Orders.Domain.Entities;
+using Shared.Contracts.Events.OrderEvents;
 
 namespace Orders.Domain.Mappers;
 
@@ -53,6 +54,31 @@ public static class OrderMappers
             Quantity = request.Quantity,
             UnitPrice = request.UnitPrice,
             Subtotal = request.Quantity * request.UnitPrice
+        };
+    }
+    
+    public static OrderCreatedEvent ToOrderCreatedEvent(this Order order)
+    {
+        return new OrderCreatedEvent
+        {
+            OrderId = order.OrderId.ToString(),
+            OrderDate = order.OrderDate,
+            PaymentId = order.PaymentId,
+            ShippingId = order.ShippingId,
+            UserId = order.UserId,
+            TotalAmount = order.TotalAmount,
+            Items = order.OrderItems.Select(oi => oi.ToOrderItemEvent()).ToList()
+        };
+    }
+
+    public static OrderCreatedEvent.OrderItemEvent ToOrderItemEvent(this OrderItem orderItem)
+    {
+        return new OrderCreatedEvent.OrderItemEvent
+        {
+            ProductId = orderItem.ProductId,
+            Quantity = orderItem.Quantity,
+            UnitPrice = orderItem.UnitPrice,
+            Subtotal = orderItem.Subtotal
         };
     }
 }

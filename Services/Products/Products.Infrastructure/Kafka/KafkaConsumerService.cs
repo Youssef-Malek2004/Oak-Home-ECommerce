@@ -18,7 +18,7 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings)
     }
     
     private const string InitialGroupInstanceId = "products-service-instance";
-    public void StartConsuming<T>(string topic,string groupInstanceName, Func<T, Task> processMessage, CancellationToken stoppingToken)
+    public void StartConsuming<T>(string topic,string groupInstanceName, Func<ConsumeResult<string,string>, Task> processMessage, CancellationToken stoppingToken)
     {
         var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
 
@@ -26,14 +26,14 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings)
         
         ConsumerConfig config = new()
         {
-            BootstrapServers = kafkaConnectionString,
+            BootstrapServers = kafkaConnectionString ?? "localhost:9092",
             GroupId = settings.Value.GroupId,
             AllowAutoCreateTopics = true,
             GroupInstanceId = InitialGroupInstanceId + groupInstanceName,
             AutoOffsetReset = AutoOffsetReset.Earliest,
         };
         
-        using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
+        using var consumer = new ConsumerBuilder<string, string>(config).Build();
         
         consumer.Subscribe(topic);
 
@@ -47,14 +47,8 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings)
                 {
                     continue;
                 }
-                
-                var message = JsonSerializer.Deserialize<T>(consumeResult.Message.Value);
-
-                if (message != null)
-                {
-                    // Console.WriteLine($"Message received: {consumeResult.Message.Value} Offset: {consumeResult.Offset}");
-                    processMessage(message).Wait(stoppingToken);
-                }
+    
+                processMessage(consumeResult).Wait(stoppingToken);
             }
         }
         catch (OperationCanceledException)

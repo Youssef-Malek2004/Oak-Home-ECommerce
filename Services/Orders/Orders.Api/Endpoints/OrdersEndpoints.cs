@@ -1,11 +1,8 @@
-using System.Linq.Expressions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Orders.Application.CQRS.Commands;
 using Orders.Application.CQRS.Queries;
 using Orders.Domain.DTOs.Orders;
-using Orders.Domain.Entities;
-using Orders.Domain.Repositories;
 
 namespace Orders.Api.Endpoints;
 

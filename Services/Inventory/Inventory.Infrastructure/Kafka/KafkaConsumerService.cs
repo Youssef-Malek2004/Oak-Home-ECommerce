@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using Inventory.Application.KafkaSettings;
 using Inventory.Application.Services;
@@ -10,13 +9,13 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient
 {
     private const string InitialGroupInstanceId = "inventory-service-instance";
     public void StartConsuming<T>(string topic ,string groupInstanceName,
-        Func<T, Task> processMessage, CancellationToken stoppingToken)
+        Func<ConsumeResult<string,string>, Task> processMessage, CancellationToken stoppingToken)
     {
         var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
         
         ConsumerConfig config = new()
         {
-            BootstrapServers = kafkaConnectionString,
+            BootstrapServers = kafkaConnectionString ?? "localhost:9092",
             GroupId = settings.Value.GroupId,
             AllowAutoCreateTopics = true,
             EnableAutoCommit = true,
@@ -32,7 +31,7 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient
             return;
         }
         
-        using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
+        using var consumer = new ConsumerBuilder<string, string>(config).Build();
         
         consumer.Subscribe(topic);
 
@@ -47,13 +46,8 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient
                     continue;
                 }
                 
-                var message = JsonSerializer.Deserialize<T>(consumeResult.Message.Value);
-
-                if (message != null)
-                {
-                    Console.WriteLine($"Message received: {topic} Offset: {consumeResult.Offset}");
-                    processMessage(message).Wait(stoppingToken);
-                }
+                processMessage(consumeResult).Wait(stoppingToken);
+                
             }
         }
         catch (OperationCanceledException)
