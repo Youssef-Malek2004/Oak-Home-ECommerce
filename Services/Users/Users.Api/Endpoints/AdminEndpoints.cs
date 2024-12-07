@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Contracts.Authorization;
 using Users.Application.CQRS.Commands;
 using Users.Domain.DTOs;
 using Users.Infrastructure.Authentication;

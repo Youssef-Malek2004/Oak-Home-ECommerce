@@ -3,8 +3,11 @@ using Inventory.Application.KafkaSettings;
 using Inventory.Application.Services;
 using Inventory.Domain;
 using Inventory.Domain.Repositories;
+using Inventory.Infrastructure.Authentication;
 using Inventory.Infrastructure.Persistence;
 using Inventory.Infrastructure.Persistence.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +50,15 @@ public static class DependencyInjection
         
         services.AddSingleton<IAdminClientService, AdminClientService>(); //Handling Partitions and such
 
+        return services;
+    }
+    public static IServiceCollection ConfigureAuthenticationAndAuthorization(this IServiceCollection services)
+    {
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+        services.AddAuthorization();
+        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
         return services;
     }
 }

@@ -1,6 +1,6 @@
 using Abstractions.SmartEnum;
 
-namespace Products.Domain.Entities;
+namespace Shared.Contracts.Authorization;
 
 public class Roles : Enumeration<Roles>
 {
@@ -9,7 +9,7 @@ public class Roles : Enumeration<Roles>
     }
 
     public static readonly Roles Registered = new Roles(1, "Registered");
-    public static readonly Roles Admin = new Roles(1, "Admin");
-    public static readonly Roles Vendor = new Roles(1, "Vendor");
+    public static readonly Roles Admin = new Roles(2, "Admin");
+    public static readonly Roles Vendor = new Roles(3, "Vendor");
     
 }

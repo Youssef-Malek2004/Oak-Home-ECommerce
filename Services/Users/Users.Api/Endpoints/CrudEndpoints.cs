@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Shared.Contracts.Authorization;
 using Users.Application.CQRS.Commands;
 using Users.Domain;
 using Users.Domain.Entities;

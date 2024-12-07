@@ -1,14 +1,6 @@
 using Abstractions.SmartEnum;
 
-namespace Users.Infrastructure.Authentication;
-//
-// public enum Permissions
-// {
-//     ReadUsers = 1,
-//     UpdateUsers = 2,
-//     SoftDeleteUsers = 3,
-//     PerformCrud = 4
-// }
+namespace Shared.Contracts.Authorization;
 
 public class Permissions : Enumeration<Permissions>
 {

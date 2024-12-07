@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shared.Contracts.Authorization;
 using Users.Domain.Entities;
 using Users.Infrastructure.Authentication;
 

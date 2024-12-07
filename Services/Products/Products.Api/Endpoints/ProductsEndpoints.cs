@@ -4,6 +4,7 @@ using Products.Application.CQRS.CommandsAndQueries.Products;
 using Products.Domain.DTOs.ProductDtos;
 using Products.Domain.Entities;
 using Products.Infrastructure.Authentication;
+using Shared.Contracts.Authorization;
 
 namespace Products.Api.Endpoints;
 

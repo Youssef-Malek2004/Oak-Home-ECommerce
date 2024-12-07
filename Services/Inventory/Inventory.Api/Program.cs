@@ -1,6 +1,7 @@
 using Inventory.Api.Endpoints;
 using Inventory.Api.Extensions;
 using Inventory.Api.Middlewares;
+using Inventory.Api.OptionsSetup;
 using Inventory.Application.CQRS.EventHandlers;
 using Inventory.Application.KafkaSettings;
 using Inventory.Application.Services;
@@ -30,6 +31,10 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddHostedService<KafkaInitializationHostedService>();
 builder.Services.AddHostedService<KafkaHostedService>();
+
+builder.Services.ConfigureAuthenticationAndAuthorization();
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
 var app = builder.Build();
 
@@ -71,6 +76,11 @@ var endpoints = app.MapGroup("api");
 
 endpoints.MapInventoryEndpoints();
 endpoints.MapWarehouseEndpoints();
+endpoints.MapVendorEndpoints();
+
+app.UseMiddleware<CookieToJwtMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.AddLifetimeEvents();
 app.UseHttpsRedirection();
