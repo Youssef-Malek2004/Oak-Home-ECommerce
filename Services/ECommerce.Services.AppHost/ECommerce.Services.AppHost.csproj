@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\AppTestUI\AppTestUI.csproj" />
       <ProjectReference Include="..\Inventory\Inventory.Api\Inventory.Api.csproj" />
       <ProjectReference Include="..\Notifications\Notifications.Api\Notifications.Api.csproj" />
       <ProjectReference Include="..\Orders\Orders.Api\Orders.Api.csproj" />

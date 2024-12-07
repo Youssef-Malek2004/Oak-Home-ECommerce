@@ -6,4 +6,6 @@ builder.AddProject<Projects.Inventory_Api>("api-service-inventory").WithEnvironm
 builder.AddProject<Projects.Orders_Api>("api-service-orders").WithEnvironment("ConnectionStrings__kafka", "localhost:9092");
 builder.AddProject<Projects.Notifications_Api>("api-service-notifications").WithEnvironment("ConnectionStrings__kafka", "localhost:9092");
 
+builder.AddProject<Projects.AppTestUI>("app-testing-ui");
+
 builder.Build().Run();

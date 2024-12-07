@@ -7,7 +7,7 @@ public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
 {
     public async Task SendMessage(string message)
     {
-        await Clients.All.ReceiveMessage($"{Context.ConnectionId}: {message}");
+        await Clients.All.ReceiveNotification($"{Context.ConnectionId}: {message}");
     }
 
     public override async Task OnConnectedAsync()
@@ -25,21 +25,23 @@ public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
                 foreach (var notification in unreadResult.Value)
                 {
                     await Task.Delay(1);
-                    await Clients.Caller.ReceiveMessage($"Unread Notification: {notification.Title} - {notification.Message}");
+                    await Clients.Caller.ReceiveNotification($"Unread Notification: {notification.Title} - {notification.Message}");
                 }
             }
             else
             {
                 await Task.Delay(1);
-                await Clients.Caller.ReceiveMessage($"Failed to retrieve unread notifications: {unreadResult.Error}");
+                await Clients.Caller.ReceiveNotification($"Failed to retrieve unread notifications: {unreadResult.Error}");
             }
-            await Clients.Caller.ReceiveMessage($"Connected as user {userId}.");
+            await Clients.Caller.ReceiveNotification($"Connected as user {userId}.");
         }
         else
         {
-            await Clients.Caller.ReceiveMessage("Connection failed: Valid UserId is required.");
+            await Clients.Caller.ReceiveNotification("Connection failed: Valid UserId is required.");
             Context.Abort();
         }
+
+        await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -58,7 +60,7 @@ public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
         var userIdString = Context.GetHttpContext()?.Request.Query["userId"].ToString();
         if (!Guid.TryParse(userIdString, out var userId))
         {
-            await Clients.Caller.ReceiveMessage("Error: Valid UserId is required.");
+            await Clients.Caller.ReceiveNotification("Error: Valid UserId is required.");
             return;
         }
         
@@ -66,11 +68,11 @@ public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
 
         if (result.IsSuccess)
         {
-            await Clients.Caller.ReceiveMessage($"Notification {notificationId} marked as read.");
+            await Clients.Caller.ReceiveNotification($"Notification {notificationId} marked as read.");
         }
         else
         {
-            await Clients.Caller.ReceiveMessage($"Error marking notification {notificationId} as read: {result.Error}");
+            await Clients.Caller.ReceiveNotification($"Error marking notification {notificationId} as read: {result.Error}");
         }
     }
 }

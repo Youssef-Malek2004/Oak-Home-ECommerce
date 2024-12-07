@@ -23,7 +23,11 @@ builder.Services.AddScoped<IRedisService, RedisService>();
 
 builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379,abortConnect=false");
 
+builder.Services.AddCors();
+
 var app = builder.Build();
+
+app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 if (app.Environment.IsDevelopment())
 {
@@ -38,7 +42,7 @@ app.MapGet("test", async context =>
 
 app.MapPost("broadcast", async (string message, IHubContext<ChatHub, IChatClient> context) =>
 {
-    await context.Clients.All.ReceiveMessage(message);
+    await context.Clients.All.ReceiveNotification(message);
 
     return Results.Ok();
 });
@@ -71,7 +75,7 @@ app.MapPost("/broadcast-random-notification", async (IHubContext<ChatHub, IChatC
 
     await db.StringSetAsync(notificationKey, JsonSerializer.Serialize(notification), TimeSpan.FromDays(1)); // TTL = 1 day
     
-    await hubContext.Clients.All.ReceiveMessage(JsonSerializer.Serialize(notification));
+    await hubContext.Clients.All.ReceiveNotification(JsonSerializer.Serialize(notification));
 
     return Results.Ok(new { Message = "Notification broadcasted and saved to Redis", Notification = notification });
 });
@@ -104,7 +108,7 @@ app.MapPost("/send-notification/{userId}", async (string userId, IHubContext<Cha
     
     try
     {
-        await hubContext.Clients.Group(userId).ReceiveMessage(JsonSerializer.Serialize(notification));
+        await hubContext.Clients.Group(userId).ReceiveNotification(JsonSerializer.Serialize(notification));
     }
     catch (Exception ex)
     {
