@@ -7,7 +7,7 @@ namespace Inventory.Infrastructure.Kafka;
 
 public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient adminClient) : IKafkaConsumerService
 {
-    private const string InitialGroupInstanceId = "inventory-service-instance";
+    private const string InitialGroupInstanceId = "inventory-service-instance-";
     public void StartConsuming<T>(string topic ,string groupInstanceName,
         Func<ConsumeResult<string,string>, Task> processMessage, CancellationToken stoppingToken)
     {

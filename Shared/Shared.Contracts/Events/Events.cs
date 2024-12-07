@@ -8,6 +8,8 @@ public class Event : Enumeration<Event>
     {
     }
     
+    public static readonly Event Test = new Event(0, "Test");
+    
     public static readonly Event ProductCreated = new Event(1, "ProductCreated");
     public static readonly Event ProductSoftDeleted = new Event(2, "ProductSoftDeleted");
     

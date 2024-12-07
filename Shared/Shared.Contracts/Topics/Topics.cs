@@ -13,5 +13,7 @@ public class Topics : Enumeration<Topics>
     public static readonly Topics OrderEvents = new Topics(3, "order-events");
     public static readonly Topics InventoryEvents = new Topics(4, "inventory-events");
     public static readonly Topics PaymentEvents = new Topics(5, "payment-events");
-    public static readonly Topics ProductEvents = new Topics(5, "product-events");
+    public static readonly Topics ProductEvents = new Topics(6, "product-events");
+    
+    public static readonly Topics TestingTopic = new Topics(7, "tests");
 }

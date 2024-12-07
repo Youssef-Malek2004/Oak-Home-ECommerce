@@ -1,103 +1,54 @@
-using System.Text;
-using System.Text.Json;
 using Confluent.Kafka;
-using Inventory.Application.CQRS.Commands;
-using Inventory.Application.CQRS.Events;
 using Inventory.Application.Services;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using Shared.Contracts.Events;
-using Shared.Contracts.Events.OrderEvents;
-using Shared.Contracts.Events.ProductEvents;
 using Shared.Contracts.Topics;
 
 namespace Inventory.Infrastructure.Kafka;
 
-public class KafkaDispatcher(IKafkaConsumerService consumer, IServiceScopeFactory serviceScope)
+public class KafkaDispatcher(IKafkaConsumerService consumer, KafkaEventProcessor eventProcessor)
 {
-    public async Task StartConsumingProductEvents(CancellationToken stoppingToken)
+    public async Task StartConsumingProductEvents(CancellationToken stoppingToken, int instanceNumber)
     {
         await Task.Run(() =>
         {
-            consumer.StartConsuming<ConsumeResult<string, string>>(Topics.ProductEvents.Name, "product-events-consumer-1", async consumeResult =>
-            {
-                using var scope = serviceScope.CreateScope();
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                
-                var eventTypeHeader = consumeResult.Message.Headers.FirstOrDefault(h => h.Key == "eventType");
-
-                if (eventTypeHeader != null)
+            consumer.StartConsuming<ConsumeResult<string, string>>(
+                Topics.ProductEvents.Name,
+                $"product-events-consumer-{instanceNumber}",
+                async consumeResult =>
                 {
-                    var eventType = Encoding.UTF8.GetString(eventTypeHeader.GetValueBytes());
-                    Console.WriteLine($"Received event type: {eventType}");
+                    await eventProcessor.ProcessProductEvent(consumeResult, stoppingToken);
+                },
+                stoppingToken);
+        }, stoppingToken);
+    }
 
-                    if (eventType == Event.ProductCreated.Name)
-                    {
-                        var productCreated = JsonSerializer.Deserialize<ProductCreated>(consumeResult.Message.Value);
-                        if (productCreated != null)
-                        {
-                            Console.WriteLine($"Processing ProductCreated event: {productCreated}");
-                            await mediator.Send(new ProductCreatedEvent(productCreated), stoppingToken);
-                        }
-                    }
-                    else if (eventType == Event.ProductSoftDeleted.Name)
-                    {
-                        var productSoftDeleted = JsonSerializer.Deserialize<ProductSoftDeleted>(consumeResult.Message.Value);
-                        if (productSoftDeleted != null)
-                        {
-                            Console.WriteLine($"Processing ProductSoftDeleted event: {productSoftDeleted}");
-                            await mediator.Send(new ProductSoftDeletedEvent(productSoftDeleted), stoppingToken);
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Unknown event type: {eventType}");
-                    }
-                }
-                else
+    public async Task StartConsumingOrderEvents(CancellationToken stoppingToken, int instanceNumber)
+    {
+        await Task.Run(() =>
+        {
+            consumer.StartConsuming<ConsumeResult<string, string>>(
+                Topics.OrderEvents.Name,
+                $"order-events-consumer-{instanceNumber}",
+                async consumeResult =>
                 {
-                    Console.WriteLine("No eventType header found.");
-                }
-            }, stoppingToken);
+                    await eventProcessor.ProcessOrderEvent(consumeResult, stoppingToken);
+                },
+                stoppingToken);
         }, stoppingToken);
     }
     
-    public async Task StartConsumingOrderEvents(CancellationToken stoppingToken)
+    public async Task StartConsumingTestEvents(CancellationToken stoppingToken, int instanceNumber)
     {
+        var groupInstanceName = $"test-events-consumer-{instanceNumber}";
         await Task.Run(() =>
         {
-            consumer.StartConsuming<ConsumeResult<string, string>>(Topics.OrderEvents.Name, "order-events-consumer-1", async consumeResult =>
-            {
-                using var scope = serviceScope.CreateScope();
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                
-                var eventTypeHeader = consumeResult.Message.Headers.FirstOrDefault(h => h.Key == "eventType");
-
-                if (eventTypeHeader != null)
+            consumer.StartConsuming<ConsumeResult<string, string>>(
+                Topics.TestingTopic.Name,
+                groupInstanceName,
+                async consumeResult =>
                 {
-                    var eventType = Encoding.UTF8.GetString(eventTypeHeader.GetValueBytes());
-                    Console.WriteLine($"Received event type: {eventType}");
-
-                    if (eventType == Event.OrderCreated.Name)
-                    {
-                        var orderCreated = JsonSerializer.Deserialize<OrderCreatedEvent>(consumeResult.Message.Value);
-                        if (orderCreated != null)
-                        {
-                            Console.WriteLine($"Processing OrderCreated event: {orderCreated}");
-                            await mediator.Send(new ReserveInventoryCommand(orderCreated), stoppingToken);
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Unknown event type: {eventType}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("No eventType header found.");
-                }
-            }, stoppingToken);
+                    await eventProcessor.ProcessTestEvent(consumeResult,groupInstanceName, stoppingToken);
+                },
+                stoppingToken);
         }, stoppingToken);
     }
-
 }

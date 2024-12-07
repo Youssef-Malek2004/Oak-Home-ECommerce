@@ -17,7 +17,7 @@ public class KafkaProducerService : IKafkaProducerService
         
         var config = new ProducerConfig
         {
-            BootstrapServers = kafkaConnectionString ?? "localhost:9092",
+            BootstrapServers = kafkaConnectionString ?? settings.Value.BootstrapServers,
             AllowAutoCreateTopics = true,
             Acks = Acks.All
         };
@@ -33,10 +33,34 @@ public class KafkaProducerService : IKafkaProducerService
         {
             var result = await _producer.ProduceAsync(topic,
                 new Message<string, string> { 
-                    Key = typeof(T).Name, 
+                    Key= Guid.NewGuid().ToString(),
                     Value = serializedMessage, 
                     Headers = new Headers {
                     { "eventType", Encoding.UTF8.GetBytes(eventType) }
+                    } 
+                }, cancellationToken);
+            Console.WriteLine($"Message sent to topic {topic}: {result.Value} Offset: {result.Offset}");
+        }
+        catch (ProduceException<string, string> ex)
+        {
+            Console.WriteLine($"Error producing message: {ex.Error.Reason}");
+        }
+
+        _producer.Flush(cancellationToken);
+    }
+    
+    public async Task SendMessageAsyncWithKey<T>(string topic, T message, CancellationToken cancellationToken, string eventType)
+    {
+        var serializedMessage = JsonSerializer.Serialize(message);
+
+        try
+        {
+            var result = await _producer.ProduceAsync(topic,
+                new Message<string, string> { 
+                    Key = typeof(T).Name, 
+                    Value = serializedMessage, 
+                    Headers = new Headers {
+                        { "eventType", Encoding.UTF8.GetBytes(eventType) }
                     } 
                 }, cancellationToken);
             Console.WriteLine($"Message sent to topic {topic}: {result.Value} Offset: {result.Offset}");
