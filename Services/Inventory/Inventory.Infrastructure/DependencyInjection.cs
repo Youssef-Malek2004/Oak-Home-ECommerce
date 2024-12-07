@@ -22,6 +22,7 @@ public static class DependencyInjection
             x.UseNpgsql(configuration.GetConnectionString(DatabaseConnection)));
         
         services.AddScoped<IInventoryRepository, InventoryRepository>();
+        services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

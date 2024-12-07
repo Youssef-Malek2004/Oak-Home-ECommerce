@@ -18,9 +18,6 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventories>
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.Property(i => i.WarehouseId)
-            .IsRequired();
-
         builder.Property(i => i.Quantity)
             .IsRequired();
 
@@ -39,5 +36,6 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventories>
 
         builder.Property(i => i.Price)
             .IsRequired();
+        
     }
 }

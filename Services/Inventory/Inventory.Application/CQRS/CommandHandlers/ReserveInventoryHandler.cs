@@ -12,16 +12,17 @@ namespace Inventory.Application.CQRS.CommandHandlers;
 
 public class ReserveInventoryHandler(IUnitOfWork unitOfWork, IKafkaProducerService producerService) : IRequestHandler<ReserveInventoryCommand, Result>
 {
-     public async Task<Result> Handle(ReserveInventoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ReserveInventoryCommand request, CancellationToken cancellationToken)
     {
         var order = request.OrderCreatedEvent;
         var unavailableItems = new List<NotEnoughInventoryEvent.UnavailableItem>();
+        var reservedItems = new List<InventoryReservedEvent.ReservedItem>();
 
         foreach (var item in order.Items)
         {
-            var inventoryResult = await unitOfWork.InventoryRepository.GetInventoriesByProductIdAsync(item.ProductId, cancellationToken);
-            
-            if (!inventoryResult.IsSuccess)
+            var warehousesResult = await unitOfWork.WarehouseRepository.GetWarehousesSellingProductAsync(item.ProductId, cancellationToken);
+
+            if (!warehousesResult.IsSuccess || !warehousesResult.Value.Any())
             {
                 unavailableItems.Add(new NotEnoughInventoryEvent.UnavailableItem
                 {
@@ -32,32 +33,45 @@ public class ReserveInventoryHandler(IUnitOfWork unitOfWork, IKafkaProducerServi
                 continue;
             }
 
-            var inventory = inventoryResult.Value;
-            
-            if (inventory == null || inventory.Quantity < item.Quantity)
+            var warehouses = warehousesResult.Value.ToList();
+            var selectedWarehouse = warehouses
+                .SelectMany(w => w.Inventories.Where(i => i.ProductId == item.ProductId))
+                .FirstOrDefault(i => i.Quantity >= item.Quantity);
+
+            if (selectedWarehouse == null)
             {
+                var maxAvailableQuantity = warehouses
+                    .SelectMany(w => w.Inventories.Where(i => i.ProductId == item.ProductId))
+                    .Max(i => i.Quantity);
+
                 unavailableItems.Add(new NotEnoughInventoryEvent.UnavailableItem
                 {
                     ProductId = item.ProductId,
                     RequestedQuantity = item.Quantity,
-                    AvailableQuantity = inventory!.Quantity
+                    AvailableQuantity = maxAvailableQuantity
                 });
                 continue;
             }
+            
+            selectedWarehouse.Quantity -= item.Quantity;
+            selectedWarehouse.LastUpdated = DateTime.UtcNow;
 
-            inventory.Quantity -= item.Quantity;
-            inventory.LastUpdated = DateTime.UtcNow;
-
-            var updateResult = await unitOfWork.InventoryRepository.UpdateInventoryAsync(inventory);
+            var updateResult = await unitOfWork.InventoryRepository.UpdateInventoryAsync(selectedWarehouse);
             if (!updateResult.IsSuccess)
             {
                 return Result.Failure(updateResult.Error);
             }
+
+            reservedItems.Add(new InventoryReservedEvent.ReservedItem
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity
+            });
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        if (unavailableItems.Count != 0)
+        if (unavailableItems.Any())
         {
             var notEnoughEvent = new NotEnoughInventoryEvent
             {
@@ -73,15 +87,11 @@ public class ReserveInventoryHandler(IUnitOfWork unitOfWork, IKafkaProducerServi
 
             return Result.Failure(InventoryErrors.InventoryNotEnough("Inventory not sufficient for some items."));
         }
-        
+
         var reservedEvent = new InventoryReservedEvent
         {
             OrderId = order.OrderId,
-            ReservedItems = order.Items.Select(item => new InventoryReservedEvent.ReservedItem()
-            {
-                ProductId = item.ProductId,
-                Quantity = item.Quantity
-            }).ToList()
+            ReservedItems = reservedItems
         };
 
         await producerService.SendMessageAsync(

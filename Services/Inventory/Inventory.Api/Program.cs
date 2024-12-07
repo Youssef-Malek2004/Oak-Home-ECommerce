@@ -1,3 +1,4 @@
+using Inventory.Api.Endpoints;
 using Inventory.Api.Extensions;
 using Inventory.Api.Middlewares;
 using Inventory.Application.CQRS.EventHandlers;
@@ -41,12 +42,17 @@ app.MapGet("GetInventories", async (IUnitOfWork unitOfWork, CancellationToken ca
     return Results.Ok(result.Value);
 });
 
-app.MapPut("update", async ([FromBody]Inventories inventories,IUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+app.MapPut("update", async ([FromBody]Inventories inventories,IUnitOfWork unitOfWork) =>
 {
-    var result = await unitOfWork.InventoryRepository.UpdateInventoryAsync(inventories);
+    await unitOfWork.InventoryRepository.UpdateInventoryAsync(inventories);
     await unitOfWork.SaveChangesAsync();
     return Results.Ok();
 });
+
+var endpoints = app.MapGroup("api");
+
+endpoints.MapInventoryEndpoints();
+endpoints.MapWarehouseEndpoints();
 
 app.AddLifetimeEvents();
 app.UseHttpsRedirection();

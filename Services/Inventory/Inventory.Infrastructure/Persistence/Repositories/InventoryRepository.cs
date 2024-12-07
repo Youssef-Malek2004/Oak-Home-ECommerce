@@ -37,17 +37,25 @@ public class InventoryRepository(InventoryDbContext dbContext) : IInventoryRepos
         return Result<Inventories?>.Success(inventory);
     }
 
-    public async Task<Result<Inventories>> GetInventoriesByProductIdAsync(string productId, CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<Inventories>>> GetInventoriesByProductIdAsync(string productId, CancellationToken cancellationToken = default)
     {
-        var inventories = await dbContext.Inventory
-            .FirstOrDefaultAsync(i => i.ProductId == productId, cancellationToken: cancellationToken);
-
-        if (inventories is null)
+        try
         {
-            return Result<Inventories>.Failure(InventoryErrors.InventoryNotFoundProductId(productId));
-        }
+            var inventories = await dbContext.Inventory
+                .Where(i => i.ProductId == productId)
+                .ToListAsync(cancellationToken);
 
-        return Result<Inventories>.Success(inventories);
+            if (!inventories.Any())
+            {
+                return Result<IEnumerable<Inventories>>.Failure(InventoryErrors.InventoryNotFoundProductId(productId));
+            }
+
+            return Result<IEnumerable<Inventories>>.Success(inventories);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<Inventories>>.Failure(InventoryErrors.InventoryQueryFailed(ex.Message));
+        }
     }
 
     public async Task<Result> AddInventoryAsync(Inventories inventory)

@@ -16,14 +16,21 @@ public class ProductSoftDeletedHandler(IUnitOfWork unitOfWork) : IRequestHandler
         var result = await unitOfWork.InventoryRepository
             .GetInventoriesByProductIdAsync(request.ProductSoftDeleted.ProductId, cancellationToken);
 
-        var inventory = result.Value;
-        
-        if (result.IsFailure | inventory is null)
+        if (result.IsFailure || (result.Value != null && !result.Value.Any()))
+        {
             return Result.Failure(InventoryErrors.InventoryNotFoundProductId(request.ProductSoftDeleted.ProductId));
-        
+        }
 
-        await unitOfWork.InventoryRepository.SetSoftDelete(inventory!, request.ProductSoftDeleted.IsDeleted,
-            cancellationToken);
+        var inventories = result.Value;
+
+        foreach (var inventory in inventories!)
+        {
+            var setSoftDeleteResult = await unitOfWork.InventoryRepository.SetSoftDelete(inventory, request.ProductSoftDeleted.IsDeleted, cancellationToken);
+            if (setSoftDeleteResult.IsFailure)
+            {
+                return Result.Failure(setSoftDeleteResult.Error);
+            }
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

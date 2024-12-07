@@ -9,7 +9,7 @@ public interface IInventoryRepository
     Task<Result<IEnumerable<Inventories>>> GetInventoriesAsync(CancellationToken cancellationToken = default);
     Task<Result<Inventories?>> GetInventoryByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<Result<Inventories>> GetInventoriesByProductIdAsync(string productId, CancellationToken cancellationToken = default);
+    Task<Result<IEnumerable<Inventories>>> GetInventoriesByProductIdAsync(string productId, CancellationToken cancellationToken = default);
 
     Task<Result> AddInventoryAsync(Inventories inventory);
 
