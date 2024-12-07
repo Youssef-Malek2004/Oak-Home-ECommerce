@@ -9,6 +9,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="8.0.11" />
+        <PackageReference Include="StackExchange.Redis" Version="2.8.22" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
@@ -16,6 +18,12 @@
       <Content Include="..\..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Notifications.Application\Notifications.Application.csproj" />
+      <ProjectReference Include="..\Notifications.Domain\Notifications.Domain.csproj" />
+      <ProjectReference Include="..\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

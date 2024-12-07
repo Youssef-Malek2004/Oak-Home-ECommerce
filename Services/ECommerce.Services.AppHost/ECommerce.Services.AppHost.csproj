@@ -16,6 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Inventory\Inventory.Api\Inventory.Api.csproj" />
+      <ProjectReference Include="..\Notifications\Notifications.Api\Notifications.Api.csproj" />
       <ProjectReference Include="..\Orders\Orders.Api\Orders.Api.csproj" />
       <ProjectReference Include="..\Products\Products.Api\Products.Api.csproj" />
       <ProjectReference Include="..\Users\Users.Api\Users.Api.csproj" />
