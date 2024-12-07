@@ -11,6 +11,8 @@ public interface IWarehouseRepository
     Task<Result> AddWarehouseAsync(Warehouse warehouse);
     Task<Result> RemoveWarehouseAsync(Warehouse warehouse);
     Task<Result> UpdateWarehouseAsync(Warehouse warehouse);
+    Task<Result> AddInventoryToWarehouse(Warehouse warehouse, Inventories inventory);
+    Task<Result> RemoveInventoryFromWarehouse(Warehouse warehouse, Inventories inventory);
     Task<Result<IEnumerable<Warehouse>>> GetWarehousesSellingProductAsync(string productId, CancellationToken cancellationToken = default);
     Task<Result<IEnumerable<Warehouse>>> GetWarehousesByConditionAsync(
         Expression<Func<Warehouse, bool>> predicate, 

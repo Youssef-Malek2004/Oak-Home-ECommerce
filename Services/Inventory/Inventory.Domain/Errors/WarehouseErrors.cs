@@ -20,4 +20,14 @@ public static class WarehouseErrors
         new Error($"Failed to update warehouse. Error: {message}");
     public static Error WarehousesNotFoundForProduct(string productId) =>
         new Error($"No warehouses found selling the product with ID '{productId}'.");
+    public static Error FailedToAddInventory(Guid warehouseId, Guid inventoryId) =>
+        new Error("WarehouseErrors.FailedToAddInventory",
+            $"Failed to add Inventory: {inventoryId} to Warehouse: {warehouseId}");
+    public static Error FailedToRemoveInventory(Guid warehouseId, Guid inventoryId) =>
+        new Error("WarehouseErrors.FailedToRemoveInventory",
+            $"Failed to remove Inventory: {inventoryId} from Warehouse: {warehouseId}");
+    
+    public static Error InventoryNotFoundInWarehouse(Guid warehouseId, Guid inventoryId) =>
+        new Error("WarehouseErrors.InventoryNotFoundInWarehouse",
+            $"Inventory: {inventoryId} not found in Warehouse: {warehouseId}");
 }

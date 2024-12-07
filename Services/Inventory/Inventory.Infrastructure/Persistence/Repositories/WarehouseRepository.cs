@@ -84,7 +84,38 @@ public class WarehouseRepository(InventoryDbContext context) : IWarehouseReposit
             return Result.Failure(WarehouseErrors.WarehouseUpdateFailed(ex.Message));
         }
     }
-    
+
+    public async Task<Result> AddInventoryToWarehouse(Warehouse warehouse, Inventories inventory)
+    {
+        try
+        {
+            warehouse.Inventories.Add(inventory);
+            context.Warehouses.Update(warehouse);
+            return Result.Success();
+        }
+        catch (Exception)
+        {
+            return Result.Failure(WarehouseErrors.FailedToAddInventory(warehouse.WarehouseId, inventory.Id));
+        }
+    }
+
+    public async Task<Result> RemoveInventoryFromWarehouse(Warehouse warehouse, Inventories inventory)
+    {
+        try
+        {
+            if (!warehouse.Inventories.Contains(inventory))
+                return Result.Failure(WarehouseErrors.InventoryNotFoundInWarehouse(warehouse.WarehouseId,inventory.Id));
+            
+            warehouse.Inventories.Remove(inventory);
+            context.Warehouses.Update(warehouse);
+            return Result.Success();
+        }
+        catch (Exception)
+        {
+            return Result.Failure(WarehouseErrors.FailedToRemoveInventory(warehouse.WarehouseId, inventory.Id));
+        }
+    }
+
     public async Task<Result<IEnumerable<Warehouse>>> GetWarehousesSellingProductAsync(string productId, CancellationToken cancellationToken = default)
     {
         try

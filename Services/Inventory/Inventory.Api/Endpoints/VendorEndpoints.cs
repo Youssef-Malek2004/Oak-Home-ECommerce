@@ -12,11 +12,20 @@ public static class VendorEndpoints
     {
         var group = app.MapGroup("/vendors");
 
-        group.MapPost("/{id:guid}/supply-inventory", async (Guid id, SupplyInventoryDto supplyInventoryDto,
+        group.MapPost("/{id:guid}/supply-inventory", async (Guid _, SupplyInventoryDto supplyInventoryDto,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var result = await mediator.Send(new SupplyInventoryCommand(supplyInventoryDto)
+                , cancellationToken);
+            return result.IsSuccess ? Results.Ok() : Results.BadRequest();
+        }).HasPermission(Permissions.MustBeSameUser.Name);
+
+        group.MapPost("/{id:guid}/change-warehouse", async (Guid _, ChangeWarehouseDto changeWarehouseDto,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new ChangeWarehouseCommand(changeWarehouseDto)
                 , cancellationToken);
             return result.IsSuccess ? Results.Ok() : Results.BadRequest();
         }).HasPermission(Permissions.MustBeSameUser.Name);
