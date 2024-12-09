@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Notifications.Api.Middlewares;
 using Notifications.Api.OptionsSetup;
-using Notifications.Api.SignalR;
 using Notifications.Application.CQRS.CommandHandlers;
 using Notifications.Application.Services.Redis;
 using Notifications.Application.Services.SignalR;
@@ -11,6 +10,7 @@ using Notifications.Domain.Entities;
 using Notifications.Infrastructure;
 using Notifications.Infrastructure.Kafka;
 using Notifications.Infrastructure.Persistence.Redis;
+using Notifications.Infrastructure.SignalR;
 using Shared.Contracts.Kafka;
 using StackExchange.Redis;
 
@@ -44,6 +44,7 @@ builder.Services.AddScoped<IRedisService, RedisService>();
 
 builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379,abortConnect=false");
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+builder.Services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
 
 builder.Services.ConfigureAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();

@@ -34,16 +34,17 @@ public class KafkaEventProcessor(IServiceScopeFactory serviceScope)
                 Console.WriteLine($"Consumer: {groupInstanceName} Processing Test event: {testEvent}" +
                                   $" with Number: {testEvent.Number} with Offset: {consumeResult.Offset}");
 
+                var useridtest = "03dce57f-b2b2-4648-b48f-4b0017fac584";
                 var notification = new Notification
                 {
                     Title = "Test Event Notification",
                     Message = $"Test event received with number {testEvent.Number}",
                     Type = "info",
-                    UserId = null, // Assuming TestEvent includes UserId todo broadcasting
+                    UserId = Guid.Parse(useridtest), // Assuming TestEvent includes UserId todo broadcasting
                     Group = "TestEvents",
                     Channel = "WebSocket",
                     CreatedAt = DateTime.UtcNow,
-                    IsDelivered = true,
+                    IsDelivered = false,
                     IsRead = false
                 };
 

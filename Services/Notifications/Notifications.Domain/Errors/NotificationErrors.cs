@@ -10,6 +10,8 @@ public static class NotificationErrors
 
     public static Error FailedToGetUnreadNotifications(Guid userId) =>
         new Error("NotificationErrors.FailedToGetUnreadNotifications", $"Failed to get unread notifications for user with ID: {userId}");
+    public static Error FailedToGetUndeliveredNotifications(Guid userId) =>
+        new Error("NotificationErrors.FailedToGetUndeliveredNotifications", $"Failed to get undelivered notifications for user with ID: {userId}");
 
     public static Error FailedToGetOneWeekOldNotifications() =>
         new Error("NotificationErrors.FailedToGetOneWeekOldNotifications", "Failed to get one-week-old notifications.");
@@ -34,5 +36,7 @@ public static class NotificationErrors
 
     public static Error FailedToDeleteNotificationWithoutUser(Guid notificationId) =>
         new Error("NotificationErrors.FailedToDeleteNotificationWithoutUser", $"Failed to delete notification with ID: {notificationId}");
+    public static Error FailedToSendUndeliveredNotifications(Guid userId) =>
+        new Error("NotificationErrors.FailedToSendUndeliveredNotifications", $"Failed to send undelivered notifications for user with ID: {userId}");
     
 }

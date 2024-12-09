@@ -1,6 +1,7 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.SignalR.Client
+@using System.Text.Json
 
 <PageTitle>Home</PageTitle>
 
@@ -11,35 +12,48 @@ Welcome to your new app.
 Messages from the server 👇
 
 <ul>
-    @foreach (var message in _messages)
+    @foreach (var notification in _notifications)
     {
-        <li>@message</li>   
+        <li>
+            <strong>@notification.Title:</strong> @notification.Message
+            <button @onclick="() => MarkNotificationAsRead(notification.Id)">Mark as Read</button>
+        </li>   
     }
 </ul>
-
 
 @code
 {
     private HubConnection? _hubConnection;
-    private readonly List<string> _messages = new();
+    private readonly List<Notification> _notifications = new();
     private bool _isRendering;
 
     protected override async Task OnInitializedAsync()
     {
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:5279/chat-hub?userId=123e4567-e89b-12d3-a456-426614174000")
+            .WithUrl("http://localhost:5279/chat-hub",
+                o => o.AccessTokenProvider = () => Task.FromResult<string?>("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwM2RjZTU3Zi1iMmIyLTQ2NDgtYjQ4Zi00YjAwMTdmYWM1ODQiLCJlbWFpbCI6InlvdXNzZWZtYWxla3ZlbmRvckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiUmVnaXN0ZXJlZCIsIlZlbmRvciJdLCJQZXJtaXNzaW9ucyI6WyJSZWFkVXNlcnMiLCJVcGRhdGVVc2VycyIsIk11c3RCZVNhbWVVc2VyIl0sImV4cCI6MTczMzc3MjQ4NiwiaXNzIjoiRWNvbW1lcmNlLlVzZXJTZXJ2aWNlIiwiYXVkIjoiRWNvbW1lcmNlLlVzZXJzIn0.e8ZKzV2DzNu4Xsys1mOt4NISwXFRPEK7R3lIuNpPmPBsnm2pCy8KiTdzQpqX8NrVY8qSevOQZt3cgDLyD_NEKmI2Ogh308KZuOw0o6TB-0wNeEExF5JYjOLN0vMiGhN5-VUo_BemnK7cr1K0oXZeuQwvipqvUFM--1Ei_e1ajBSl4r_ZLh75QQQ-sS1_1Qkh-WKdDycSCbdYOMJtyKGSNvKXhYTjxd7wgATOdbQ_c6fu2wdf5Cq8g7aorPpSHYUQiQawieHk-7elEapogJJ5r6kH2ateAMkGYDbACkDtJtLRaYvBpNMe9OJTW2JIEFoWIQ9Js9GLPD7XnbU9kjYMAA"))
             .WithAutomaticReconnect()
             .Build();
 
         _hubConnection.On<string>("ReceiveNotification", message =>
         {
-            Console.WriteLine($"Received message: {message}");
-            _messages.Add(message);
-            
-            if (!_isRendering)
+            try
             {
-                _isRendering = true;
-                InvokeAsync(StateHasChanged).ContinueWith(_ => _isRendering = false);
+                var notification = JsonSerializer.Deserialize<Notification>(message);
+                if (notification != null)
+                {
+                    _notifications.Add(notification);
+                    
+                    if (!_isRendering)
+                    {
+                        _isRendering = true;
+                        InvokeAsync(StateHasChanged).ContinueWith(_ => _isRendering = false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deserializing notification: {ex.Message}");
             }
         });
 
@@ -54,6 +68,35 @@ Messages from the server 👇
         }
     }
     
+    private async Task MarkNotificationAsRead(Guid notificationId)
+    {
+        if (_hubConnection == null)
+        {
+            Console.WriteLine("SignalR connection is not established.");
+            return;
+        }
+
+        try
+        {
+            await _hubConnection.InvokeAsync("MarkNotificationAsRead", notificationId);
+            
+            Console.WriteLine($"Marked notification {notificationId} as read.");
+            
+            // Optionally, mark the notification as read locally
+            var notification = _notifications.FirstOrDefault(n => n.Id == notificationId);
+            if (notification != null)
+            {
+                _notifications.Remove(notification);
+                
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error marking notification as read: {ex.Message}");
+        }
+    }
+    
     public async ValueTask DisposeAsync()
     {
         if (_hubConnection != null)
@@ -61,4 +104,26 @@ Messages from the server 👇
             await _hubConnection.DisposeAsync();
         }
     }
+
+    public class Notification
+    {
+        public Guid Id { get; set; } = Guid.NewGuid(); 
+
+        public string Title { get; set; } = string.Empty; // Title or subject of the notification
+        public string Message { get; set; } = string.Empty; // Main content of the notification
+
+        public string Type { get; set; } = string.Empty; // e.g., "info", "warning", "error", "success"
+
+        public Guid? UserId { get; set; } // Targeted user (optional, null for broadcast)
+        public string Group { get; set; } = string.Empty; // Group for grouped notifications (e.g., "Admin")
+
+        public string Channel { get; set; } = string.Empty; // Delivery channel (e.g., "Email", "Push", "SMS", "WebSocket")
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // When the notification was created
+        public DateTime? SentAt { get; set; } // When the notification was sent (optional)
+
+        public bool IsRead { get; set; }  // Whether the notification has been read
+        public bool IsDelivered { get; set; }  // Whether the notification was successfully delivered
+    }
+
 }

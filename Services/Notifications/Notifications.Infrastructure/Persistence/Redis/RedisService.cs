@@ -46,6 +46,22 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
+    public async Task<Result<List<Notification>>> GetUndeliveredNotificationsAsync(Guid userId)
+    {
+        try
+        {
+            var notificationsResult = await GetNotificationsAsync(userId);
+            if (!notificationsResult.IsSuccess) return notificationsResult;
+
+            var unreadNotifications = notificationsResult.Value!.Where(n => !n.IsDelivered).ToList();
+            return Result<List<Notification>>.Success(unreadNotifications);
+        }
+        catch (Exception)
+        {
+            return Result<List<Notification>>.Failure(NotificationErrors.FailedToGetUndeliveredNotifications(userId));
+        }
+    }
+
     public async Task<Result<List<Notification>>> GetOneWeekOldNotificationsAsync()
     {
         try
@@ -164,6 +180,51 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
     }
 
     public async Task<Result> MarkNotificationsAsReadAsync(Guid userId, List<Guid> notificationIds)
+    {
+        try
+        {
+            foreach (var notificationId in notificationIds)
+            {
+                var result = await MarkNotificationAsReadAsync(userId, notificationId);
+                if (!result.IsSuccess) return result;
+            }
+
+            return Result.Success();
+        }
+        catch (Exception)
+        {
+            return Result.Failure(NotificationErrors.FailedToMarkNotificationsAsRead(userId));
+        }
+    }
+
+    public async Task<Result> MarkNotificationAsDeliveredAsync(Guid userId, Guid notificationId)
+    {
+        try
+        {
+            var key = GetUserKey(userId);
+            var notifications = await _db.ListRangeAsync(key);
+
+            for (int i = 0; i < notifications.Length; i++)
+            {
+                var notification = JsonSerializer.Deserialize<Notification>(notifications[i].ToString());
+                if (notification?.Id == notificationId)
+                {
+                    notification.IsDelivered = true;
+                    var updatedNotification = JsonSerializer.Serialize(notification);
+                    await _db.ListSetByIndexAsync(key, i, updatedNotification);
+                    return Result.Success();
+                }
+            }
+
+            return Result.Failure(NotificationErrors.NotificationNotFound(notificationId));
+        }
+        catch (Exception)
+        {
+            return Result.Failure(NotificationErrors.FailedToMarkNotificationAsRead(userId,notificationId));
+        }
+    }
+
+    public async Task<Result> MarkNotificationsAsDeliveredAsync(Guid userId, List<Guid> notificationIds)
     {
         try
         {

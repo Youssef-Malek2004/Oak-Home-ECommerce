@@ -6,10 +6,12 @@ using Notifications.Application.CQRS.Commands;
 using Notifications.Application.CQRS.Queries;
 using Notifications.Application.Services.SignalR;
 
-namespace Notifications.Api.SignalR;
+namespace Notifications.Infrastructure.SignalR;
 
 [Authorize]
-public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
+public sealed class ChatHub(IMediator mediator,
+    INotificationService notificationService,
+    IUserConnectionManager userConnectionManager) : Hub<IChatClient>
 {
     public async Task SendMessage(string message)
     {
@@ -27,24 +29,12 @@ public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
             Context.Abort();
             return;
         }
-
+        
+        userConnectionManager.AddConnection(userId, Context.ConnectionId);
         await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
 
-        var unreadResult = await mediator.Send(new GetUnreadNotificationsQuery(userId));
-
-        if (unreadResult.IsSuccess && unreadResult.Value != null)
-        {
-            foreach (var notification in unreadResult.Value)
-            {
-                await Clients.Caller.ReceiveNotification(
-                    $"Unread Notification: {notification.Title} - {notification.Message}");
-            }
-        }
-        else
-        {
-            await Clients.Caller.ReceiveNotification(
-                $"Failed to retrieve unread notifications: {unreadResult.Error}");
-        }
+        await notificationService.SendUndeliveredNotificationsAsync(userId);
+        await notificationService.SendUnreadNotificationsAsync(userId);
 
         await base.OnConnectedAsync();
     }
@@ -56,6 +46,7 @@ public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
 
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
         {
+            userConnectionManager.RemoveConnection(userId, Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId.ToString());
         }
 
@@ -77,11 +68,11 @@ public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
 
         if (result.IsSuccess)
         {
-            await Clients.Caller.ReceiveNotification($"Notification {notificationId} marked as read.");
+            Console.WriteLine($"Notification {notificationId} marked as read.");
         }
         else
         {
-            await Clients.Caller.ReceiveNotification(
+            Console.WriteLine(
                 $"Error marking notification {notificationId} as read: {result.Error}");
         }
     }
