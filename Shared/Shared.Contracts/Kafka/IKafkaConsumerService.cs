@@ -1,6 +1,6 @@
 using Confluent.Kafka;
 
-namespace Inventory.Application.Services;
+namespace Shared.Contracts.Kafka;
 
 public interface IKafkaConsumerService
 {

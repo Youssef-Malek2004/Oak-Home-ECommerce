@@ -1,5 +1,4 @@
 using Confluent.Kafka;
-using Inventory.Application.KafkaSettings;
 using Inventory.Application.Services;
 using Inventory.Domain;
 using Inventory.Domain.Repositories;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Shared.Contracts.Kafka;
+using KafkaSettings = Shared.Contracts.Kafka.KafkaSettings;
 
 namespace Inventory.Infrastructure;
 

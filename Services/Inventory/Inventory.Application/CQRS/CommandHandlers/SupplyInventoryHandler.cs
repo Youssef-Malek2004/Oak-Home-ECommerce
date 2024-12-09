@@ -2,7 +2,6 @@ using Abstractions.ResultsPattern;
 using Inventory.Application.CQRS.Commands;
 using Inventory.Domain;
 using Inventory.Domain.Errors;
-using Inventory.Domain.Repositories;
 using MediatR;
 
 namespace Inventory.Application.CQRS.CommandHandlers;

@@ -1,11 +1,11 @@
 using Abstractions.ResultsPattern;
 using MediatR;
 using Orders.Application.CQRS.Commands;
-using Orders.Application.Services.Kafka;
 using Orders.Domain;
 using Orders.Domain.DTOs.Orders;
 using Orders.Domain.Mappers;
 using Shared.Contracts.Events;
+using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
 
 namespace Orders.Application.CQRS.CommandHandlers;

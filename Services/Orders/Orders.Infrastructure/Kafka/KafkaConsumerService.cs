@@ -1,14 +1,12 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
-using Orders.Application.KafkaSettings;
-using Orders.Application.Services.Kafka;
+using Shared.Contracts.Kafka;
 
 namespace Orders.Infrastructure.Kafka;
 
 public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient adminClient) : IKafkaConsumerService
 {
-    private const string InitialGroupInstanceId = "orders-service-instance";
+    private const string InitialGroupInstanceId = "orders-service-instance-";
     public void StartConsuming<T>(string topic ,string groupInstanceName,
         Func<ConsumeResult<string,string>, Task> processMessage, CancellationToken stoppingToken)
     {
@@ -48,6 +46,7 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient
                 }
                 
                 processMessage(consumeResult).Wait(stoppingToken);
+                
             }
         }
         catch (OperationCanceledException)

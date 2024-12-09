@@ -1,9 +1,12 @@
+using MediatR;
 using Microsoft.AspNetCore.SignalR;
-using Notifications.Application.Services.Redis;
+using Notifications.Application.CQRS.Commands;
+using Notifications.Application.CQRS.Queries;
+using Notifications.Application.Services.SignalR;
 
-namespace Notifications.Api;
+namespace Notifications.Api.SignalR;
 
-public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
+public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
 {
     public async Task SendMessage(string message)
     {
@@ -18,7 +21,7 @@ public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
             
             await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
             
-            var unreadResult = await redisService.GetUnreadNotificationsAsync(userId);
+            var unreadResult = await mediator.Send(new GetUnreadNotificationsQuery(userId));
 
             if (unreadResult.IsSuccess && unreadResult.Value != null)
             {
@@ -33,7 +36,6 @@ public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
                 await Task.Delay(1);
                 await Clients.Caller.ReceiveNotification($"Failed to retrieve unread notifications: {unreadResult.Error}");
             }
-            await Clients.Caller.ReceiveNotification($"Connected as user {userId}.");
         }
         else
         {
@@ -64,7 +66,7 @@ public sealed class ChatHub(IRedisService redisService) : Hub<IChatClient>
             return;
         }
         
-        var result = await redisService.MarkNotificationAsReadAsync(userId, notificationId);
+        var result = await mediator.Send(new MarkNotificationAsReadCommand(userId, notificationId));
 
         if (result.IsSuccess)
         {

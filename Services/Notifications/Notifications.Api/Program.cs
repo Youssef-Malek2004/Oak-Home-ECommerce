@@ -1,10 +1,15 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using Notifications.Api;
+using Notifications.Api.SignalR;
+using Notifications.Application.CQRS.CommandHandlers;
 using Notifications.Application.Services.Redis;
+using Notifications.Application.Services.SignalR;
 using Notifications.Domain.Entities;
+using Notifications.Infrastructure;
+using Notifications.Infrastructure.Kafka;
 using Notifications.Infrastructure.Persistence.Redis;
+using Shared.Contracts.Kafka;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,9 +24,25 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
     return ConnectionMultiplexer.Connect(redisSettings.ConnectionStringLocal);
 });
 
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
+builder.Services.AddKafkaAdminClient();
+builder.Services.AddSingleton<IKafkaProducerService,KafkaProducerService>();
+builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
+builder.Services.AddSingleton<KafkaEventProcessor>();
+builder.Services.AddSingleton<KafkaDispatcher>();
+
+builder.Services.AddHostedService<KafkaInitializationHostedService>();
+builder.Services.AddHostedService<KafkaHostedService>();
+
+
+builder.Services.AddMediatR(cfg => 
+    cfg.RegisterServicesFromAssemblyContaining<MarkNotificationAsReadHandler>());
+
 builder.Services.AddScoped<IRedisService, RedisService>();
 
 builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379,abortConnect=false");
+builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+
 
 builder.Services.AddCors();
 

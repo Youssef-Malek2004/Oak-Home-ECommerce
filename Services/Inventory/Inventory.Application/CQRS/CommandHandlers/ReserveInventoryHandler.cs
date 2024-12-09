@@ -6,6 +6,7 @@ using Inventory.Domain.Errors;
 using MediatR;
 using Shared.Contracts.Events;
 using Shared.Contracts.Events.InventoryEvents;
+using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
 
 namespace Inventory.Application.CQRS.CommandHandlers;

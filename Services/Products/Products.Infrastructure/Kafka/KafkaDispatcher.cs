@@ -1,8 +1,8 @@
-using Shared.Contracts.Events;
+using Shared.Contracts.Kafka;
 
 namespace Products.Infrastructure.Kafka;
 
-public class KafkaDispatcher(KafkaConsumerService consumer)
+public class KafkaDispatcher(KafkaConsumerService consumer) : IKafkaDispatcher
 {
     public async Task StartConsuming(CancellationToken stoppingToken)
     {

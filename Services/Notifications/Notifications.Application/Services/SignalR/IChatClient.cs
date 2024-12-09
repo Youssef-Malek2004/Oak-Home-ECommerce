@@ -1,4 +1,4 @@
-namespace Notifications.Api;
+namespace Notifications.Application.Services.SignalR;
 
 public interface IChatClient
 {

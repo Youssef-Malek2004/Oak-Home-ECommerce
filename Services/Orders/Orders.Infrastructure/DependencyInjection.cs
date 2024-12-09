@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orders.Application.KafkaSettings;
 using Orders.Application.Services.Data;
 using Orders.Domain;
 using Orders.Domain.Repositories;
 using Orders.Infrastructure.Authentication;
 using Orders.Infrastructure.Persistence;
 using Orders.Infrastructure.Persistence.Repositories;
+using Shared.Contracts.Kafka;
 
 namespace Orders.Infrastructure;
 

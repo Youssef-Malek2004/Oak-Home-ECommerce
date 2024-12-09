@@ -3,10 +3,9 @@ using Orders.Api.Extensions;
 using Orders.Api.Middlewares;
 using Orders.Api.OptionsSetup;
 using Orders.Application.CQRS.CommandHandlers;
-using Orders.Application.KafkaSettings;
-using Orders.Application.Services.Kafka;
 using Orders.Infrastructure;
 using Orders.Infrastructure.Kafka;
+using Shared.Contracts.Kafka;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +15,7 @@ builder.Services.AddPersistence(builder.Configuration);
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
 builder.Services.AddKafkaAdminClient();
-builder.Services.AddSingleton<IKafkaProducerService,KafkaProducerService>();
+builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
 builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 builder.Services.AddSingleton<KafkaDispatcher>();
 builder.Services.AddHostedService<KafkaHostedService>();

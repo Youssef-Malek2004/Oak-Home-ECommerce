@@ -1,4 +1,4 @@
-namespace Products.Application.KafkaSettings;
+namespace Shared.Contracts.Kafka;
 
 public class KafkaSettings
 {

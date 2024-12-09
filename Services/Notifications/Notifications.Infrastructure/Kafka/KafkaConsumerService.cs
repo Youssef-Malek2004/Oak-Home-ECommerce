@@ -2,11 +2,11 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using Shared.Contracts.Kafka;
 
-namespace Products.Infrastructure.Kafka;
+namespace Notifications.Infrastructure.Kafka;
 
 public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient adminClient) : IKafkaConsumerService
 {
-    private const string InitialGroupInstanceId = "products-service-instance-";
+    private const string InitialGroupInstanceId = "notifications-service-instance-";
     public void StartConsuming<T>(string topic ,string groupInstanceName,
         Func<ConsumeResult<string,string>, Task> processMessage, CancellationToken stoppingToken)
     {

@@ -4,14 +4,14 @@ using Confluent.Kafka;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Application.CQRS.Commands;
-using Orders.Application.Services.Kafka;
 using Shared.Contracts.Events;
 using Shared.Contracts.Events.InventoryEvents;
+using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
 
 namespace Orders.Infrastructure.Kafka;
 
-public class KafkaDispatcher(IKafkaConsumerService consumer, IServiceScopeFactory serviceScope)
+public class KafkaDispatcher(IKafkaConsumerService consumer, IServiceScopeFactory serviceScope) : IKafkaDispatcher
 {
    public async Task StartConsumingInventoryEvents(CancellationToken stoppingToken)
     {

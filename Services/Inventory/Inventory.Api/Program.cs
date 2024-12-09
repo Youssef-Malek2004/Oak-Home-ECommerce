@@ -3,14 +3,13 @@ using Inventory.Api.Extensions;
 using Inventory.Api.Middlewares;
 using Inventory.Api.OptionsSetup;
 using Inventory.Application.CQRS.EventHandlers;
-using Inventory.Application.KafkaSettings;
-using Inventory.Application.Services;
 using Inventory.Domain;
 using Inventory.Domain.Entities;
 using Inventory.Infrastructure;
 using Inventory.Infrastructure.Kafka;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Contracts.Events;
+using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
 
 var builder = WebApplication.CreateBuilder(args);

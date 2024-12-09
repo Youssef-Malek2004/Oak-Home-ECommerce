@@ -2,10 +2,10 @@ using Abstractions.ResultsPattern;
 using MediatR;
 using Products.Application.CQRS.CommandsAndQueries.Products;
 using Products.Application.Services;
-using Products.Application.Services.Kafka;
 using Products.Domain.Entities;
 using Products.Domain.Errors;
 using Shared.Contracts.Events;
+using Shared.Contracts.Kafka;
 using Shared.Contracts.RequestDtosAndMappers.SharedMappers.ProductMappers;
 using Shared.Contracts.Topics;
 

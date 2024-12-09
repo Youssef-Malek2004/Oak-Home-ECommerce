@@ -1,7 +1,6 @@
 using Confluent.Kafka;
-using Inventory.Application.KafkaSettings;
-using Inventory.Application.Services;
 using Microsoft.Extensions.Options;
+using Shared.Contracts.Kafka;
 
 namespace Inventory.Infrastructure.Kafka;
 

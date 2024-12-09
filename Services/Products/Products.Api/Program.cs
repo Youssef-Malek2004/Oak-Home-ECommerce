@@ -1,11 +1,10 @@
 using Products.Api.Endpoints;
 using Products.Api.Middlewares;
 using Products.Api.OptionsSetup;
-using Products.Application.KafkaSettings;
-using Products.Application.Services.Kafka;
 using Products.Application.Settings;
 using Products.Infrastructure;
 using Products.Infrastructure.Kafka;
+using Shared.Contracts.Kafka;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +19,7 @@ builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection("Mong
 builder.Services.AddPersistence();
 builder.Services.ConfigureMediatR();
 
+builder.Services.AddKafkaAdminClient();
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
 builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
 builder.Services.AddSingleton<KafkaConsumerService>();

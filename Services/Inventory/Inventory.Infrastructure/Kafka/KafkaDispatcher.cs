@@ -1,10 +1,10 @@
 using Confluent.Kafka;
-using Inventory.Application.Services;
+using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
 
 namespace Inventory.Infrastructure.Kafka;
 
-public class KafkaDispatcher(IKafkaConsumerService consumer, KafkaEventProcessor eventProcessor)
+public class KafkaDispatcher(IKafkaConsumerService consumer, KafkaEventProcessor eventProcessor) : IKafkaDispatcher
 {
     public async Task StartConsumingProductEvents(CancellationToken stoppingToken, int instanceNumber)
     {

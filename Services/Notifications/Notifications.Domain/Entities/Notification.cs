@@ -17,6 +17,6 @@ public class Notification
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // When the notification was created
     public DateTime? SentAt { get; set; } // When the notification was sent (optional)
 
-    public bool IsRead { get; set; } = false; // Whether the notification has been read
-    public bool IsDelivered { get; set; } = false; // Whether the notification was successfully delivered
+    public bool IsRead { get; set; }  // Whether the notification has been read
+    public bool IsDelivered { get; set; }  // Whether the notification was successfully delivered
 }
