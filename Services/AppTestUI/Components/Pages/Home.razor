@@ -31,7 +31,7 @@ Messages from the server 👇
     {
         _hubConnection = new HubConnectionBuilder()
             .WithUrl("http://localhost:5279/chat-hub",
-                o => o.AccessTokenProvider = () => Task.FromResult<string?>("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwM2RjZTU3Zi1iMmIyLTQ2NDgtYjQ4Zi00YjAwMTdmYWM1ODQiLCJlbWFpbCI6InlvdXNzZWZtYWxla3ZlbmRvckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiUmVnaXN0ZXJlZCIsIlZlbmRvciJdLCJQZXJtaXNzaW9ucyI6WyJSZWFkVXNlcnMiLCJVcGRhdGVVc2VycyIsIk11c3RCZVNhbWVVc2VyIl0sImV4cCI6MTczMzc3MjQ4NiwiaXNzIjoiRWNvbW1lcmNlLlVzZXJTZXJ2aWNlIiwiYXVkIjoiRWNvbW1lcmNlLlVzZXJzIn0.e8ZKzV2DzNu4Xsys1mOt4NISwXFRPEK7R3lIuNpPmPBsnm2pCy8KiTdzQpqX8NrVY8qSevOQZt3cgDLyD_NEKmI2Ogh308KZuOw0o6TB-0wNeEExF5JYjOLN0vMiGhN5-VUo_BemnK7cr1K0oXZeuQwvipqvUFM--1Ei_e1ajBSl4r_ZLh75QQQ-sS1_1Qkh-WKdDycSCbdYOMJtyKGSNvKXhYTjxd7wgATOdbQ_c6fu2wdf5Cq8g7aorPpSHYUQiQawieHk-7elEapogJJ5r6kH2ateAMkGYDbACkDtJtLRaYvBpNMe9OJTW2JIEFoWIQ9Js9GLPD7XnbU9kjYMAA"))
+                o => o.AccessTokenProvider = () => Task.FromResult<string?>("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwM2RjZTU3Zi1iMmIyLTQ2NDgtYjQ4Zi00YjAwMTdmYWM1ODQiLCJlbWFpbCI6InlvdXNzZWZtYWxla3ZlbmRvckBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiUmVnaXN0ZXJlZCIsIlZlbmRvciJdLCJQZXJtaXNzaW9ucyI6WyJSZWFkVXNlcnMiLCJVcGRhdGVVc2VycyIsIk11c3RCZVNhbWVVc2VyIl0sImV4cCI6MTczMzc4Njk4MCwiaXNzIjoiRWNvbW1lcmNlLlVzZXJTZXJ2aWNlIiwiYXVkIjoiRWNvbW1lcmNlLlVzZXJzIn0.ZjRkfLqQagY8dp8f7nldeuj0upDJ60wvnmRBRNppxgi70ppj39dMwLMuGY2Oovg_4NUOB3sw4u8PoDMtkQjWXuksfh1ZPsfjuhg7Jzlt1J9V00ui3CsoAH7GvZpKO45ULiQEJi_dbalZPu0QifpztiHVYs_ma2uy84eJXguvwuD7HxMSgVl99iSoZBbBXnumyrHQMkDVs6qRSawRpOJeH3DQw6pPymJd4as0J1nBbogZkrAR1MdQ51EAK7TYT-onMNNjRaIq-zTvYw7sD5RgDyLWg0XnRIHg-A46PZ83_vyMGqYHBHRBUPCZZtlokx_THkckCLD229ZuyBOsNgz7Bg"))
             .WithAutomaticReconnect()
             .Build();
 
@@ -40,10 +40,11 @@ Messages from the server 👇
             try
             {
                 var notification = JsonSerializer.Deserialize<Notification>(message);
-                if (notification != null)
+                if (notification == null) return;
+                if (_notifications.All(n => n.Id != notification.Id))
                 {
                     _notifications.Add(notification);
-                    
+
                     if (!_isRendering)
                     {
                         _isRendering = true;

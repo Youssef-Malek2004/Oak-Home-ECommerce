@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 
 namespace Notifications.Application.Services.SignalR;
 
