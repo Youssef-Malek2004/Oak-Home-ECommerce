@@ -3,7 +3,8 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Application.Services.SignalR;
-using Notifications.Domain.Entities;
+using Shared.Contracts.Entities;
+using Shared.Contracts.Entities.NotificationService;
 using Shared.Contracts.Events;
 
 namespace Notifications.Infrastructure.Kafka;
@@ -40,9 +41,9 @@ public class KafkaEventProcessor(IServiceScopeFactory serviceScope)
                     Title = "Test Event Notification",
                     Message = $"Test event received with number {testEvent.Number}",
                     Type = "info",
-                    UserId = Guid.Parse(useridtest), // Assuming TestEvent includes UserId todo broadcasting
-                    Group = "TestEvents",
-                    Channel = "WebSocket",
+                    UserId = Guid.Parse(useridtest),
+                    Group = Groups.None.Name,
+                    Channel = Channels.WebSocket.Name,
                     CreatedAt = DateTime.UtcNow,
                     IsDelivered = false,
                     IsRead = false
@@ -70,4 +71,29 @@ public class KafkaEventProcessor(IServiceScopeFactory serviceScope)
             Console.WriteLine($"Unknown event type: {eventType}");
         }
     }
+    
+    public async Task ProcessNotificationRequests(ConsumeResult<string, string> consumeResult, string groupInstanceName, CancellationToken cancellationToken)
+    {
+        using var scope = serviceScope.CreateScope();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+        
+        var notificationRequest = JsonSerializer.Deserialize<NotificationRequest>(consumeResult.Message.Value);
+        if (notificationRequest != null)
+        {
+            Console.WriteLine($"Consumer: {groupInstanceName} Processing Notification request: {notificationRequest}" +
+                              $" with notification: {notificationRequest.Notification} with Offset: {consumeResult.Offset}");
+
+            var notification = notificationRequest.Notification;
+            try
+            {
+                if (notification.UserId != null)
+                    await notificationService.SendNotificationToUserAsync(notification.UserId.Value, notification);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending notification via SignalR: {ex.Message}");
+            }
+        }
+    }
+    
 }

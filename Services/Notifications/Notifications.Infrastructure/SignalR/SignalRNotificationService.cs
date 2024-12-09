@@ -3,8 +3,8 @@ using Abstractions.ResultsPattern;
 using Microsoft.AspNetCore.SignalR;
 using Notifications.Application.Services.Redis;
 using Notifications.Application.Services.SignalR;
-using Notifications.Domain.Entities;
 using Notifications.Domain.Errors;
+using Shared.Contracts.Entities.NotificationService;
 
 namespace Notifications.Infrastructure.SignalR;
 

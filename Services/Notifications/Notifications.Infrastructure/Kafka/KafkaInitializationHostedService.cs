@@ -12,13 +12,13 @@ public class KafkaInitializationHostedService(IAdminClientService adminClientSer
         {
             Console.WriteLine("Starting Kafka Initialization...");
 
-            var topic = Topics.TestingTopic.Name;
+            var notificationRequestsTopic = Topics.NotificationRequests.Name;
 
-            await adminClientService.CreateTopicAsync(topic, 3, 1);
+            await adminClientService.CreateTopicAsync(notificationRequestsTopic, 3, 1);
             
-            var topicCount = await adminClientService.GetPartitionCountAsync(topic);
+            var topicCount = await adminClientService.GetPartitionCountAsync(notificationRequestsTopic);
             
-            Console.WriteLine($"Partition Count for Topic:{topic} is: {topicCount.Value}");
+            Console.WriteLine($"Partition Count for Topic:{notificationRequestsTopic} is: {topicCount.Value}");
 
             Console.WriteLine("Kafka Initialization completed.");
         }

@@ -6,11 +6,11 @@ using Notifications.Api.OptionsSetup;
 using Notifications.Application.CQRS.CommandHandlers;
 using Notifications.Application.Services.Redis;
 using Notifications.Application.Services.SignalR;
-using Notifications.Domain.Entities;
 using Notifications.Infrastructure;
 using Notifications.Infrastructure.Kafka;
 using Notifications.Infrastructure.Persistence.Redis;
 using Notifications.Infrastructure.SignalR;
+using Shared.Contracts.Entities.NotificationService;
 using Shared.Contracts.Kafka;
 using StackExchange.Redis;
 
@@ -91,8 +91,8 @@ app.MapPost("/broadcast-random-notification", async (IHubContext<ChatHub, IChatC
         Message = "This is a randomly generated notification.",
         Type = "info",
         UserId = null, 
-        Group = "General",
-        Channel = "WebSocket",
+        Group = Groups.None.Name,
+        Channel = Channels.WebSocket.Name,
         IsDelivered = true,
         IsRead = false,
         SentAt = DateTime.UtcNow
@@ -121,8 +121,8 @@ app.MapPost("/send-notification/{userId}", async (string userId, IHubContext<Cha
         Message = $"Hello, user {userId}! This is a personal notification.",
         Type = "info",
         UserId = userGuid,
-        Group = "Personal",
-        Channel = "WebSocket",
+        Group = Groups.None.Name,
+        Channel = Channels.WebSocket.Name,
         IsDelivered = true,
         IsRead = false,
         SentAt = DateTime.UtcNow

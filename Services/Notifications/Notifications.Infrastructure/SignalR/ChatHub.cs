@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Notifications.Application.CQRS.Commands;
-using Notifications.Application.CQRS.Queries;
 using Notifications.Application.Services.SignalR;
 
 namespace Notifications.Infrastructure.SignalR;
@@ -30,6 +29,8 @@ public sealed class ChatHub(IMediator mediator,
             return;
         }
         
+        Console.WriteLine($"User with Id: {userId} Connected");
+        
         userConnectionManager.AddConnection(userId, Context.ConnectionId);
         await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
 
@@ -47,8 +48,10 @@ public sealed class ChatHub(IMediator mediator,
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
         {
             userConnectionManager.RemoveConnection(userId, Context.ConnectionId);
+            Console.WriteLine($"User with Id: {userId} Disconnected");
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId.ToString());
         }
+        
 
         await base.OnDisconnectedAsync(exception);
     }

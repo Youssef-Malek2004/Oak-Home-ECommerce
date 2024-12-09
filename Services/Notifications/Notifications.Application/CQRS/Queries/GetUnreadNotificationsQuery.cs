@@ -1,6 +1,7 @@
 using Abstractions.ResultsPattern;
 using MediatR;
-using Notifications.Domain.Entities;
+using Shared.Contracts.Entities;
+using Shared.Contracts.Entities.NotificationService;
 
 namespace Notifications.Application.CQRS.Queries;
 

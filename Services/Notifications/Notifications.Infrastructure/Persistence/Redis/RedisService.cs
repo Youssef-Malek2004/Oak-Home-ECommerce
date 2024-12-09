@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Abstractions.ResultsPattern;
 using Notifications.Application.Services.Redis;
-using Notifications.Domain.Entities;
 using Notifications.Domain.Errors;
+using Shared.Contracts.Entities.NotificationService;
 using StackExchange.Redis;
 
 namespace Notifications.Infrastructure.Persistence.Redis;

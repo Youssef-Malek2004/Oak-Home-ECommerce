@@ -2,7 +2,8 @@ using Abstractions.ResultsPattern;
 using MediatR;
 using Notifications.Application.CQRS.Queries;
 using Notifications.Application.Services.Redis;
-using Notifications.Domain.Entities;
+using Shared.Contracts.Entities;
+using Shared.Contracts.Entities.NotificationService;
 
 namespace Notifications.Application.CQRS.QueryHandlers;
 

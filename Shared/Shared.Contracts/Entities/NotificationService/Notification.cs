@@ -1,4 +1,4 @@
-namespace Notifications.Domain.Entities;
+namespace Shared.Contracts.Entities.NotificationService;
 
 public class Notification
 {

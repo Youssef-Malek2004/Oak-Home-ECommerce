@@ -1,5 +1,6 @@
 using Abstractions.ResultsPattern;
-using Notifications.Domain.Entities;
+using Shared.Contracts.Entities;
+using Shared.Contracts.Entities.NotificationService;
 
 namespace Notifications.Application.Services.Redis;
 

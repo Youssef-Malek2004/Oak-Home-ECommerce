@@ -22,4 +22,21 @@ public class KafkaDispatcher(IKafkaConsumerService consumer, KafkaEventProcessor
                 stoppingToken);
         }, stoppingToken);
     }
+    
+    public async Task StartConsumingNotificationRequests(CancellationToken stoppingToken, int instanceNumber)
+    {
+        var groupInstanceName = $"notification-requests-consumer-{instanceNumber}";
+        await Task.Run(() =>
+        {
+            consumer.StartConsuming<ConsumeResult<string, string>>(
+                Topics.NotificationRequests.Name,
+                groupInstanceName,
+                async consumeResult =>
+                {
+                    await eventProcessor.ProcessNotificationRequests(consumeResult,groupInstanceName, stoppingToken);
+                },
+                stoppingToken);
+        }, stoppingToken);
+    }
+    
 }
