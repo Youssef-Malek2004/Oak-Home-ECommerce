@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Notifications.Application.CQRS.Commands;
 using Notifications.Application.CQRS.Queries;
@@ -6,6 +8,7 @@ using Notifications.Application.Services.SignalR;
 
 namespace Notifications.Api.SignalR;
 
+[Authorize]
 public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
 {
     public async Task SendMessage(string message)
@@ -15,32 +18,32 @@ public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
 
     public override async Task OnConnectedAsync()
     {
-        var userIdString = Context.GetHttpContext()?.Request.Query["userId"].ToString();
-        if (Guid.TryParse(userIdString, out var userId))
-        {
-            
-            await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
-            
-            var unreadResult = await mediator.Send(new GetUnreadNotificationsQuery(userId));
+        var userIdClaim = Context.User?.FindFirst(ClaimTypes.NameIdentifier) ?? 
+                          Context.User?.FindFirst("sub");
 
-            if (unreadResult.IsSuccess && unreadResult.Value != null)
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            await Clients.Caller.ReceiveNotification("Connection failed: Valid UserId is required.");
+            Context.Abort();
+            return;
+        }
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
+
+        var unreadResult = await mediator.Send(new GetUnreadNotificationsQuery(userId));
+
+        if (unreadResult.IsSuccess && unreadResult.Value != null)
+        {
+            foreach (var notification in unreadResult.Value)
             {
-                foreach (var notification in unreadResult.Value)
-                {
-                    await Task.Delay(1);
-                    await Clients.Caller.ReceiveNotification($"Unread Notification: {notification.Title} - {notification.Message}");
-                }
-            }
-            else
-            {
-                await Task.Delay(1);
-                await Clients.Caller.ReceiveNotification($"Failed to retrieve unread notifications: {unreadResult.Error}");
+                await Clients.Caller.ReceiveNotification(
+                    $"Unread Notification: {notification.Title} - {notification.Message}");
             }
         }
         else
         {
-            await Clients.Caller.ReceiveNotification("Connection failed: Valid UserId is required.");
-            Context.Abort();
+            await Clients.Caller.ReceiveNotification(
+                $"Failed to retrieve unread notifications: {unreadResult.Error}");
         }
 
         await base.OnConnectedAsync();
@@ -48,10 +51,12 @@ public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var userId = Context.GetHttpContext()?.Request.Query["userId"].ToString();
-        if (!string.IsNullOrEmpty(userId))
+        var userIdClaim = Context.User?.FindFirst(ClaimTypes.NameIdentifier) ?? 
+                          Context.User?.FindFirst("sub");
+
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId.ToString());
         }
 
         await base.OnDisconnectedAsync(exception);
@@ -59,13 +64,15 @@ public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
 
     public async Task MarkNotificationAsRead(Guid notificationId)
     {
-        var userIdString = Context.GetHttpContext()?.Request.Query["userId"].ToString();
-        if (!Guid.TryParse(userIdString, out var userId))
+        var userIdClaim = Context.User?.FindFirst(ClaimTypes.NameIdentifier) ?? 
+                          Context.User?.FindFirst("sub");
+
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
             await Clients.Caller.ReceiveNotification("Error: Valid UserId is required.");
             return;
         }
-        
+
         var result = await mediator.Send(new MarkNotificationAsReadCommand(userId, notificationId));
 
         if (result.IsSuccess)
@@ -74,7 +81,8 @@ public sealed class ChatHub(IMediator mediator) : Hub<IChatClient>
         }
         else
         {
-            await Clients.Caller.ReceiveNotification($"Error marking notification {notificationId} as read: {result.Error}");
+            await Clients.Caller.ReceiveNotification(
+                $"Error marking notification {notificationId} as read: {result.Error}");
         }
     }
 }

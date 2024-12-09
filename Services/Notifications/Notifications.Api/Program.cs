@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
+using Notifications.Api.Middlewares;
+using Notifications.Api.OptionsSetup;
 using Notifications.Api.SignalR;
 using Notifications.Application.CQRS.CommandHandlers;
 using Notifications.Application.Services.Redis;
@@ -42,6 +44,10 @@ builder.Services.AddScoped<IRedisService, RedisService>();
 
 builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379,abortConnect=false");
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+
+builder.Services.ConfigureAuthenticationAndAuthorization();
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
 
 builder.Services.AddCors();
@@ -144,5 +150,11 @@ app.MapPost("/send-notification/{userId}", async (string userId, IHubContext<Cha
 });
 
 app.MapHub<ChatHub>("chat-hub");
+
+app.UseMiddleware<CookieToJwtMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.AddLifetimeEvents();
 
 app.Run();

@@ -1,6 +1,9 @@
 using Confluent.Kafka;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Notifications.Infrastructure.Authentication;
 using Shared.Contracts.Kafka;
 using KafkaSettings = Shared.Contracts.Kafka.KafkaSettings;
 
@@ -27,6 +30,16 @@ public static class DependencyInjection
         
         services.AddSingleton<IAdminClientService, AdminClientService>(); //Handling Partitions and such
 
+        return services;
+    }
+    
+    public static IServiceCollection ConfigureAuthenticationAndAuthorization(this IServiceCollection services)
+    {
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+        services.AddAuthorization();
+        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
         return services;
     }
     
