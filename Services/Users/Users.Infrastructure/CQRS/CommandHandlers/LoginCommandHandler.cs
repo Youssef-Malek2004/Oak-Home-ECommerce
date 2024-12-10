@@ -47,7 +47,7 @@ public class LoginCommandHandler(IUnitOfWork unitOfWork, IJwtProvider jwtProvide
         
         request.HttpContext.Response.Cookies.Append("auth_token", token, new CookieOptions
         {
-            HttpOnly = true, 
+            HttpOnly = false, 
             Secure = true,   
             SameSite = SameSiteMode.Strict, 
             Expires = DateTime.UtcNow.AddDays(7) 
