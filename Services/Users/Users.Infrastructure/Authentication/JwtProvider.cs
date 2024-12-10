@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Users.Application.Services;
@@ -24,6 +23,12 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
         
         if (user.Roles != null)
         {
+            var group = user.Roles.Any(role => role.Name == "Admin") ? "Admins" 
+                : user.Roles.Any(role => role.Name == "Vendor") ? "Vendors" 
+                : "Users";
+
+            claims.Add(new Claim("custom_group", group));
+            
             foreach (var role in user.Roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
@@ -33,6 +38,8 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
                     new Claim("Permissions", permission.Name)));
             }
         }
+        
+        
         
         var claimsArray = claims.ToArray();
         

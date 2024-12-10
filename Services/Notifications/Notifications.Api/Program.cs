@@ -108,44 +108,29 @@ app.MapPost("/broadcast-random-notification", async (IHubContext<ChatHub, IChatC
     return Results.Ok(new { Message = "Notification broadcasted and saved to Redis", Notification = notification });
 });
 
-app.MapPost("/send-notification/{userId}", async (string userId, IHubContext<ChatHub, IChatClient> hubContext, IRedisService redisService) =>
+app.MapPost("/send-notification-group/{group}", async (string group, IHubContext<ChatHub, IChatClient> hubContext, INotificationService notificationService) =>
 {
-    if (!Guid.TryParse(userId, out var userGuid))
-    {
-        return Results.BadRequest("Invalid userId format.");
-    }
-
     var notification = new Notification
     {
         Title = "Personal Notification",
-        Message = $"Hello, user {userId}! This is a personal notification.",
+        Message = $"Hello, group {group}! This is a personal notification.",
         Type = "info",
-        UserId = userGuid,
-        Group = Groups.None.Name,
+        Group = group,
         Channel = Channels.WebSocket.Name,
         IsDelivered = true,
         IsRead = false,
         SentAt = DateTime.UtcNow
     };
     
-    var addResult = await redisService.AddNotificationAsync(userGuid, notification);
+    var addResult = await notificationService.SendNotificationToGroup(notification);
     if (!addResult.IsSuccess)
     {
         return Results.Problem($"Failed to save notification in Redis: {addResult.Error}");
     }
-    
-    try
-    {
-        await hubContext.Clients.Group(userId).ReceiveNotification(JsonSerializer.Serialize(notification));
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem($"Failed to send notification via SignalR: {ex.Message}");
-    }
 
     return Results.Ok(new
     {
-        Message = $"Notification sent to user {userId} and saved in Redis.",
+        Message = $"Notification sent to Group {notification.Group} and saved in Redis.",
         Notification = notification
     });
 });

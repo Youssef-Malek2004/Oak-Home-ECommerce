@@ -31,11 +31,29 @@ public class SignalRNotificationService(IHubContext<ChatHub, IChatClient> hubCon
         return Result.Success();
     }
     
-    public async Task<Result> SendUndeliveredNotificationsAsync(Guid userId)
+    public async Task<Result> SendNotificationToGroup(Notification notification)
     {
         try
         {
-            var result = await redisService.GetUndeliveredNotificationsAsync(userId);
+            var redisResult = await redisService.AddNotificationToGroupAsync(notification);
+            if (redisResult.IsFailure)
+                return Result.Failure(redisResult.Error);
+            
+            await hubContext.Clients.Group(notification.Group).ReceiveNotification(JsonSerializer.Serialize(notification));
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(NotificationErrors.FailedToSendNotificationToGroup(notification.Group));
+        }
+    }
+    
+    public async Task<Result> SendUndeliveredNotificationsAsync(Guid userId, string group)
+    {
+        try
+        {
+            var result = await redisService.GetUndeliveredNotificationsAsync(userId, group);
 
             if (result.IsFailure) return Result.Failure(result.Error);
             if (result.Value is null)
@@ -48,7 +66,7 @@ public class SignalRNotificationService(IHubContext<ChatHub, IChatClient> hubCon
                 await hubContext.Clients.User(userId.ToString())
                     .ReceiveNotification(JsonSerializer.Serialize(notification));
                 
-                await redisService.MarkNotificationAsDeliveredAsync(userId, notification.Id);
+                await redisService.MarkNotificationAsDeliveredAsync(userId,group, notification.Id);
             }
         }
         catch (Exception)
@@ -59,11 +77,11 @@ public class SignalRNotificationService(IHubContext<ChatHub, IChatClient> hubCon
         return Result.Success();
     }
     
-    public async Task<Result> SendUnreadNotificationsAsync(Guid userId)
+    public async Task<Result> SendUnreadNotificationsAsync(Guid userId, string group)
     {
         try
         {
-            var result = await redisService.GetUnreadNotificationsAsync(userId);
+            var result = await redisService.GetUnreadNotificationsAsync(userId, group);
 
             if (result.IsFailure) return Result.Failure(result.Error);
             if (result.Value is null)

@@ -10,14 +10,17 @@ namespace Notifications.Infrastructure.Persistence.Redis;
 public class RedisService(IConnectionMultiplexer redis) : IRedisService
 {
     private readonly IDatabase _db = redis.GetDatabase();
-    private static string GetUserKey(Guid userId) => $"notifications:{userId}";
+    // private static string GetUserKey(Guid userId) => $"notifications:{userId}";
+    internal static string GetGroupKey(string group) => $"notifications:group:{group}";
+    private static string GetUserKey(Guid userId,string group) => $"notifications:group:{group}:user:{userId}";
 
-    public async Task<Result<List<Notification>>> GetNotificationsAsync(Guid userId)
+    public async Task<Result<List<Notification>>> GetNotificationsAsync(Guid userId, string group)
     {
         try
         {
-            var key = GetUserKey(userId);
+            var key = GetUserKey(userId,group);
             var notifications = await _db.ListRangeAsync(key);
+            
 
             var result = notifications.Select(n => JsonSerializer.Deserialize<Notification>(n.ToString()))
                                        .Where(n => n != null)
@@ -30,11 +33,11 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
-    public async Task<Result<List<Notification>>> GetUnreadNotificationsAsync(Guid userId)
+    public async Task<Result<List<Notification>>> GetUnreadNotificationsAsync(Guid userId, string group)
     {
         try
         {
-            var notificationsResult = await GetNotificationsAsync(userId);
+            var notificationsResult = await GetNotificationsAsync(userId, group);
             if (!notificationsResult.IsSuccess) return notificationsResult;
 
             var unreadNotifications = notificationsResult.Value!.Where(n => !n.IsRead).ToList();
@@ -46,11 +49,11 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
-    public async Task<Result<List<Notification>>> GetUndeliveredNotificationsAsync(Guid userId)
+    public async Task<Result<List<Notification>>> GetUndeliveredNotificationsAsync(Guid userId,string group)
     {
         try
         {
-            var notificationsResult = await GetNotificationsAsync(userId);
+            var notificationsResult = await GetNotificationsAsync(userId, group);
             if (!notificationsResult.IsSuccess) return notificationsResult;
 
             var unreadNotifications = notificationsResult.Value!.Where(n => !n.IsDelivered).ToList();
@@ -112,11 +115,24 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
+    public async Task<Result> AddUserToGroupAsync(Guid userId, string group)
+    {
+        try
+        {
+            var groupKey = GetGroupKey(group);
+            await _db.SetAddAsync(groupKey, userId.ToString());
+            return Result.Success();
+        }
+        catch (Exception)
+        {
+            return Result.Failure(NotificationErrors.FailedToAddUserToGroup(userId,group));
+        }
+    }
     public async Task<Result> AddNotificationAsync(Guid userId, Notification notification)
     {
         try
         {
-            var key = GetUserKey(userId);
+            var key = GetUserKey(userId, notification.Group);
             var serializedNotification = JsonSerializer.Serialize(notification);
             await _db.ListRightPushAsync(key, serializedNotification);
             return Result.Success();
@@ -127,11 +143,40 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
-    public async Task<Result> DeleteNotificationAsync(Guid userId, Guid notificationId)
+    public async Task<Result> AddNotificationToGroupAsync(Notification notification)
     {
         try
         {
-            var key = GetUserKey(userId);
+            var groupKey = GetGroupKey(notification.Group);
+            
+            var userIds = await _db.SetMembersAsync(groupKey );
+            if (userIds.Length == 0)
+            {
+                return Result.Failure(NotificationErrors.FailedToSendNotificationToGroup(notification.Group));
+            }
+
+            foreach (var userId in userIds)
+            {
+                var guidUserId = Guid.Parse(userId.ToString());
+                var userKey = GetUserKey(guidUserId, notification.Group);
+                notification.UserId = guidUserId;
+                var serializedNotification = JsonSerializer.Serialize(notification);
+                await _db.ListRightPushAsync(userKey, serializedNotification);
+            }
+
+            return Result.Success();
+        }
+        catch (Exception)
+        {
+            return Result.Failure(NotificationErrors.FailedToSendNotificationToGroup(notification.Group));
+        }
+    }
+
+    public async Task<Result> DeleteNotificationAsync(Guid userId,string group, Guid notificationId)
+    {
+        try
+        {
+            var key = GetUserKey(userId, group);
             var notifications = await _db.ListRangeAsync(key);
 
             foreach (var n in notifications)
@@ -152,11 +197,11 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
-    public async Task<Result> MarkNotificationAsReadAsync(Guid userId, Guid notificationId)
+    public async Task<Result> MarkNotificationAsReadAsync(Guid userId,string group, Guid notificationId)
     {
         try
         {
-            var key = GetUserKey(userId);
+            var key = GetUserKey(userId, group);
             var notifications = await _db.ListRangeAsync(key);
 
             for (int i = 0; i < notifications.Length; i++)
@@ -179,13 +224,13 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
-    public async Task<Result> MarkNotificationsAsReadAsync(Guid userId, List<Guid> notificationIds)
+    public async Task<Result> MarkNotificationsAsReadAsync(Guid userId,string group, List<Guid> notificationIds)
     {
         try
         {
             foreach (var notificationId in notificationIds)
             {
-                var result = await MarkNotificationAsReadAsync(userId, notificationId);
+                var result = await MarkNotificationAsReadAsync(userId,group, notificationId);
                 if (!result.IsSuccess) return result;
             }
 
@@ -197,11 +242,11 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
-    public async Task<Result> MarkNotificationAsDeliveredAsync(Guid userId, Guid notificationId)
+    public async Task<Result> MarkNotificationAsDeliveredAsync(Guid userId,string group, Guid notificationId)
     {
         try
         {
-            var key = GetUserKey(userId);
+            var key = GetUserKey(userId,group);
             var notifications = await _db.ListRangeAsync(key);
 
             for (int i = 0; i < notifications.Length; i++)
@@ -224,13 +269,13 @@ public class RedisService(IConnectionMultiplexer redis) : IRedisService
         }
     }
 
-    public async Task<Result> MarkNotificationsAsDeliveredAsync(Guid userId, List<Guid> notificationIds)
+    public async Task<Result> MarkNotificationsAsDeliveredAsync(Guid userId,string group, List<Guid> notificationIds)
     {
         try
         {
             foreach (var notificationId in notificationIds)
             {
-                var result = await MarkNotificationAsReadAsync(userId, notificationId);
+                var result = await MarkNotificationAsReadAsync(userId,group, notificationId);
                 if (!result.IsSuccess) return result;
             }
 

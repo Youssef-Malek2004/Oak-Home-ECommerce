@@ -34,7 +34,7 @@ public class SupplyInventoryHandler(IUnitOfWork unitOfWork, IKafkaProducerServic
         {
             Channel = Channels.WebSocket.Name,
             CreatedAt = DateTime.UtcNow,
-            Group = Groups.None.Name,
+            Group = Groups.Vendors.Name,
             IsDelivered = false,
             IsRead = false,
             SentAt = DateTime.UtcNow,

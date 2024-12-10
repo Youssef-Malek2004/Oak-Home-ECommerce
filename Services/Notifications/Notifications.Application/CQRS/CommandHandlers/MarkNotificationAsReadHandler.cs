@@ -10,6 +10,6 @@ public class MarkNotificationAsReadHandler(IRedisService redisService)
 {
     public async Task<Result> Handle(MarkNotificationAsReadCommand request, CancellationToken cancellationToken)
     {
-        return await redisService.MarkNotificationAsReadAsync(request.UserId, request.NotificationId);
+        return await redisService.MarkNotificationAsReadAsync(request.UserId,request.Group, request.NotificationId);
     }
 }

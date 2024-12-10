@@ -38,5 +38,9 @@ public static class NotificationErrors
         new Error("NotificationErrors.FailedToDeleteNotificationWithoutUser", $"Failed to delete notification with ID: {notificationId}");
     public static Error FailedToSendUndeliveredNotifications(Guid userId) =>
         new Error("NotificationErrors.FailedToSendUndeliveredNotifications", $"Failed to send undelivered notifications for user with ID: {userId}");
+    public static Error FailedToSendNotificationToGroup(string group) =>
+        new Error("NotificationErrors.FailedToSendNotificationToGroup", $"Failed to send notification for group: {group}");
+    public static Error FailedToAddUserToGroup(Guid userId, string group) =>
+        new Error("NotificationErrors.FailedToAddUserToGroup", $"Failed to add user {userId} to group: {group}");
     
 }

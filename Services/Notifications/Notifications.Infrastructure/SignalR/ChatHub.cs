@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Notifications.Application.CQRS.Commands;
+using Notifications.Application.Services.Redis;
 using Notifications.Application.Services.SignalR;
 
 namespace Notifications.Infrastructure.SignalR;
@@ -10,13 +11,9 @@ namespace Notifications.Infrastructure.SignalR;
 [Authorize]
 public sealed class ChatHub(IMediator mediator,
     INotificationService notificationService,
-    IUserConnectionManager userConnectionManager) : Hub<IChatClient>
+    IUserConnectionManager userConnectionManager,
+    IRedisService redisService) : Hub<IChatClient>
 {
-    public async Task SendMessage(string message)
-    {
-        await Clients.All.ReceiveNotification($"{Context.ConnectionId}: {message}");
-    }
-
     public override async Task OnConnectedAsync()
     {
         var userIdClaim = Context.User?.FindFirst(ClaimTypes.NameIdentifier) ?? 
@@ -24,18 +21,29 @@ public sealed class ChatHub(IMediator mediator,
 
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            await Clients.Caller.ReceiveNotification("Connection failed: Valid UserId is required.");
             Context.Abort();
             return;
         }
+        
+        var groupClaim = Context.User?.FindFirst("custom_group");
+        
+        if (groupClaim == null )
+        {
+            Context.Abort();
+            return;
+        }
+
+        var group = groupClaim.Value;
+        await Groups.AddToGroupAsync(Context.ConnectionId, group);
+        await redisService.AddUserToGroupAsync(userId, group);
         
         Console.WriteLine($"User with Id: {userId} Connected");
         
         userConnectionManager.AddConnection(userId, Context.ConnectionId);
         await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
 
-        await notificationService.SendUndeliveredNotificationsAsync(userId);
-        await notificationService.SendUnreadNotificationsAsync(userId);
+        await notificationService.SendUndeliveredNotificationsAsync(userId,group);
+        await notificationService.SendUnreadNotificationsAsync(userId,group);
 
         await base.OnConnectedAsync();
     }
@@ -63,11 +71,21 @@ public sealed class ChatHub(IMediator mediator,
 
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            await Clients.Caller.ReceiveNotification("Error: Valid UserId is required.");
+            return;
+        }
+        
+        var groupClaim = Context.User?.FindFirst("custom_group");
+        
+        if (groupClaim == null )
+        {
+            Context.Abort();
             return;
         }
 
-        var result = await mediator.Send(new MarkNotificationAsReadCommand(userId, notificationId));
+        var group = groupClaim.Value;
+        await Groups.AddToGroupAsync(Context.ConnectionId, group);
+
+        var result = await mediator.Send(new MarkNotificationAsReadCommand(userId,group, notificationId));
 
         if (result.IsSuccess)
         {
