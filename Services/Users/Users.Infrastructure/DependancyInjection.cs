@@ -20,6 +20,7 @@ public static class DependancyInjection
         services.AddDbContext<IUsersDbContext, UsersDbContext>(x =>
             x.UseNpgsql(configuration.GetConnectionString("Database")));
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

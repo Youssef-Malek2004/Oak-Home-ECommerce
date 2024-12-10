@@ -1,6 +1,5 @@
 using Abstractions.ResultsPattern;
 using Inventory.Application.CQRS.Commands;
-using Inventory.Application.Services;
 using Inventory.Domain;
 using Inventory.Domain.Errors;
 using MediatR;

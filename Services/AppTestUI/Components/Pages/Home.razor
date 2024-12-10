@@ -3,27 +3,42 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Text.Json
 @using Shared.Contracts.Entities.NotificationService
+@using MudBlazor
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+    <MudPaper Elevation="4" Class="p-4">
+        <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-4">Hello, world!</MudText>
+        <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="mb-4">
+            Welcome to your new app.
+        </MudText>
 
-Welcome to your new app.
+        <MudDivider Class="mb-4" />
 
-Messages from the server 👇
+        <MudText Typo="Typo.h6">Messages from the server 👇</MudText>
+        
+        <MudList T="Notification">
+            @foreach (var notification in _notifications)
+            {
+            <MudListItem>
+                <MudPaper Class="p-2 mb-2 d-flex align-items-center">
+                    <div>
+                        <MudText Typo="Typo.subtitle2" Class="mb-1"><strong>@notification.Title</strong></MudText>
+                        <MudText Typo="Typo.body2">@notification.Message</MudText>
+                    </div>
+                    <MudSpacer />
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="() => MarkNotificationAsRead(notification.Id)">
+                        Mark as Read
+                    </MudButton>
+                </MudPaper>
+            </MudListItem>
+            }
+        </MudList>
+    </MudPaper>
+</MudContainer>
 
-<ul>
-    @foreach (var notification in _notifications)
-    {
-        <li>
-            <strong>@notification.Title:</strong> @notification.Message
-            <button @onclick="() => MarkNotificationAsRead(notification.Id)">Mark as Read</button>
-        </li>   
-    }
-</ul>
-
-@code
-{
+@code {
     private HubConnection? _hubConnection;
     private readonly List<Notification> _notifications = new();
     private bool _isRendering;
@@ -32,7 +47,7 @@ Messages from the server 👇
     {
         _hubConnection = new HubConnectionBuilder()
             .WithUrl("http://localhost:5279/chat-hub",
-                o => o.AccessTokenProvider = () => Task.FromResult<string?>("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwM2RjZTU3Zi1iMmIyLTQ2NDgtYjQ4Zi00YjAwMTdmYWM1ODQiLCJlbWFpbCI6InlvdXNzZWZtYWxla3ZlbmRvckBnbWFpbC5jb20iLCJjdXN0b21fZ3JvdXAiOiJWZW5kb3JzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIlJlZ2lzdGVyZWQiLCJWZW5kb3IiXSwiUGVybWlzc2lvbnMiOlsiUmVhZFVzZXJzIiwiVXBkYXRlVXNlcnMiLCJNdXN0QmVTYW1lVXNlciJdLCJleHAiOjE3MzM3OTQzNzcsImlzcyI6IkVjb21tZXJjZS5Vc2VyU2VydmljZSIsImF1ZCI6IkVjb21tZXJjZS5Vc2VycyJ9.BAP13CxS0BhB7L6k04WmzCYFS5ERhuEE4Aetqps-l1NiWyYl4wp9BKIv0hkHeeJlzLDICiLJAs9nKrFVFS1PP6DkzWkgogwpI_RlijTZe6cT-Wctn-_IzdWILbBo7lgA_Hjjp4iJYRcBasKus_xeTyKOX0J8OTJygwrhJdiiPEOzknG8-nXG0f5ItXDqMuxTtBlnyx4uuahTcxWbz7KxAKyHyY8ypsrotgL5aMZSiZMzn1KNq_HKwBSz9J7Dp5hxCxNGH0QWFksfjRJ4a8xL_GhXpmdqoUFywWv6qHPjxyV-AUwjP61HxLTeows0_vjVz1jVY9hkzeAwpHprmkkdFA"))
+                o => o.AccessTokenProvider = () => Task.FromResult<string?>("your-token-here"))
             .WithAutomaticReconnect()
             .Build();
 
@@ -69,7 +84,7 @@ Messages from the server 👇
             Console.WriteLine($"Error starting SignalR connection: {ex.Message}");
         }
     }
-    
+
     private async Task MarkNotificationAsRead(Guid notificationId)
     {
         if (_hubConnection == null)
@@ -81,15 +96,13 @@ Messages from the server 👇
         try
         {
             await _hubConnection.InvokeAsync("MarkNotificationAsRead", notificationId);
-            
+
             Console.WriteLine($"Marked notification {notificationId} as read.");
-            
-            // Optionally, mark the notification as read locally
+
             var notification = _notifications.FirstOrDefault(n => n.Id == notificationId);
             if (notification != null)
             {
                 _notifications.Remove(notification);
-                
                 await InvokeAsync(StateHasChanged);
             }
         }
@@ -98,7 +111,7 @@ Messages from the server 👇
             Console.WriteLine($"Error marking notification as read: {ex.Message}");
         }
     }
-    
+
     public async ValueTask DisposeAsync()
     {
         if (_hubConnection != null)
@@ -106,5 +119,4 @@ Messages from the server 👇
             await _hubConnection.DisposeAsync();
         }
     }
-
 }

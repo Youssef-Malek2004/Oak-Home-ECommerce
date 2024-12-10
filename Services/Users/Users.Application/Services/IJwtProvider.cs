@@ -5,4 +5,5 @@ namespace Users.Application.Services;
 public interface IJwtProvider
 {
     string Generate(User user);
+    string GenerateRefreshToken();
 }

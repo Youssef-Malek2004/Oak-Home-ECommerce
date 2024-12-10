@@ -66,6 +66,33 @@ namespace Users.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Users.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpiresOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("Users.Domain.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -207,6 +234,17 @@ namespace Users.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoleJoin");
+                });
+
+            modelBuilder.Entity("Users.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Users.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Users.Domain.Entities.RolePermission", b =>

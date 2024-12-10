@@ -60,12 +60,17 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             _jwtOptions.Audience,
             claimsArray,
             null,
-            DateTime.UtcNow.AddHours(1),
+            DateTime.UtcNow.AddDays(30),
             signingCredentials);
         
         string tokenValue = new JwtSecurityTokenHandler()
             .WriteToken(token);
         
         return tokenValue;
+    }
+
+    public string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
     }
 }

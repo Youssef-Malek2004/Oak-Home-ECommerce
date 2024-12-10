@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Users.Application.CQRS.Commands;
 using Users.Application.Services;
 using Users.Domain;
+using Users.Domain.Entities;
 using Users.Domain.Errors;
 
 namespace Users.Infrastructure.CQRS.CommandHandlers;
@@ -30,12 +31,34 @@ public class LoginCommandHandler(IUnitOfWork unitOfWork, IJwtProvider jwtProvide
         
         var token = jwtProvider.Generate(user);
         
+        var refreshToken = jwtProvider.GenerateRefreshToken();
+        
+        var refreshTokenEntity = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = refreshToken,
+            ExpiresOn = DateTime.UtcNow.AddDays(7),
+            User = user
+        };
+
+        await unitOfWork.RefreshTokenRepository.AddAsync(refreshTokenEntity, cancellationToken);
+        await unitOfWork.SaveChangesAsync();
+        
         request.HttpContext.Response.Cookies.Append("auth_token", token, new CookieOptions
         {
             HttpOnly = true, 
             Secure = true,   
             SameSite = SameSiteMode.Strict, 
             Expires = DateTime.UtcNow.AddDays(7) 
+        });
+        
+        request.HttpContext.Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7) // Refresh token expires in 7 days
         });
 
         return Result<string>.Success(token);

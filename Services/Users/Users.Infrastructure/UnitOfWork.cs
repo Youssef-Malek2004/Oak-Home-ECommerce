@@ -10,7 +10,9 @@ public class UnitOfWork(UsersDbContext dbContext) : IUnitOfWork
 {
     private IUserRepository? _userRepository;
 
-    public IUserRepository UserRepository => _userRepository ??= new UserRepository(dbContext);
+    private IRefreshTokenRepository? _refreshTokenRepository;
+    public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository ??= new RefreshTokenRepository(dbContext);
+    public IUserRepository UserRepository => _userRepository ??= new UserRepository(dbContext); 
 
     public async Task<int> SaveChangesAsync()
     {

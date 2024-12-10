@@ -5,13 +5,16 @@ using Inventory.Application.CQRS.Commands;
 using Inventory.Application.CQRS.Events;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Contracts.Entities.NotificationService;
 using Shared.Contracts.Events;
 using Shared.Contracts.Events.OrderEvents;
 using Shared.Contracts.Events.ProductEvents;
+using Shared.Contracts.Kafka;
+using Shared.Contracts.Topics;
 
 namespace Inventory.Infrastructure.Kafka;
 
-public class KafkaEventProcessor(IServiceScopeFactory serviceScope)
+public class KafkaEventProcessor(IServiceScopeFactory serviceScope, IKafkaProducerService kafkaProducerService)
 {
     public async Task ProcessProductEvent(ConsumeResult<string, string> consumeResult, CancellationToken cancellationToken)
     {
@@ -75,7 +78,24 @@ public class KafkaEventProcessor(IServiceScopeFactory serviceScope)
             if (orderCreated != null)
             {
                 Console.WriteLine($"Processing OrderCreated event: {orderCreated}");
-                await mediator.Send(new ReserveInventoryCommand(orderCreated), cancellationToken);
+                
+                var result = await mediator.Send(new ReserveInventoryCommand(orderCreated), cancellationToken);
+                if (result.IsFailure)
+                {
+                    var notification = NotificationsFactory.
+                        GenerateErrorWebNotificationUser(
+                            orderCreated.UserId,
+                            Groups.Users.Name,
+                            result.Error.Code,
+                            result.Error.Description!
+                            );
+                    
+                    await kafkaProducerService.SendMessageAsync
+                    (Topics.NotificationRequests.Name, new NotificationRequest
+                    {
+                        Notification = notification
+                    }, cancellationToken, "");
+                }
             }
         }
         else

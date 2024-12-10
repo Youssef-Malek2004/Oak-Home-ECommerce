@@ -36,6 +36,13 @@ public static class GlobalEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
         
+        globalEndpoints.MapPost("/refresh-token", async (HttpContext httpContext, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new RefreshTokenCommand(httpContext), cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.Unauthorized();
+        });
+
+        
         globalEndpoints.MapPost("/logout", (HttpContext httpContext) =>
         {
             httpContext.Response.Cookies.Append("auth_token", "", new CookieOptions
