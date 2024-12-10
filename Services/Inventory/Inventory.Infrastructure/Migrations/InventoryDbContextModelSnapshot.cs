@@ -105,7 +105,13 @@ namespace Inventory.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id")
+                        .HasDatabaseName("IX_Inventory_InventoryId");
+
                     b.HasIndex("WarehouseId");
+
+                    b.HasIndex("Id", "VendorId")
+                        .HasDatabaseName("IX_Inventory_InventoryId_VendorId");
 
                     b.ToTable("Inventory");
                 });

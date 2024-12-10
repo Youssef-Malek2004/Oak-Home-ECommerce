@@ -1,8 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Domain.Entities;
 
+[Index(nameof(Id))] // Single-column index
+[Index(nameof(Id), nameof(VendorId))]
 public class Inventories
 {
     [Key]

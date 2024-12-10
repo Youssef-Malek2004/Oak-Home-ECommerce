@@ -13,6 +13,12 @@ public class KafkaHostedService(KafkaDispatcher dispatcher) : BackgroundService
             Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,1), stoppingToken),
             Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,2), stoppingToken),
             Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,3), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,4), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,5), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,6), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,7), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,8), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingNotificationRequests(stoppingToken,9), stoppingToken),
         };
 
         await Task.WhenAll(consumingTasks);

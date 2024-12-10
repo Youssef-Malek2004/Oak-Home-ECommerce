@@ -35,4 +35,8 @@
       <ProjectReference Include="..\Inventory.Infrastructure\Inventory.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="pgbouncer-config\" />
+    </ItemGroup>
+
 </Project>

@@ -1,4 +1,8 @@
-﻿services:
+﻿volumes:
+  pgbouncer-config:
+  pgbouncer-data:
+
+services:
   users.database:
     image: postgres:latest
     healthcheck:
@@ -102,7 +106,7 @@
       timeout: 10s
     container_name: inventory.database
     environment:
-      - POSTGRES_DB=inventory
+      - POSTGRES_DB=app.inventory
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -158,6 +162,26 @@
       timeout: 10s
     volumes:
       - ./.containers/redis:/data
+    networks:
+      - proxyBackend
+  
+  inventory.pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: inventory.pgbouncer
+    ports:
+      - "6432:6432"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@inventory.database:5432/inventory
+      - AUTH_TYPE=md5
+    volumes:
+      - pgbouncer-config:/etc/pgbouncer
+      - pgbouncer-data:/var/lib/pgbouncer
+      - ./Services/pgbouncer-config/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+      - ./Services/pgbouncer-config/userlist.txt:/etc/pgbouncer/userlist.txt
+    depends_on:
+      inventory.database:
+        condition: service_healthy
+        restart: true
     networks:
       - proxyBackend
   

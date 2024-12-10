@@ -108,12 +108,12 @@ app.MapPost("/broadcast-random-notification", async (IHubContext<ChatHub, IChatC
     return Results.Ok(new { Message = "Notification broadcasted and saved to Redis", Notification = notification });
 });
 
-app.MapPost("/send-notification-group/{group}", async (string group, IHubContext<ChatHub, IChatClient> hubContext, INotificationService notificationService) =>
+app.MapPost("/send-notification-group/{group}", async (string group,  INotificationService notificationService) =>
 {
     var notification = new Notification
     {
-        Title = "Personal Notification",
-        Message = $"Hello, group {group}! This is a personal notification.",
+        Title = "Group Notification",
+        Message = $"Hello, group {group}! This is a Group notification.",
         Type = "info",
         Group = group,
         Channel = Channels.WebSocket.Name,

@@ -4,6 +4,8 @@ volumes:
   zksingle-ksingle_zookeeper-data:
   zksingle-ksingle_zookeeper-log:
   zksingle-ksingle_zookeeper-secrets:
+  pgbouncer-config: 
+  pgbouncer-data: 
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -49,6 +51,5 @@ services:
         target: /etc/kafka/secrets
     networks:
       - kafka
-
 networks:
   kafka:

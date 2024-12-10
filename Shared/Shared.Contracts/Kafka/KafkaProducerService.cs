@@ -17,6 +17,8 @@ public class KafkaProducerService : IKafkaProducerService
         {
             BootstrapServers = kafkaConnectionString ?? settings.Value.BootstrapServers,
             AllowAutoCreateTopics = true,
+            BatchSize = 16384,
+            LingerMs = 5,
             Acks = Acks.All
         };
         

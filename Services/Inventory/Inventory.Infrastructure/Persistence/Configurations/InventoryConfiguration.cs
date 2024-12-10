@@ -37,5 +37,12 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventories>
         builder.Property(i => i.Price)
             .IsRequired();
         
+        builder.HasIndex(i => i.Id)
+            .HasDatabaseName("IX_Inventory_InventoryId") 
+            .IsUnique(false); 
+        
+        builder.HasIndex(i => new { i.Id, i.VendorId }) // Composite index
+            .HasDatabaseName("IX_Inventory_InventoryId_VendorId");
+        
     }
 }
