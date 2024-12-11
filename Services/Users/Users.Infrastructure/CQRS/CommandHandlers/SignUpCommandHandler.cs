@@ -70,7 +70,7 @@ public class SignUpCommandHandler(IUnitOfWork unitOfWork, UsersDbContext dbConte
             user.Id.ToString(),
             Groups.Users.Name,
             "Successful Registration",
-            $"Thank you {user.Username} for Registration!");
+            $"Thank you {user.Username} for choosing excellence!");
 
         await producerService.SendMessageAsync(
             Topics.NotificationRequests.Name,
