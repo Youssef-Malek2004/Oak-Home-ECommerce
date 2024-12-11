@@ -29,7 +29,7 @@ const Layout: React.FC = () => {
 
   useEffect(() => {
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5279/chat-hub", {
+      .withUrl("http://localhost:5175/notifications-hub/chat-hub", {
         accessTokenFactory: () => {
           const authToken = document.cookie
             .split("; ")
