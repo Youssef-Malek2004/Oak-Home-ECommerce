@@ -1,8 +1,10 @@
+using Shared.Contracts.Kafka;
 using Users.Api.Endpoints;
 using Users.Api.Extensions;
 using Users.Api.Middlewares;
 using Users.Api.OptionsSetup;
 using Users.Infrastructure;
+using Users.Infrastructure.Kafka;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,20 +19,17 @@ builder.Services.AddAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("http://localhost:5173") // Specify your frontend origin
-            .AllowCredentials() // Allow cookies/auth headers
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
+builder.Services.AddKafkaAdminClient();
+builder.Services.AddSingleton<IKafkaProducerService,KafkaProducerService>();
+builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
+builder.Services.AddSingleton<KafkaEventProcessor>();
+builder.Services.AddSingleton<KafkaDispatcher>();
+
+builder.Services.AddHostedService<KafkaInitializationHostedService>();
+builder.Services.AddHostedService<KafkaHostedService>();
 
 var app = builder.Build();
-
-app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())
 {
