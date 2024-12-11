@@ -47,8 +47,18 @@ const Layout: React.FC = () => {
 
       newConnection.on("ReceiveNotification", (notificationJson: string) => {
         const notification: Notification = JSON.parse(notificationJson);
-        setNotifications((prev) => [notification, ...prev]);
-        setUnreadCount((prev) => prev + 1);
+        setNotifications((prev) => {
+          const exists = prev.some((n) => n.Id === notification.Id);
+          if (!exists) {
+            return [notification, ...prev];
+          }
+          return prev;
+        });
+
+        setUnreadCount((prev) => {
+          const exists = notifications.some((n) => n.Id === notification.Id);
+          return exists ? prev : prev + 1;
+        });
       });
     });
 
