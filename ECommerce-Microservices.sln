@@ -76,6 +76,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pgbouncer-config", "pgbounc
 		Services\pgbouncer-config\userlist.txt = Services\pgbouncer-config\userlist.txt
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{BB0DA298-5D8B-46D2-B089-C718C774E795}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Api", "Gateway\Gateway.Api\Gateway.Api.csproj", "{59257AF9-51B8-4526-AA93-67FAC167DAFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -178,6 +182,10 @@ Global
 		{A02E489D-9E85-458B-91DB-AEE2FE546956}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A02E489D-9E85-458B-91DB-AEE2FE546956}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A02E489D-9E85-458B-91DB-AEE2FE546956}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59257AF9-51B8-4526-AA93-67FAC167DAFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59257AF9-51B8-4526-AA93-67FAC167DAFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59257AF9-51B8-4526-AA93-67FAC167DAFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59257AF9-51B8-4526-AA93-67FAC167DAFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{959AEFF5-2F02-4971-AD01-B240E7541BA8} = {FFE6BE3A-81B0-40D3-B605-2BC56F0EB170}
@@ -210,5 +218,6 @@ Global
 		{F8DEC5A9-6026-4D17-A1A8-80EE0C79D614} = {AE04C819-7E9C-4077-A8CA-BBE1DD47550F}
 		{A02E489D-9E85-458B-91DB-AEE2FE546956} = {FFE6BE3A-81B0-40D3-B605-2BC56F0EB170}
 		{56A7E711-7CDE-4025-AB97-4E9B596782DF} = {FFE6BE3A-81B0-40D3-B605-2BC56F0EB170}
+		{59257AF9-51B8-4526-AA93-67FAC167DAFF} = {BB0DA298-5D8B-46D2-B089-C718C774E795}
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,9 @@
 using Abstractions.ResultsPattern;
 using MediatR;
+using Shared.Contracts.Entities.NotificationService;
+using Shared.Contracts.Events;
+using Shared.Contracts.Kafka;
+using Shared.Contracts.Topics;
 using Users.Application.CQRS.Commands;
 using Users.Domain;
 using Users.Domain.Entities;
@@ -8,7 +12,7 @@ using Users.Infrastructure.Persistence;
 
 namespace Users.Infrastructure.CQRS.CommandHandlers;
 
-public class SignUpCommandHandler(IUnitOfWork unitOfWork, UsersDbContext dbContext) : IRequestHandler<SignUpCommand, Result<User>>
+public class SignUpCommandHandler(IUnitOfWork unitOfWork, UsersDbContext dbContext, IKafkaProducerService producerService) : IRequestHandler<SignUpCommand, Result<User>>
 {
     public async Task<Result<User>> Handle(SignUpCommand request, CancellationToken cancellationToken)
     {
@@ -61,6 +65,18 @@ public class SignUpCommandHandler(IUnitOfWork unitOfWork, UsersDbContext dbConte
         }
             
         await unitOfWork.SaveChangesAsync();
+
+        var notification = NotificationsFactory.GenerateSuccessWebNotificationUser(
+            user.Id.ToString(),
+            Groups.Users.Name,
+            "Successful Registration",
+            $"Thank you {user.Username} for Registration!");
+
+        await producerService.SendMessageAsync(
+            Topics.NotificationRequests.Name,
+            new NotificationRequest { Notification = notification }, cancellationToken, "");
+        
+        
         return Result<User>.Success(user);
     }
 }

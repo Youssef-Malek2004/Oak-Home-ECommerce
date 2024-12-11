@@ -3,6 +3,15 @@
   pgbouncer-data:
 
 services:
+  gateway.api:
+    image: gateway.api
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    build:
+      context: .
+      dockerfile: Gateway/Gateway.Api/Dockerfile
+      
   users.database:
     image: postgres:latest
     healthcheck:
@@ -189,3 +198,4 @@ networks:
   proxyBackend:
     name : proxyBackend
     driver: bridge
+
