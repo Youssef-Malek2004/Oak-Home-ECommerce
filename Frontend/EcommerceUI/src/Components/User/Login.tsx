@@ -11,21 +11,29 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../api/UserApi";
+import { useAuth } from "../Contexts/Authentication/useAuth";
 import image from "../../assets/LoginPageImage.webp";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [passwordHash, setPasswordHash] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { login } = useAuth(); // Access the login function from AuthContext
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
+      // Call the login API
       await loginUser({ email, passwordHash });
-      navigate("/");
+
+      // Update authentication state
+      login();
+
+      // Redirect to the home page
+      navigate("/shop");
     } catch (error: any) {
       console.error("Error:", error.message);
-      setErrorMessage(error.message); // Display the error message
+      setErrorMessage("Invalid email or password. Please try again."); // Display a friendly error message
     }
   };
 

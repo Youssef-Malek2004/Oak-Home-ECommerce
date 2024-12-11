@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./Components/User/Login";
 import Profile from "./Components/User/Profile";
 import SignUp from "./Components/User/SignUp";
+import MainLayout from "./Pages/MainLayout";
+import ProtectedRoute from "./Components/Contexts/Authentication/ProtectedRoute";
 
 function App() {
   return (
@@ -12,10 +14,25 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
-
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HeroSection />} /> {/* Landing Page */}
-          <Route path="profile" element={<Profile />} />
+        <Route path="/" element={<MainLayout />}>
+          <Route
+            path="/shop"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<HeroSection />} />
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
         </Route>
       </Routes>
     </Router>

@@ -1,10 +1,9 @@
-import Navbar from "../Components/Shared/NavBar";
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
-import SocialMediaBar from "../Components/Shared/SocialMediaBar";
 import * as signalR from "@microsoft/signalr";
 import { Notification } from "../Components/Shared/Notifications";
+import LandingPage from "../Components/Shared/LandingPageComponent";
 
 export const NotificationsContext = React.createContext<{
   notifications: Notification[];
@@ -91,9 +90,9 @@ const Layout: React.FC = () => {
           alignContent: "center",
         }}
       >
-        <Navbar />
+        {/* <Navbar /> */}
+        <LandingPage />
         <Outlet />
-        <SocialMediaBar />
       </Box>
     </NotificationsContext.Provider>
   );

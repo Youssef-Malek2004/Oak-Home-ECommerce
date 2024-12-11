@@ -48,6 +48,9 @@ const Notifications: React.FC = () => {
         width: "350px",
         maxHeight: "500px",
         overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        alignContent: "center",
         backgroundColor: "rgba(255, 255, 255, 0.4)",
         backdropFilter: "blur(10px)",
         border: "1px solid rgba(255, 255, 255, 0.3)",
@@ -103,8 +106,12 @@ const Notifications: React.FC = () => {
         <Box
           sx={{
             maxHeight: "400px",
+            maxWidth: "400px",
+            display: "flex",
+            flexDirection: "column",
+            alignContent: "center",
             overflowY: "auto",
-            paddingRight: 1,
+            paddingRight: 0.5,
           }}
         >
           {notifications.map((notification) => (

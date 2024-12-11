@@ -1,34 +1,72 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Container } from "@mui/material";
 import image from "../../assets/EcommerceShop.jpg";
 
 const HeroSection = () => {
   return (
     <Box
       sx={{
-        height: "90vh",
+        position: "relative",
+        height: { xs: "60vh", sm: "70vh", md: "90vh" },
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         backgroundImage: `url(${image})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        textAlign: "center",
         color: "white",
-        padding: 4,
-        width: "100%",
+        textAlign: "center",
+        overflow: "hidden",
       }}
     >
-      <Typography variant="h2" fontWeight="bold">
-        ELEVATE YOUR VISION
-      </Typography>
-      <Button
-        variant="contained"
-        color="secondary"
-        sx={{ marginTop: 4, fontSize: "1.2rem", padding: "0.8rem 2rem" }}
-      >
-        Shop Now
-      </Button>
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", // Overlay for better text readability
+        }}
+      />
+      <Container maxWidth="md">
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            textAlign: "center",
+            px: { xs: 2, md: 0 },
+          }}
+        >
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: "bold",
+              mb: 4,
+              fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4.5rem" },
+            }}
+          >
+            ELEVATE YOUR VISION
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              "&:hover": {
+                transform: "scale(1.05)",
+                transition: "transform 0.3s ease",
+              },
+            }}
+          >
+            Shop Now
+          </Button>
+        </Box>
+      </Container>
     </Box>
   );
 };
