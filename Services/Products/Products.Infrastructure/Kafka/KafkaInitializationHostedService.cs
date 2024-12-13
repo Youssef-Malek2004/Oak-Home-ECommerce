@@ -2,7 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
 
-namespace Inventory.Infrastructure.Kafka;
+namespace Products.Infrastructure.Kafka;
 
 public class KafkaInitializationHostedService(IAdminClientService adminClientService) : BackgroundService
 {
@@ -12,9 +12,9 @@ public class KafkaInitializationHostedService(IAdminClientService adminClientSer
         {
             Console.WriteLine("Starting Kafka Initialization...");
 
-            var topic = Topics.InventoryEvents.Name;
+            var topic = Topics.ProductEvents.Name;
 
-            await adminClientService.AddPartitionsAsync(topic, 5);
+            await adminClientService.CreateTopicAsync(topic, 1, 1);
             
             var topicCount = await adminClientService.GetPartitionCountAsync(topic);
             

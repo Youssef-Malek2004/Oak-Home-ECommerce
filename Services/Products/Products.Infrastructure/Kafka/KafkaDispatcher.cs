@@ -1,8 +1,10 @@
+using Confluent.Kafka;
 using Shared.Contracts.Kafka;
+using Shared.Contracts.Topics;
 
 namespace Products.Infrastructure.Kafka;
 
-public class KafkaDispatcher(KafkaConsumerService consumer) : IKafkaDispatcher
+public class KafkaDispatcher(IKafkaConsumerService consumer, KafkaEventProcessor eventProcessor) : IKafkaDispatcher
 {
     public async Task StartConsuming(CancellationToken stoppingToken)
     {
@@ -19,4 +21,19 @@ public class KafkaDispatcher(KafkaConsumerService consumer) : IKafkaDispatcher
             
         }, stoppingToken);
     }
+    public async Task StartConsumingProductEvents(CancellationToken stoppingToken, int instanceNumber)
+    {
+        await Task.Run(() =>
+        {
+            consumer.StartConsuming<ConsumeResult<string, string>>(
+                Topics.ProductEvents.Name,
+                $"product-events-consumer-{instanceNumber}",
+                async consumeResult =>
+                {
+                    await eventProcessor.ProcessProductEvent(consumeResult, stoppingToken);
+                },
+                stoppingToken);
+        }, stoppingToken);
+    }
+    
 }

@@ -75,4 +75,41 @@ public static class NotificationsFactory
         
         return notification;
     }
+    
+    public static Notification GenerateInfoWebNotificationUser(string userId, string group, string title, string message)
+    {
+        var notification = new Notification
+        {
+            Channel = Channels.WebSocket.Name,
+            CreatedAt = DateTime.UtcNow,
+            Group = group,
+            IsDelivered = false,
+            IsRead = false,
+            SentAt = DateTime.UtcNow,
+            Type = Types.Info.Name,
+            Title = title,
+            UserId = Guid.Parse(userId),
+            Message = message
+        };
+        
+        return notification;
+    }
+    
+    public static Notification GenerateInfoWebNotificationGroup( string group, string title, string message)
+    {
+        var notification = new Notification
+        {
+            Channel = Channels.WebSocket.Name,
+            CreatedAt = DateTime.UtcNow,
+            Group = group,
+            IsDelivered = false,
+            IsRead = false,
+            SentAt = DateTime.UtcNow,
+            Type = Types.Info.Name,
+            Title = title,
+            Message = message
+        };
+        
+        return notification;
+    }
 }

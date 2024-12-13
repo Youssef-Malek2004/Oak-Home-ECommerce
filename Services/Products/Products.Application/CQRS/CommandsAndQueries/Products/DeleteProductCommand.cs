@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Products.Application.CQRS.CommandsAndQueries.Products;
 
-public record DeleteProductCommand(string Id) : IRequest<Result>;
+public record DeleteProductCommand(string Id, string VendorId) : IRequest<Result>;
