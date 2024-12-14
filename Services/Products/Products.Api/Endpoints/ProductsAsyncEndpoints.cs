@@ -19,6 +19,12 @@ public static class ProductsAsyncEndpoints
             var result = await mediator.Send(new GetAllProductsQuery());
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
+        
+        productsEndpoints.MapGet("/vendor", async (HttpContext context, IMediator mediator) =>
+        {
+            var result = await mediator.Send(new GetProductsByVendorIdCommand(context.Items["VendorId"]!.ToString()!));
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
+        });
 
         productsEndpoints.MapGet("{id}", async (string id, IMediator mediator) =>
         {

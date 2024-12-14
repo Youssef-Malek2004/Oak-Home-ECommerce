@@ -41,6 +41,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<CookieToJwtMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<VendorIdMiddleware>();
+
 var endpoints = app.MapGroup("api");
 
 // endpoints.MapProductsCrudEndpoints();
@@ -57,9 +62,6 @@ app.Lifetime.ApplicationStopped.Register(() =>
     Console.WriteLine("Application stopped.");
 });
 
-app.UseMiddleware<CookieToJwtMiddleware>();
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.UseHttpsRedirection();
 

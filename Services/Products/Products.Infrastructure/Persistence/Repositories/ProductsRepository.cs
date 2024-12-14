@@ -9,7 +9,7 @@ using Shared.Contracts.RequestDtosAndMappers.ProductDtos;
 
 namespace Products.Infrastructure.Persistence.Repositories;
 
-public class ProductsRepository : IProductsRepository
+public class ProductsRepository(ICategoryRepository categoryRepository) : IProductsRepository
 {
     public async Task<Result<IEnumerable<Product>>> GetProducts()
     {
@@ -192,6 +192,46 @@ public class ProductsRepository : IProductsRepository
         catch (Exception ex)
         {
             return Result<Product>.Failure(ProductErrors.ProductEditFailed(ex.Message));
+        }
+    }
+    public async Task<Result<IEnumerable<VendorGetProductsDto>>> GetProductsByVendorId(string vendorId)
+    {
+        try
+        {
+            var products = await DB.Find<Product>()
+                .Match(p => p.VendorId == vendorId && !p.IsDeleted)
+                .ExecuteAsync();
+            
+            var categoryIds = products.Select(p => p.CategoryId).Distinct().ToList();
+            
+            var categories = await Task.WhenAll(categoryIds.Select(async categoryId =>
+            {
+                var categoryResult = await categoryRepository.GetCategoryById(categoryId);
+                return categoryResult.IsSuccess ? categoryResult.Value : null;
+            }));
+            
+            var categoryDictionary = categories
+                .Where(category => category != null)
+                .ToDictionary(c => c.ID, c => c);
+            
+            var productDtos = products.Select(product =>
+            {
+                var categoryName = categoryDictionary.TryGetValue(product.CategoryId, out var category)
+                    ? category.Name
+                    : "Unknown Category";
+
+                return new VendorGetProductsDto
+                {
+                    Product = product,
+                    Category = categoryName
+                };
+            });
+
+            return Result<IEnumerable<VendorGetProductsDto>>.Success(productDtos);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<VendorGetProductsDto>>.Failure(ProductErrors.InvalidProductData(ex.Message));
         }
     }
 }
