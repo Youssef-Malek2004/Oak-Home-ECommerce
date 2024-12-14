@@ -12,7 +12,8 @@ namespace Products.Infrastructure.Kafka;
 
 public class KafkaEventProcessor(IServiceScopeFactory serviceScope)
 {
-    public async Task ProcessProductEvent(ConsumeResult<string, string> consumeResult, CancellationToken cancellationToken)
+    public async Task ProcessProductEvent(ConsumeResult<string, string> consumeResult,
+        CancellationToken cancellationToken)
     {
         using var scope = serviceScope.CreateScope();
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -38,13 +39,20 @@ public class KafkaEventProcessor(IServiceScopeFactory serviceScope)
             var request = JsonSerializer.Deserialize<DeleteProductAsyncCommand>(consumeResult.Message.Value);
             await mediator.Send(new DeleteProductCommand(request!.ProductId, request.VendorId), cancellationToken);   
         }
+        else if(eventType == Event.ProductUpdateRequest.Name)
+        {
+            var request = JsonSerializer.Deserialize<UpdateProductAsyncCommand>(consumeResult.Message.Value);
+            await mediator.Send(new UpdateProductCommand(request!.Id,request.Product, request.DynamicFields),
+                cancellationToken);   
+        }
         else
         {
             Console.WriteLine($"Unknown event type: {eventType}");
         }
     }
     
-    public Task ProcessTestEvent(ConsumeResult<string, string> consumeResult, string groupInstanceName, CancellationToken cancellationToken)
+    public Task ProcessTestEvent(ConsumeResult<string, string> consumeResult,
+        string groupInstanceName, CancellationToken cancellationToken)
     {
 
         var eventTypeHeader = consumeResult.Message.Headers.FirstOrDefault(h => h.Key == "eventType");

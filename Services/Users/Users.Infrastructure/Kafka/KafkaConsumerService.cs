@@ -18,7 +18,7 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient
             GroupId = settings.Value.GroupId,
             AllowAutoCreateTopics = true,
             EnableAutoCommit = true,
-            GroupInstanceId = InitialGroupInstanceId + groupInstanceName, //Works Fine without it now :)
+            GroupInstanceId = InitialGroupInstanceId + groupInstanceName,
             AutoOffsetReset = AutoOffsetReset.Latest,
         };
         

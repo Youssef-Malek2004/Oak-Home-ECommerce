@@ -82,7 +82,7 @@ const LandingNavBar: React.FC<NavbarProps> = ({
             color: "white",
           }}
         >
-          Audo
+          Oak & Home
         </Typography>
 
         {/* Navigation Items */}

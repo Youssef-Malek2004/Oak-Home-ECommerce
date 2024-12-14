@@ -14,6 +14,7 @@ public class Event : Enumeration<Event>
     public static readonly Event ProductCreated = new Event(2, "ProductCreated");
     public static readonly Event ProductSoftDeleted = new Event(3, "ProductSoftDeleted");
     public static readonly Event ProductDeleteRequest = new Event(7, "ProductDeleteRequest");
+    public static readonly Event ProductUpdateRequest = new Event(8, "ProductUpdateRequest");
     
     public static readonly Event OrderCreated = new Event(4, "OrderCreated");
     

@@ -9,7 +9,8 @@ namespace Products.Domain.Entities;
 [BsonKnownTypes(typeof(ElectronicsProduct), typeof(ClothingProduct),
     typeof(BookProduct), typeof(HomeAppliancesProduct), typeof(ToyProduct),
     typeof(SportsProduct), typeof(BeautyProduct), typeof(HealthProduct),
-    typeof(AutomotiveProduct), typeof(FoodAndBeverageProduct))]
+    typeof(AutomotiveProduct), typeof(FoodAndBeverageProduct),
+    typeof(WoodProduct))]
 public class Product : Entity
 {
     public string Name { get; set; } = null!;

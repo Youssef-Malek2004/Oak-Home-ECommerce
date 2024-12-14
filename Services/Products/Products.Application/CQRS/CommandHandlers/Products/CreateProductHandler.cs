@@ -49,7 +49,8 @@ public class CreateProductHandler(IProductsRepository repository,
         );
 
         await kafkaProducerService.SendMessageAsync(
-            Topics.ProductEvents.Name, productCreatedEvent, cancellationToken, Event.ProductCreated.Name);
+            Topics.ProductEvents.Name, productCreatedEvent, cancellationToken,
+            Event.ProductCreated.Name);
         
         
         return Result<Product>.Success(product);
