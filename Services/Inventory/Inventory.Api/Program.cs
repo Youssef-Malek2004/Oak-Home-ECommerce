@@ -8,6 +8,7 @@ using Inventory.Domain.Entities;
 using Inventory.Infrastructure;
 using Inventory.Infrastructure.Kafka;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Contracts.Entities.NotificationService;
 using Shared.Contracts.Events;
 using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
@@ -22,6 +23,7 @@ builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafk
 builder.Services.AddKafkaAdminClient();
 builder.Services.AddSingleton<IKafkaProducerService,KafkaProducerService>();
 builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
+builder.Services.AddSingleton<IKafkaNotificationService, KafkaNotificationsService>();
 builder.Services.AddSingleton<KafkaEventProcessor>();
 builder.Services.AddSingleton<KafkaDispatcher>();
 

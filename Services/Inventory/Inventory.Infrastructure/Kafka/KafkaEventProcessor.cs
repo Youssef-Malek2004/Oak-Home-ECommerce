@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Confluent.Kafka;
 using Inventory.Application.CQRS.Commands;
+using Inventory.Application.CQRS.Commands.Async;
 using Inventory.Application.CQRS.Events;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -97,6 +98,33 @@ public class KafkaEventProcessor(IServiceScopeFactory serviceScope, IKafkaProduc
                     }, cancellationToken, "");
                 }
             }
+        }
+        else
+        {
+            Console.WriteLine($"Unknown event type: {eventType}");
+        }
+    }
+    
+    public async Task ProcessInventoryEvents(ConsumeResult<string, string> consumeResult, CancellationToken cancellationToken)
+    {
+        using var scope = serviceScope.CreateScope();
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+        var eventTypeHeader = consumeResult.Message.Headers.FirstOrDefault(h => h.Key == "eventType");
+
+        if (eventTypeHeader == null)
+        {
+            Console.WriteLine("No eventType header found.");
+            return;
+        }
+
+        var eventType = Encoding.UTF8.GetString(eventTypeHeader.GetValueBytes());
+        Console.WriteLine($"Received event type: {eventType}");
+
+        if (eventType == Event.InventorySupplyRequest.Name)
+        {
+            var request = JsonSerializer.Deserialize<SupplyInventoryAsyncCommand>(consumeResult.Message.Value);
+            await mediator.Send(new SupplyInventoryCommand(request!.VendorId, request.SupplyInventoryDto), cancellationToken);   
         }
         else
         {

@@ -16,7 +16,7 @@ public class SupplyInventoryHandler(IUnitOfWork unitOfWork, IKafkaProducerServic
     {
         var inventoryId = request.SupplyInventoryDto.InventoryId;
 
-        var result = await unitOfWork.InventoryRepository.GetInventoryByIdAsync(inventoryId, cancellationToken);
+        var result = await unitOfWork.InventoryRepository.GetInventoryByIdAsync(inventoryId, cancellationToken); //todo caching here is a good idea
 
         if (result.IsFailure) return result;
 

@@ -17,4 +17,5 @@ public interface IProductsRepository
     Task<Result<IEnumerable<Product>>> SearchProducts(string searchTerm);
     Task<Result<bool>> ToggleSoftDeleteProduct(string id);
     Task<Result<Product>> ToggleFeaturedStatus(string productId);
+    Task<Result<IEnumerable<VendorGetProductsDto>>> GetProductsByVendorId(string vendorId);
 }

@@ -14,6 +14,12 @@ public class KafkaHostedService(KafkaDispatcher dispatcher) : BackgroundService
             Task.Run(() => dispatcher.StartConsumingProductEvents(stoppingToken,1), stoppingToken),
             Task.Run(() => dispatcher.StartConsumingOrderEvents(stoppingToken,1), stoppingToken),
             
+            Task.Run(() => dispatcher.StartConsumingInventoryEvents(stoppingToken,1), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingInventoryEvents(stoppingToken,2), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingInventoryEvents(stoppingToken,3), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingInventoryEvents(stoppingToken,4), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingInventoryEvents(stoppingToken,5), stoppingToken),
+            
             // Task.Run(() => dispatcher.StartConsumingTestEvents(stoppingToken,1), stoppingToken),
             // Task.Run(() => dispatcher.StartConsumingTestEvents(stoppingToken,2), stoppingToken),
             // Task.Run(() => dispatcher.StartConsumingTestEvents(stoppingToken,3), stoppingToken),

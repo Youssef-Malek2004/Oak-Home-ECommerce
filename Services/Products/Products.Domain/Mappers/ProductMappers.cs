@@ -86,6 +86,7 @@ public static class ProductMappers
             "Beauty" => Result<Product>.Success(MapBeautyProduct(dynamicFields).Value!),
             "Automotive" => Result<Product>.Success(MapAutomotiveProduct(dynamicFields).Value!),
             "FoodAndBeverages" => Result<Product>.Success(MapFoodAndBeverageProduct(dynamicFields).Value!),
+            "Wood" => Result<Product>.Success(MapWoodProduct(dynamicFields).Value!),
             _ => Result<Product>.Failure(ProductValidationErrors.UnsupportedCategory(category.Name))
         };
     }
@@ -277,6 +278,65 @@ public static class ProductMappers
             VolumeOrWeight = volumeOrWeightResult.Value
         });
     }
+    
+private static Result<WoodProduct> MapWoodProduct(IDictionary<string, object> dynamicFields)
+{
+    var materialResult = GetRequiredField(dynamicFields, "Material");
+    var finishResult = GetRequiredField(dynamicFields, "Finish");
+    var lengthResult = GetOptionalField<decimal>(dynamicFields, "Length");
+    var widthResult = GetOptionalField<decimal>(dynamicFields, "Width");
+    var heightResult = GetOptionalField<decimal>(dynamicFields, "Height");
+    var weightResult = GetOptionalField<decimal>(dynamicFields, "Weight");
+    var colorResult = GetRequiredField(dynamicFields, "Color");
+    var subCategoryResult = GetRequiredField(dynamicFields, "SubCategory");
+    var usageResult = GetRequiredField(dynamicFields, "Usage");
+    var brandResult = GetRequiredField(dynamicFields, "Brand");
+    var manufacturerResult = GetRequiredField(dynamicFields, "Manufacturer");
+    var countryOfOriginResult = GetRequiredField(dynamicFields, "CountryOfOrigin");
+    
+    var isCustomizableResult = GetOptionalField<bool>(dynamicFields, "IsCustomizable");
+    var featuresResult = GetOptionalField<string>(dynamicFields, "Features");
+    var warrantyInYearsResult = GetOptionalField<int>(dynamicFields, "WarrantyInYears");
+    var maintenanceInstructionsResult = GetOptionalField<string>(dynamicFields, "MaintenanceInstructions");
+    var manufactureDateResult = GetOptionalField<DateTime>(dynamicFields, "ManufactureDate");
+    var isEcoFriendlyResult = GetOptionalField<bool>(dynamicFields, "IsEcoFriendly");
+    
+    if (!materialResult.IsSuccess) return Result<WoodProduct>.Failure(materialResult.Error);
+    if (!finishResult.IsSuccess) return Result<WoodProduct>.Failure(finishResult.Error);
+    if (!lengthResult.IsSuccess) return Result<WoodProduct>.Failure(lengthResult.Error);
+    if (!widthResult.IsSuccess) return Result<WoodProduct>.Failure(widthResult.Error);
+    if (!heightResult.IsSuccess) return Result<WoodProduct>.Failure(heightResult.Error);
+    if (!weightResult.IsSuccess) return Result<WoodProduct>.Failure(weightResult.Error);
+    if (!colorResult.IsSuccess) return Result<WoodProduct>.Failure(colorResult.Error);
+    if (!subCategoryResult.IsSuccess) return Result<WoodProduct>.Failure(subCategoryResult.Error);
+    if (!usageResult.IsSuccess) return Result<WoodProduct>.Failure(usageResult.Error);
+    if (!brandResult.IsSuccess) return Result<WoodProduct>.Failure(brandResult.Error);
+    if (!manufacturerResult.IsSuccess) return Result<WoodProduct>.Failure(manufacturerResult.Error);
+    if (!countryOfOriginResult.IsSuccess) return Result<WoodProduct>.Failure(countryOfOriginResult.Error);
+    
+    return Result<WoodProduct>.Success(new WoodProduct
+    {
+        Material = materialResult.Value!,
+        Finish = finishResult.Value!,
+        Length = lengthResult.Value,
+        Width = widthResult.Value,
+        Height = heightResult.Value,
+        Weight = weightResult.Value,
+        Color = colorResult.Value!,
+        SubCategory = subCategoryResult.Value!,
+        Usage = usageResult.Value!,
+        Brand = brandResult.Value!,
+        Manufacturer = manufacturerResult.Value!,
+        CountryOfOrigin = countryOfOriginResult.Value!,
+        IsCustomizable = isCustomizableResult.IsSuccess ? isCustomizableResult.Value : false,
+        Features = featuresResult.IsSuccess ? featuresResult.Value! : string.Empty,
+        WarrantyInYears = warrantyInYearsResult.IsSuccess ? warrantyInYearsResult.Value : 0,
+        MaintenanceInstructions = maintenanceInstructionsResult.IsSuccess ? maintenanceInstructionsResult.Value! : string.Empty,
+        ManufactureDate = manufactureDateResult.IsSuccess ? manufactureDateResult.Value : DateTime.MinValue,
+        IsEcoFriendly = isEcoFriendlyResult.IsSuccess && isEcoFriendlyResult.Value
+    });
+}
+
 
     private static Result<string> GetRequiredField(IDictionary<string, object> dynamicFields, string key)
     {

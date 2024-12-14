@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Inventory.Application.CQRS.Commands;
 
-public record SupplyInventoryCommand(SupplyInventoryDto SupplyInventoryDto) : IRequest<Result>;
+public record SupplyInventoryCommand(Guid VendorId,SupplyInventoryDto SupplyInventoryDto) : IRequest<Result>;

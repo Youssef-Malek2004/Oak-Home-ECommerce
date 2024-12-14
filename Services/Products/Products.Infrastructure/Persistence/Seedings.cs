@@ -23,7 +23,15 @@ public static class Seedings
                 new Category { Name = "Health" },
                 new Category { Name = "Beauty" },
                 new Category { Name = "Automotive" },
-                new Category { Name = "FoodAndBeverages" }
+                new Category { Name = "FoodAndBeverages" },
+                new Category { Name = "Wood" },
+                new Category { Name = "Living" },
+                new Category { Name = "Dining" },
+                new Category { Name = "Bedroom" },
+                new Category { Name = "Accessories" },
+                new Category { Name = "Office" },
+                new Category { Name = "Storage" },
+                new Category { Name = "Lighting" },
             };
 
             await DB.SaveAsync(categories);

@@ -19,7 +19,7 @@ public class KafkaConsumerService(IOptions<KafkaSettings> settings, IAdminClient
             AllowAutoCreateTopics = true,
             EnableAutoCommit = true,
             GroupInstanceId = InitialGroupInstanceId + groupInstanceName, //Works Fine without it now :)
-            AutoOffsetReset = AutoOffsetReset.Earliest,
+            AutoOffsetReset = AutoOffsetReset.Latest,
         };
         
         var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(10));
