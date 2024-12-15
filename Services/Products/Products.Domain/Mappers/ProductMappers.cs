@@ -76,17 +76,50 @@ public static class ProductMappers
 
         return category.Name switch
         {
-            "Electronics" => Result<Product>.Success((MapElectronicsProduct(dynamicFields).Value)!),
-            "Clothing" => Result<Product>.Success((MapClothingProduct(dynamicFields).Value)!),
-            "Books" => Result<Product>.Success((MapBookProduct(dynamicFields).Value)!),
-            "HomeAppliances" => Result<Product>.Success((MapHomeAppliancesProduct(dynamicFields).Value)!),
-            "Toys" => Result<Product>.Success(MapToyProduct(dynamicFields).Value!),
-            "Sports" => Result<Product>.Success(MapSportsProduct(dynamicFields).Value!),
-            "Health" => Result<Product>.Success(MapHealthProduct(dynamicFields).Value!),
-            "Beauty" => Result<Product>.Success(MapBeautyProduct(dynamicFields).Value!),
-            "Automotive" => Result<Product>.Success(MapAutomotiveProduct(dynamicFields).Value!),
-            "FoodAndBeverages" => Result<Product>.Success(MapFoodAndBeverageProduct(dynamicFields).Value!),
-            "Wood" => Result<Product>.Success(MapWoodProduct(dynamicFields).Value!),
+            "Electronics" => MapElectronicsProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapElectronicsProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapElectronicsProduct(dynamicFields).Error),
+                
+            "Clothing" => MapClothingProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapClothingProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapClothingProduct(dynamicFields).Error),
+                
+            "Books" => MapBookProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapBookProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapBookProduct(dynamicFields).Error),
+                
+            "HomeAppliances" => MapHomeAppliancesProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapHomeAppliancesProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapHomeAppliancesProduct(dynamicFields).Error),
+                
+            "Toys" => MapToyProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapToyProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapToyProduct(dynamicFields).Error),
+                
+            "Sports" => MapSportsProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapSportsProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapSportsProduct(dynamicFields).Error),
+                
+            "Health" => MapHealthProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapHealthProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapHealthProduct(dynamicFields).Error),
+                
+            "Beauty" => MapBeautyProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapBeautyProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapBeautyProduct(dynamicFields).Error),
+                
+            "Automotive" => MapAutomotiveProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapAutomotiveProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapAutomotiveProduct(dynamicFields).Error),
+                
+            "FoodAndBeverages" => MapFoodAndBeverageProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapFoodAndBeverageProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapFoodAndBeverageProduct(dynamicFields).Error),
+                
+            "Wood" => MapWoodProduct(dynamicFields).IsSuccess
+                ? Result<Product>.Success(MapWoodProduct(dynamicFields).Value!)
+                : Result<Product>.Failure(MapWoodProduct(dynamicFields).Error),
+                
             _ => Result<Product>.Failure(ProductValidationErrors.UnsupportedCategory(category.Name))
         };
     }
@@ -494,6 +527,28 @@ private static Result<WoodProduct> MapWoodProduct(IDictionary<string, object> dy
                 food.IsVegetarian = updatedFood.IsVegetarian;
                 food.VolumeOrWeight = updatedFood.VolumeOrWeight;
                 break;
+            
+            case WoodProduct wood when updatedProduct is WoodProduct updatedWood:
+                wood.Material = updatedWood.Material;
+                wood.Finish = updatedWood.Finish;
+                wood.Length = updatedWood.Length;
+                wood.Width = updatedWood.Width;
+                wood.Height = updatedWood.Height;
+                wood.Weight = updatedWood.Weight;
+                wood.Color = updatedWood.Color;
+                wood.SubCategory = updatedWood.SubCategory;
+                wood.Usage = updatedWood.Usage;
+                wood.IsCustomizable = updatedWood.IsCustomizable;
+                wood.Features = updatedWood.Features;
+                wood.WarrantyInYears = updatedWood.WarrantyInYears;
+                wood.MaintenanceInstructions = updatedWood.MaintenanceInstructions;
+                wood.Brand = updatedWood.Brand;
+                wood.Manufacturer = updatedWood.Manufacturer;
+                wood.ManufactureDate = updatedWood.ManufactureDate;
+                wood.CountryOfOrigin = updatedWood.CountryOfOrigin;
+                wood.IsEcoFriendly = updatedWood.IsEcoFriendly;
+                break;
+
         }
 
         return existingProduct;

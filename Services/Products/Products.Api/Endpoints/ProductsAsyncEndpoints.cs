@@ -32,16 +32,17 @@ public static class ProductsAsyncEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 
-        productsEndpoints.MapPost("", async ([FromBody] CreateProductRequest request, IMediator mediator , CancellationToken cancellationToken) =>
+        productsEndpoints.MapPost("", async (HttpContext context,[FromBody] CreateProductRequest request, IMediator mediator , CancellationToken cancellationToken) =>
         {
+            request.CreateProductDto.VendorId = context.Items["VendorId"]!.ToString()!;
             var result = await mediator.Send(new CreateProductAsyncCommand(request.AddProductInventoryFields, request.CreateProductDto, request.DynamicFields), cancellationToken);
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
         }).HasRole(Roles.Vendor.Name);
 
         productsEndpoints.MapPut("{id}", async (string id, [FromBody] UpdateProductRequest updateProductRequest, IMediator mediator) =>
         {
-            var result = await mediator.Send(new UpdateProductCommand(id, updateProductRequest.UpdateProductDto, updateProductRequest.DynamicFields));
-            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+            var result = await mediator.Send(new UpdateProductAsyncCommand(id, updateProductRequest.UpdateProductDto, updateProductRequest.DynamicFields));
+            return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
         });
 
         productsEndpoints.MapDelete("{productId}/{id}", async (string productId,string id, IMediator mediator) =>
