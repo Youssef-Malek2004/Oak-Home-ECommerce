@@ -346,13 +346,28 @@ const EditProduct: React.FC = () => {
                         variant="outlined"
                         onChange={(e) => handleFieldChange("color", e.target.value)}
                       />
-                      <TextField
+                      {/* <TextField
                         label="Sub-Category"
                         value={product?.subCategory || ""}
                         fullWidth
                         variant="outlined"
                         onChange={(e) => handleFieldChange("subCategory", e.target.value)}
-                      />
+                      /> */}
+                      <FormControl required fullWidth>
+                        <InputLabel id="sub-category-label">Sub Category</InputLabel>
+                        <Select
+                          labelId="-sub-category-label"
+                          value={product?.subCategory || ""}
+                          onChange={(e) => handleFieldChange("subCategory", e.target.value)}
+                          label="Sub Category"
+                        >
+                          {categories.map((cat) => (
+                            <MenuItem key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </Box>
                   </Grid>
 
