@@ -6,8 +6,8 @@ services:
   gateway.api:
     image: gateway.api
     ports:
-      - "5000:5000"
-      - "5001:5001"
+      - "5010:5010"
+      - "5011:5011"
     build:
       context: .
       dockerfile: Gateway/Gateway.Api/Dockerfile
@@ -191,6 +191,24 @@ services:
       inventory.database:
         condition: service_healthy
         restart: true
+    networks:
+      - proxyBackend
+  
+  payments.api:
+    image: payments.api
+    build:
+      context: .
+      dockerfile: Services/Payments/Payments.Api/Dockerfile
+    ports:
+      - "5600:5600"
+      - "5601:5601"
+    environment:
+      - ASPNETCORE_URLS=http://+:5600
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - proxyBackend
   
