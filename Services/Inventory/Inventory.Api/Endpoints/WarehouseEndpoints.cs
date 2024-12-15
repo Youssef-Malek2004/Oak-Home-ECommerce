@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
+using Inventory.Application.CQRS.Queries;
 using Inventory.Domain;
 using Inventory.Domain.Entities;
+using MediatR;
 
 namespace Inventory.Api.Endpoints;
 
@@ -20,6 +22,12 @@ public static class WarehouseEndpoints
         {
             var result = await unitOfWork.WarehouseRepository.GetWarehouseByIdAsync(id, cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
+        });
+        
+        group.MapGet("/names", async (IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new GetWarehousesProductQuery(), cancellationToken);
+            return result.IsSuccess ? Results.Ok(new { warehouses = result.Value}) : Results.NotFound(result.Error);
         });
 
         group.MapPost("/", async (Warehouse warehouse, IUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
@@ -57,9 +65,15 @@ public static class WarehouseEndpoints
             return Results.NoContent();
         });
 
-        group.MapGet("/product/{productId}", async (string productId, IUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+        group.MapGet("/product-warehouses/{productId}", async (string productId, IUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
         {
             var result = await unitOfWork.WarehouseRepository.GetWarehousesSellingProductAsync(productId, cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
+        });
+        
+        group.MapGet("/product-warehouse/{productId}", async (string productId, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new GetWarehouseForProductQuery(productId), cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 

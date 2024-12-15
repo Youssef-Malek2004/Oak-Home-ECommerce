@@ -1,9 +1,11 @@
 using System.Linq.Expressions;
 using Abstractions.ResultsPattern;
+using Inventory.Domain.DTOs.WarehouseDtos;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Errors;
 using Inventory.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Shared.Contracts.RequestDtosAndMappers.ProductDtos;
 
 namespace Inventory.Infrastructure.Persistence.Repositories;
 
@@ -138,6 +140,41 @@ public class WarehouseRepository(InventoryDbContext context) : IWarehouseReposit
         }
     }
 
+    public async Task<Result<WarehouseForProductDto>> GetWarehouseSellingProductDtoAsync(string productId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var warehouses = await context.Warehouses
+                .Include(w => w.Inventories)
+                .Where(w => w.Inventories.Any(i => i.ProductId == productId && i.Quantity >= 0)) 
+                .ToListAsync(cancellationToken);
+
+            if (!warehouses.Any())
+            {
+                return Result<WarehouseForProductDto>.Failure(WarehouseErrors.WarehousesNotFoundForProduct(productId));
+            }
+
+            var warehouse = warehouses.First();
+
+            var returnedWarehouse = new WarehouseForProductDto
+            {
+                AddressId = warehouse.AddressId,
+                CreatedAt = warehouse.CreatedAt,
+                IsOperational = warehouse.IsOperational,
+                LastUpdated = warehouse.LastUpdated,
+                Name = warehouse.Name,
+                WarehouseId = warehouse.WarehouseId
+            };
+
+            return Result<WarehouseForProductDto>.Success(returnedWarehouse);
+        }
+        catch (Exception ex)
+        {
+            return Result<WarehouseForProductDto>.Failure(WarehouseErrors.WarehouseQueryFailed(ex.Message));
+        }
+    }
+
 
     public async Task<Result<IEnumerable<Warehouse>>> GetWarehousesByConditionAsync(
         Expression<Func<Warehouse, bool>> predicate,
@@ -155,6 +192,28 @@ public class WarehouseRepository(InventoryDbContext context) : IWarehouseReposit
         catch (Exception ex)
         {
             return Result<IEnumerable<Warehouse>>.Failure(WarehouseErrors.WarehouseQueryFailed(ex.Message));
+        }
+    }
+    
+    public async Task<Result<IEnumerable<WarehouseNamesDto>>> GetWarehouseIdsAndNamesAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var warehouseData = await context.Warehouses
+                .Select(w => new { w.WarehouseId, w.Name })
+                .ToListAsync(cancellationToken);
+            
+            var result = warehouseData.Select(w => new WarehouseNamesDto()
+            {
+                WarehouseId = w.WarehouseId,
+                Name = w.Name
+            });
+
+            return Result<IEnumerable<WarehouseNamesDto>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<WarehouseNamesDto>>.Failure(WarehouseErrors.WarehouseQueryFailed(ex.Message));
         }
     }
 }
