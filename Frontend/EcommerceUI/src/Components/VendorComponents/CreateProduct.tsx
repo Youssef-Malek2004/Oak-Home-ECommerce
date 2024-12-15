@@ -363,12 +363,27 @@ export const CreateProduct: React.FC = () => {
                         fullWidth
                         onChange={(e) => handleDynamicFieldChange("Weight", Number(e.target.value))}
                       />
-                      <TextField
+                      {/* <TextField
                         label="Sub-Category"
                         value={dynamicFields.SubCategory || ""}
                         fullWidth
                         onChange={(e) => handleDynamicFieldChange("SubCategory", e.target.value)}
-                      />
+                      /> */}
+                      <FormControl required fullWidth>
+                        <InputLabel id="sub-cateogry-label">Sub Category</InputLabel>
+                        <Select
+                          labelId="sub-category-label"
+                          value={dynamicFields.SubCategory}
+                          onChange={(e) => handleDynamicFieldChange("SubCategory", e.target.value)}
+                          label="Sub Category"
+                        >
+                          {categories.map((cat) => (
+                            <MenuItem key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                       <FormControl fullWidth>
                         <InputLabel id="is-customizable-label">Customizable</InputLabel>
                         <Select
