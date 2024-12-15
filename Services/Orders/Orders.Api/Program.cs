@@ -18,7 +18,10 @@ builder.Services.AddKafkaAdminClient();
 builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
 builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 builder.Services.AddSingleton<KafkaDispatcher>();
+builder.Services.AddSingleton<KafkaEventProcessor>();
+
 builder.Services.AddHostedService<KafkaHostedService>();
+builder.Services.AddHostedService<KafkaInitializationHostedService>();
 
 builder.Services.ConfigureAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
