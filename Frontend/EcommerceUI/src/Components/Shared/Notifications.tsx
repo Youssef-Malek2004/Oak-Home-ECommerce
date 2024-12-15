@@ -18,8 +18,7 @@ export interface Notification {
 }
 
 const Notifications: React.FC = () => {
-  const { notifications, unreadCount, connection, setNotifications } =
-    useContext(NotificationsContext);
+  const { notifications, unreadCount, connection, setNotifications } = useContext(NotificationsContext);
 
   const handleMarkAsRead = async (id: string) => {
     try {
@@ -30,9 +29,7 @@ const Notifications: React.FC = () => {
 
       await connection.invoke("MarkNotificationAsRead", id);
 
-      setNotifications((prev) =>
-        prev.filter((notification) => notification.Id !== id)
-      );
+      setNotifications((prev) => prev.filter((notification) => notification.Id !== id));
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -117,11 +114,7 @@ const Notifications: React.FC = () => {
           {notifications.map((notification) => (
             <Fade key={notification.Id} in={true} timeout={500}>
               <div>
-                <NotificationCard
-                  key={notification.Id}
-                  notification={notification}
-                  onClose={handleMarkAsRead}
-                />
+                <NotificationCard key={notification.Id} notification={notification} onClose={handleMarkAsRead} />
               </div>
             </Fade>
           ))}

@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Badge,
-  IconButton,
-  Divider,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, List, ListItem, ListItemIcon, ListItemText, Badge, IconButton, Divider, Tooltip } from "@mui/material";
 import {
   Inventory as InventoryIcon,
   ShoppingCart as ShoppingCartIcon,
@@ -21,9 +10,27 @@ import {
 } from "@mui/icons-material";
 import { NavLink } from "react-router-dom";
 
-const Sidebar: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+interface SidebarProps {
+  collapsed?: boolean;
+  onCollapseToggle?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ collapsed: controlledCollapsed, onCollapseToggle }) => {
+  // Use local state if no external control is provided
+  const [localCollapsed, setLocalCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+  // Determine which collapsed state to use
+  const collapsed = controlledCollapsed ?? localCollapsed;
+
+  // Handle collapse toggle
+  const handleCollapseToggle = () => {
+    if (onCollapseToggle) {
+      onCollapseToggle();
+    } else {
+      setLocalCollapsed(!collapsed);
+    }
+  };
 
   const menuItems = [
     {
@@ -62,17 +69,17 @@ const Sidebar: React.FC = () => {
   return (
     <Box
       sx={{
-        width: collapsed ? "5%" : "250px", // More precise collapsing
+        width: collapsed ? "5%" : "250px",
         height: "100vh",
-        background: "linear-gradient(to bottom, #2C2316, #1A1409)", // Rich wood-tone gradient
-        color: "#D4C1A3", // Warm, aged wood color
+        background: "linear-gradient(to bottom, #2C2316, #1A1409)",
+        color: "#D4C1A3",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         paddingTop: "1rem",
-        boxShadow: "4px 0 15px rgba(0, 0, 0, 0.7)", // Deeper shadow
-        transition: "width 0.3s ease-in-out", // Smoother transition
-        position: "fixed", // Keep sidebar in place
+        boxShadow: "4px 0 15px rgba(0, 0, 0, 0.7)",
+        transition: "width 0.3s ease-in-out",
+        position: "fixed",
         left: 0,
         top: 0,
         zIndex: 1000,
@@ -80,24 +87,26 @@ const Sidebar: React.FC = () => {
       }}
     >
       {/* Toggle Button with Tooltip */}
-      <Tooltip
-        title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-        placement="right"
-      >
+      <Tooltip title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"} placement="right">
         <IconButton
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={handleCollapseToggle}
           sx={{
-            color: "#F5E6D3", // Soft cream color
+            color: "#F5E6D3",
             alignSelf: "flex-end",
             marginRight: "8px",
             "&:hover": {
-              backgroundColor: "rgba(245, 230, 211, 0.1)", // Subtle hover effect
+              backgroundColor: "rgba(245, 230, 211, 0.1)",
               transform: "scale(1.1)",
             },
             transition: "all 0.3s ease",
           }}
         >
-          <MenuOpenIcon />
+          <MenuOpenIcon
+            sx={{
+              transform: collapsed ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.3s ease",
+            }}
+          />
         </IconButton>
       </Tooltip>
 
@@ -108,10 +117,10 @@ const Sidebar: React.FC = () => {
           mb: 2,
           fontWeight: "bold",
           textAlign: "center",
-          color: "#F5E6D3", // Soft cream color
+          color: "#F5E6D3",
           letterSpacing: "0.1em",
           display: collapsed ? "none" : "block",
-          textShadow: "1px 1px 2px rgba(0,0,0,0.5)", // Subtle text depth
+          textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
         }}
       >
         Oak & Home
@@ -127,12 +136,7 @@ const Sidebar: React.FC = () => {
         }}
       >
         {menuItems.map((item) => (
-          <Tooltip
-            key={item.text}
-            title={item.text}
-            placement="right"
-            disableHoverListener={!collapsed}
-          >
+          <Tooltip key={item.text} title={item.text} placement="right" disableHoverListener={!collapsed}>
             <ListItem
               component={NavLink}
               to={item.link}
@@ -140,21 +144,21 @@ const Sidebar: React.FC = () => {
               onMouseEnter={() => setHoveredItem(item.text)}
               onMouseLeave={() => setHoveredItem(null)}
               sx={{
-                color: "#D4C1A3", // Warm wood tone
+                color: "#D4C1A3",
                 marginY: "8px",
                 maxWidth: "90%",
                 padding: collapsed ? "8px" : "8px 16px",
-                borderRadius: "12px", // More rounded corners
+                borderRadius: "12px",
                 cursor: "pointer",
                 position: "relative",
                 overflow: "hidden",
                 "&.active": {
-                  color: "#F5E6D3", // Brighter on active
-                  background: "rgba(82, 67, 45, 0.7)", // Deep wood brown
-                  boxShadow: "0 4px 6px rgba(0,0,0,0.2)", // Subtle depth
+                  color: "#F5E6D3",
+                  background: "rgba(82, 67, 45, 0.7)",
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.2)",
                 },
                 "&:hover": {
-                  background: "rgba(82, 67, 45, 0.5)", // Warm brown overlay
+                  background: "rgba(82, 67, 45, 0.5)",
                   color: "#F5E6D3",
                   transform: collapsed ? "scale(1.1)" : "scale(1.02)",
                   boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
@@ -168,8 +172,7 @@ const Sidebar: React.FC = () => {
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background:
-                      "linear-gradient(to right, rgba(245, 230, 211, 0.1), transparent)",
+                    background: "linear-gradient(to right, rgba(245, 230, 211, 0.1), transparent)",
                     zIndex: 1,
                     pointerEvents: "none",
                   },
@@ -193,7 +196,7 @@ const Sidebar: React.FC = () => {
                   sx={{
                     "& .MuiBadge-badge": {
                       fontSize: "0.7rem",
-                      backgroundColor: "#8B4513", // Saddle Brown
+                      backgroundColor: "#8B4513",
                       color: "#F5E6D3",
                       boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
                     },
@@ -210,7 +213,7 @@ const Sidebar: React.FC = () => {
         sx={{
           width: "90%",
           marginY: "16px",
-          background: "rgba(212, 193, 163, 0.2)", // Translucent wood tone
+          background: "rgba(212, 193, 163, 0.2)",
           height: "2px",
         }}
       />
