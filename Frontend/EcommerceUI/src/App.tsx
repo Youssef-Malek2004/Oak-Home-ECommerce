@@ -9,6 +9,8 @@ import MainLayout from "./Pages/MainLayout";
 import ProtectedRoute from "./Components/Contexts/Authentication/ProtectedRoute";
 import VendorDashboard from "./Pages/Vendor/VendorDashboard";
 import VendorProductsPage from "./Pages/Vendor/VendorProductsPage";
+import { CreateProduct } from "./Components/VendorComponents/CreateProduct";
+import EditProduct from "./Components/VendorComponents/EditProduct";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/vendor" element={<VendorDashboard />}>
           <Route path="products" element={<VendorProductsPage />} />
+          <Route path="products/create" element={<CreateProduct />} />
+          <Route path="products/details/:productId" element={<EditProduct />} />
         </Route>
         <Route path="/" element={<MainLayout />}>
           <Route

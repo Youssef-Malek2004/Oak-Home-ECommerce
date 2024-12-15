@@ -1,8 +1,7 @@
 import axios from "axios";
 import { VendorGetProducts } from "../Interfaces/Product";
 
-const PRODUCTS_API_BASE_URL =
-  "http://localhost:5175/products-api/api/products-async";
+const PRODUCTS_API_BASE_URL = "http://localhost:5175/products-api/api/products-async";
 
 const axiosProductsInstance = axios.create({
   baseURL: PRODUCTS_API_BASE_URL,
@@ -14,11 +13,7 @@ const axiosProductsInstance = axios.create({
 
 export const fetchProductsByVendor = async (): Promise<VendorGetProducts[]> => {
   try {
-    const response = await axiosProductsInstance.get<VendorGetProducts[]>(
-      `${PRODUCTS_API_BASE_URL}/vendor`
-    );
-
-    console.log(response.data);
+    const response = await axiosProductsInstance.get<VendorGetProducts[]>(`${PRODUCTS_API_BASE_URL}/vendor`);
     return response.data;
   } catch (error) {
     console.error("Error fetching products:", error);
