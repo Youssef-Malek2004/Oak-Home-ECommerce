@@ -1,5 +1,6 @@
 using Payments.Api.Extensions;
 using Payments.Api.Middlewares;
+using Payments.Api.OptionsSetup;
 using Payments.Infrastructure;
 using Payments.Infrastructure.Kafka;
 using Shared.Contracts.Entities.NotificationService;
@@ -9,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.ConfigureAuthenticationAndAuthorization();
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
 builder.Services.AddPersistence(builder.Configuration);

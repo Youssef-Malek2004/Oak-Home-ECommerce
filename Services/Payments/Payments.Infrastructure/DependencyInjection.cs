@@ -1,4 +1,7 @@
 using Confluent.Kafka;
+using Inventory.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +21,16 @@ public static class DependencyInjection
         services.AddDbContext<IPaymentDbContext, PaymentDbContext>(x =>
             x.UseNpgsql(configuration.GetConnectionString(DatabaseConnection)));
 
+        return services;
+    }
+    
+    public static IServiceCollection ConfigureAuthenticationAndAuthorization(this IServiceCollection services)
+    {
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+        services.AddAuthorization();
+        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
         return services;
     }
     
