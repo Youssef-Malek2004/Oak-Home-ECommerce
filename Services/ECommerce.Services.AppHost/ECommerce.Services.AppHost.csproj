@@ -12,6 +12,7 @@
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0"/>
         <PackageReference Include="Aspire.Hosting.Kafka" Version="8.2.2" />
+        <PackageReference Include="Confluent.Kafka" Version="2.6.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -20,6 +21,7 @@
       <ProjectReference Include="..\Inventory\Inventory.Api\Inventory.Api.csproj" />
       <ProjectReference Include="..\Notifications\Notifications.Api\Notifications.Api.csproj" />
       <ProjectReference Include="..\Orders\Orders.Api\Orders.Api.csproj" />
+      <ProjectReference Include="..\Payments\Payments.Api\Payments.Api.csproj" />
       <ProjectReference Include="..\Products\Products.Api\Products.Api.csproj" />
       <ProjectReference Include="..\Users\Users.Api\Users.Api.csproj" />
     </ItemGroup>
