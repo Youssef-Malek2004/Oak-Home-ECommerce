@@ -8,6 +8,7 @@ using Shared.Contracts.Entities.NotificationService;
 using Shared.Contracts.Events;
 using Shared.Contracts.Events.InventoryEvents;
 using Shared.Contracts.Events.OrderEvents;
+using Shared.Contracts.Events.PaymentEvents;
 using Shared.Contracts.Events.ProductEvents;
 using Shared.Contracts.Kafka;
 using Shared.Contracts.Topics;
@@ -40,6 +41,38 @@ public class KafkaEventProcessor(IServiceScopeFactory serviceScope, IKafkaProduc
             {
                 Console.WriteLine($"Processing inventoryNotEnough event: {inventoryNotEnough}");
                 await mediator.Send(new FailedOrderCommand(inventoryNotEnough), cancellationToken);
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Unknown event type: {eventType}");
+        }
+    }
+    
+    public async Task ProcessPaymentEvents(ConsumeResult<string, string> consumeResult,
+        CancellationToken cancellationToken)
+    {
+        using var scope = serviceScope.CreateScope();
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        
+        var eventTypeHeader = consumeResult.Message.Headers.FirstOrDefault(h => h.Key == "eventType");
+
+        if (eventTypeHeader == null)
+        {
+            Console.WriteLine("No eventType header found.");
+            return;
+        }
+
+        var eventType = Encoding.UTF8.GetString(eventTypeHeader.GetValueBytes());
+        Console.WriteLine($"Received event type: {eventType}");
+        
+        if (eventType == Event.PaymentSuccessfulEvent.Name)
+        {
+            var paymentProcessedEvent = JsonSerializer.Deserialize<PaymentProcessedEvent>(consumeResult.Message.Value);
+            if (paymentProcessedEvent != null)
+            {
+                Console.WriteLine($"Processing Payment Processed event: {paymentProcessedEvent}");
+                await mediator.Send(new SuccessfulOrderPayment(paymentProcessedEvent), cancellationToken);
             }
         }
         else

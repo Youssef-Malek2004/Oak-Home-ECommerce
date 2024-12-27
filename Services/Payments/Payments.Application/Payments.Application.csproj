@@ -23,14 +23,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Shared\Shared.Contracts\Shared.Contracts.csproj" />
       <ProjectReference Include="..\Payments.Domain\Payments.Domain.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="CQRS\CommandHandlers\" />
-      <Folder Include="CQRS\Commands\" />
-      <Folder Include="CQRS\Queries\" />
-      <Folder Include="CQRS\QueryHandlers\" />
     </ItemGroup>
 
 </Project>

@@ -20,4 +20,18 @@ public class KafkaDispatcher(IKafkaConsumerService consumer, KafkaEventProcessor
                 stoppingToken);
         }, stoppingToken);
     }
+    public async Task StartConsumingPaymentEvents(CancellationToken stoppingToken, int instanceNumber)
+    {
+        await Task.Run(() =>
+        {
+            consumer.StartConsuming<ConsumeResult<string, string>>(
+                Topics.PaymentEvents.Name,
+                $"payments-events-consumer-{instanceNumber}",
+                async consumeResult =>
+                {
+                    await eventProcessor.ProcessPaymentEvents(consumeResult, stoppingToken);
+                },
+                stoppingToken);
+        }, stoppingToken);
+    }
 }

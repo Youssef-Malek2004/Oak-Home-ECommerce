@@ -44,5 +44,13 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasMaxLength(500);
         
         builder.HasIndex(p => p.UserId);
+        
+        builder.HasIndex(p => p.PaymentMethod);
+        
+        builder.HasIndex(p => p.FailureReason);
+        
+        builder.HasIndex(p => p.Status);
+        
+        builder.HasIndex(p => p.Amount);
     }
 }

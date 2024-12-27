@@ -65,7 +65,9 @@ public class ReserveInventoryHandler(IUnitOfWork unitOfWork, IKafkaProducerServi
             reservedItems.Add(new InventoryReservedEvent.ReservedItem
             {
                 ProductId = item.ProductId,
-                Quantity = item.Quantity
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice,
+                Subtotal = item.Subtotal
             });
         }
 
@@ -87,10 +89,12 @@ public class ReserveInventoryHandler(IUnitOfWork unitOfWork, IKafkaProducerServi
 
             return Result.Failure(InventoryErrors.InventoryNotEnough("Inventory not sufficient for some items."));
         }
-
+        
         var reservedEvent = new InventoryReservedEvent
         {
+            UserId = order.UserId,
             OrderId = order.OrderId,
+            TotalAmount = order.TotalAmount,
             ReservedItems = reservedItems
         };
 

@@ -11,7 +11,6 @@ public class VendorIdMiddleware(RequestDelegate next)
         {
             context.Items["VendorId"] = vendorId; 
         }
-
         await next(context);
     }
 }

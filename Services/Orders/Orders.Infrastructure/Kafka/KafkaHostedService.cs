@@ -10,7 +10,8 @@ public class KafkaHostedService(KafkaDispatcher dispatcher) : BackgroundService
         
         var consumingTasks = new List<Task>
         {
-            Task.Run(() => dispatcher.StartConsumingInventoryEvents(stoppingToken,1), stoppingToken)
+            Task.Run(() => dispatcher.StartConsumingInventoryEvents(stoppingToken,1), stoppingToken),
+            Task.Run(() => dispatcher.StartConsumingPaymentEvents(stoppingToken,1), stoppingToken)
         };
 
         await Task.WhenAll(consumingTasks);

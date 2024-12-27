@@ -21,4 +21,18 @@ public class KafkaDispatcher(IKafkaConsumerService consumer, KafkaEventProcessor
                 stoppingToken);
         }, stoppingToken);
     }
+    public async Task StartConsumingInventoryEvents(CancellationToken stoppingToken, int instanceNumber)
+    {
+        await Task.Run(() =>
+        {
+            consumer.StartConsuming<ConsumeResult<string, string>>(
+                Topics.InventoryEvents.Name,
+                $"inventory-events-consumer-{instanceNumber}",
+                async consumeResult =>
+                {
+                    await eventProcessor.ProcessInventoryEvent(consumeResult, stoppingToken);
+                },
+                stoppingToken);
+        }, stoppingToken);
+    }
 }

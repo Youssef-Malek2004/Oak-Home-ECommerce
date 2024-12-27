@@ -7,7 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Payments.Application.Services.Data;
+using Payments.Domain.Repositories;
 using Payments.Infrastructure.Persistence;
+using Payments.Infrastructure.Persistence.Repositories;
 using Shared.Contracts.Kafka;
 
 namespace Payments.Infrastructure;
@@ -20,6 +22,7 @@ public static class DependencyInjection
     {
         services.AddDbContext<IPaymentDbContext, PaymentDbContext>(x =>
             x.UseNpgsql(configuration.GetConnectionString(DatabaseConnection)));
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         return services;
     }
