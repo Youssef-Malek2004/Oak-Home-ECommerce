@@ -17,6 +17,8 @@ export interface UserProfile {
 }
 
 const API_BASE_URL = "http://localhost:5175/users-api/api/users";
+//Docker
+// const API_BASE_URL = "http://localhost:5010/users-api/api/users";
 
 // Create an Axios instance with default configurations
 const axiosInstance = axios.create({
@@ -61,8 +63,6 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
     // Extract error response
     const errorResponse = error.response?.data;
     console.error("Fetch User Profile Error:", errorResponse);
-    throw new Error(
-      errorResponse?.description || "Failed to fetch user profile."
-    );
+    throw new Error(errorResponse?.description || "Failed to fetch user profile.");
   }
 };

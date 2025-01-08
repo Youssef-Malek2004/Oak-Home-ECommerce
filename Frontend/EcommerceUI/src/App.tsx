@@ -33,6 +33,7 @@ function App() {
             }
           >
             <Route index element={<HeroSection />} />
+            <Route path="products" />
             <Route
               path="profile"
               element={
