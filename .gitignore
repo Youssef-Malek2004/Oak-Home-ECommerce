@@ -1,5 +1,83 @@
+# Ignore build directories
 bin/
 obj/
-/packages/
-riderModule.iml
+
+# Ignore user-specific files
+*.user
+*.swp
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.ncrunchproject
+*.ncrunchsolution
+
+# Ignore Rider/JetBrains files
+.idea/
+*.iml
+/.idea/
+.vscode/
 /_ReSharper.Caches/
+
+# Ignore NuGet packages
+*.nupkg
+/packages/
+project.lock.json
+project.fragment.lock.json
+
+# Ignore local application settings
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json
+.env
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore compiled files
+*.dll
+*.exe
+*.app
+*.dmg
+*.pkg
+*.deb
+
+# Ignore generated files
+*.g.cs
+*.g.i.cs
+*.g.i.*
+*.g.*
+
+# Ignore coverage reports
+coverage/
+*.coverage
+*.coveragexml
+*.opencover.xml
+
+# Ignore publish output
+publish/
+*.publishsettings
+
+# Ignore temporary files
+*.tmp
+*.cache
+*.temp
+
+# Ignore macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Ignore Linux system files
+*~
+.*~
+
+# Ignore JetBrains Rider module files
+riderModule.iml

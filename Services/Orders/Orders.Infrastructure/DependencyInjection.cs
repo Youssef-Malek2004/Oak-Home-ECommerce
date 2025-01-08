@@ -54,6 +54,8 @@ public static class DependencyInjection
 
             return new AdminClientBuilder(adminClientConfig).Build();
         });
+        
+        services.AddSingleton<IAdminClientService, AdminClientService>(); //Handling Partitions and such
 
         return services;
     }

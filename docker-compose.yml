@@ -1,16 +1,73 @@
 ﻿volumes:
+  zksingle-ksingle_broker-data:
+  zksingle-ksingle_broker-secrets:
+  zksingle-ksingle_zookeeper-data:
+  zksingle-ksingle_zookeeper-log:
+  zksingle-ksingle_zookeeper-secrets:
   pgbouncer-config:
   pgbouncer-data:
 
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - type: volume
+        source: zksingle-ksingle_zookeeper-data
+        target: /var/lib/zookeeper/data
+      - type: volume
+        source: zksingle-ksingle_zookeeper-log
+        target: /var/lib/zookeeper/log
+      - type: volume
+        source: zksingle-ksingle_zookeeper-secrets
+        target: /etc/zookeeper/secrets
+    networks:
+      - proxyBackend
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - type: volume
+        source: zksingle-ksingle_broker-data
+        target: /var/lib/kafka/data
+      - type: volume
+        source: zksingle-ksingle_broker-secrets
+        target: /etc/kafka/secrets
+    networks:
+      - proxyBackend
+        
   gateway.api:
     image: gateway.api
     ports:
-      - "5000:5000"
-      - "5001:5001"
+      - "5010:5010"
+      - "5011:5011"
+    environment:
+      - ASPNETCORE_URLS=http://+:5010
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
     build:
       context: .
       dockerfile: Gateway/Gateway.Api/Dockerfile
+    networks:
+      - proxyBackend
       
   users.database:
     image: postgres:latest
@@ -36,13 +93,14 @@ services:
     image: users.api
     build:
       context: .
-      dockerfile: Users.Api/Dockerfile
+      dockerfile: Services/Users/Users.Api/Dockerfile
     ports:
       - "5100:5100"
       - "5101:5101"
     environment:
       - ASPNETCORE_URLS=http://+:5100
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
     depends_on:
       users.database:
         condition: service_healthy
@@ -61,6 +119,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5200
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
     depends_on:
       products.database:
         condition: service_healthy
@@ -98,6 +157,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5300
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
     depends_on:
       inventory.database:
         condition: service_healthy
@@ -136,6 +196,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5400
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
     restart: always
     networks:
       - proxyBackend
@@ -151,6 +212,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5500
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
     restart: always
     depends_on:
       redis:
@@ -191,6 +253,25 @@ services:
       inventory.database:
         condition: service_healthy
         restart: true
+    networks:
+      - proxyBackend
+  
+  payments.api:
+    image: payments.api
+    build:
+      context: .
+      dockerfile: Services/Payments/Payments.Api/Dockerfile
+    ports:
+      - "5600:5600"
+      - "5601:5601"
+    environment:
+      - ASPNETCORE_URLS=http://+:5600
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - proxyBackend
   

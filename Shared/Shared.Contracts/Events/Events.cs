@@ -20,5 +20,7 @@ public class Event : Enumeration<Event>
     
     public static readonly Event InventoryNotEnough = new Event(5, "InventoryNotEnough");
     public static readonly Event InventoryReserved = new Event(6, "InventoryReserved");
-    public static readonly Event InventorySupplyRequest = new Event(8, "InventorySupplyRequest");
+    public static readonly Event InventorySupplyRequest = new Event(9, "InventorySupplyRequest");
+    
+    public static readonly Event PaymentSuccessfulEvent = new Event(10, "PaymentSuccessfulEvent");
 }
