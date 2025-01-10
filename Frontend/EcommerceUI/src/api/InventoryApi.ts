@@ -3,7 +3,12 @@ import { ProductsWarehouses } from "../Interfaces/DTOs/Warehouse/ProductsGetWare
 import { Warehouse } from "../Interfaces/Warehouse";
 
 const INVENTORY_API_BASE_URL = "http://localhost:5175/inventory-api/api/inventory";
+//Docker
+// const INVENTORY_API_BASE_URL = "http://localhost:5010/inventory-api/api/inventory";
+
 const WAREHOUSE_API_BASE_URL = "http://localhost:5175/inventory-api/api/warehouses";
+//Docker
+// const WAREHOUSE_API_BASE_URL = "http://localhost:5010/inventory-api/api/warehouses";
 
 const axiosInventoryInstance = axios.create({
   baseURL: INVENTORY_API_BASE_URL,

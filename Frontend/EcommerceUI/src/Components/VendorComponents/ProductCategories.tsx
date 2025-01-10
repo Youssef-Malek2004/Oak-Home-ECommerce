@@ -25,17 +25,14 @@ const PRODUCT_CATEGORIES: CategoryItem[] = [
 export const ProductCategories: React.FC = () => {
   const navigate = useNavigate();
   const handleCategorySelect = (slug: string) => {
-    navigate(`/vendor/products/${slug}`);
+    navigate(`/shop/products/${slug}`);
   };
 
   return (
     <Grid container spacing={3}>
       {PRODUCT_CATEGORIES.map((category) => (
         <Grid item xs={12} sm={6} key={category.slug}>
-          <CategoryCard
-            category={category}
-            onCategorySelect={handleCategorySelect}
-          />
+          <CategoryCard category={category} onCategorySelect={handleCategorySelect} />
         </Grid>
       ))}
     </Grid>

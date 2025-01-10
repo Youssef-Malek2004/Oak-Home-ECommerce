@@ -6,8 +6,12 @@ import { GetProductByIdProductDto } from "../Interfaces/DTOs/Products/GetProduct
 import { UpdateProductDto } from "../Interfaces/DTOs/Products/UpdateProductDto";
 
 const PRODUCTS_API_BASE_URL = "http://localhost:5175/products-api/api/products-async";
+//Docker
+// const PRODUCTS_API_BASE_URL = "http://localhost:5010/products-api/api/products-async";
 
 const CATEGORIES_API_BASE_URL = "http://localhost:5175/products-api/api/categories";
+//Docker
+// const CATEGORIES_API_BASE_URL = "http://localhost:5010/products-api/api/categories";
 
 const axiosProductsInstance = axios.create({
   baseURL: PRODUCTS_API_BASE_URL,

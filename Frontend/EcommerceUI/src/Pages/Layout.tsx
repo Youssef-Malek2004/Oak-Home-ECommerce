@@ -22,13 +22,15 @@ export const NotificationsContext = React.createContext<{
 const Layout: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null
-  );
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
+
+  const NOTIFICATIONS_HUB_URL = "http://localhost:5175/notifications-hub/chat-hub";
+  //Docker
+  // const NOTIFICATIONS_HUB_URL = "http://localhost:5010/notifications-hub/chat-hub";
 
   useEffect(() => {
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5175/notifications-hub/chat-hub", {
+      .withUrl(NOTIFICATIONS_HUB_URL, {
         accessTokenFactory: () => {
           const authToken = document.cookie
             .split("; ")
