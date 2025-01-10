@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
 import image from "../../assets/LandingPageImage.webp";
-import LandingHeroSection from "./LandingPage/LandingHeroSection";
+// import LandingHeroSection from "./LandingPage/LandingHeroSection";
 import LandingNavBar from "./LandingPage/LandingNavBar";
 import Background from "./Background";
 

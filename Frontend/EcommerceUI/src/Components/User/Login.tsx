@@ -1,14 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  Link,
-  Alert,
-} from "@mui/material";
+import { TextField, Button, Box, Typography, Checkbox, FormControlLabel, Link, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../api/UserApi";
 import { useAuth } from "../Contexts/Authentication/useAuth";
@@ -77,22 +69,11 @@ const Login: React.FC = () => {
             textAlign: "center",
           }}
         >
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            gutterBottom
-            sx={{ color: "#333" }}
-          >
+          <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ color: "#333" }}>
             Welcome Back!
           </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            gutterBottom
-            sx={{ marginBottom: "20px" }}
-          >
-            Log in to access your account and explore all the benefits of our
-            platform.
+          <Typography variant="body1" color="text.secondary" gutterBottom sx={{ marginBottom: "20px" }}>
+            Log in to access your account and explore all the benefits of our platform.
           </Typography>
 
           {/* Display Error Message */}
@@ -167,11 +148,7 @@ const Login: React.FC = () => {
           >
             Login
           </Button>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ marginTop: "20px" }}
-          >
+          <Typography variant="body2" color="text.secondary" sx={{ marginTop: "20px" }}>
             Don’t have an account?{" "}
             <Link
               href="/sign-up"

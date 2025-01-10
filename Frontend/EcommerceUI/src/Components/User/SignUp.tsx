@@ -1,14 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  Link,
-  Alert,
-} from "@mui/material";
+import { TextField, Button, Box, Typography, Checkbox, FormControlLabel, Link, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../api/UserApi";
 import image from "../../assets/SignUpPageImageGold.webp";
@@ -66,20 +58,10 @@ const SignUp: React.FC = () => {
             textAlign: "center",
           }}
         >
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            gutterBottom
-            sx={{ color: "#333" }}
-          >
+          <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ color: "#333" }}>
             Create an Account
           </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            gutterBottom
-            sx={{ marginBottom: "20px" }}
-          >
+          <Typography variant="body1" color="text.secondary" gutterBottom sx={{ marginBottom: "20px" }}>
             Sign up to start your journey with us.
           </Typography>
 
@@ -172,11 +154,7 @@ const SignUp: React.FC = () => {
           >
             Sign Up
           </Button>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ marginTop: "20px" }}
-          >
+          <Typography variant="body2" color="text.secondary" sx={{ marginTop: "20px" }}>
             Already have an account?{" "}
             <Link
               href="/login"
