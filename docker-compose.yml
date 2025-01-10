@@ -274,6 +274,25 @@ services:
         condition: service_healthy
     networks:
       - proxyBackend
+    
+  cart.api:
+    image: cart.api
+    build:
+      context: .
+      dockerfile: Services/Cart/Cart.Api/Dockerfile
+    ports:
+      - "5300:5300"
+      - "5301:5301"
+    environment:
+      - ASPNETCORE_URLS=http://+:5700
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
+    depends_on:
+      inventory.database:
+        condition: service_healthy
+        restart: true
+    networks:
+      - proxyBackend
   
 networks:
   proxyBackend:
