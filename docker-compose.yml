@@ -154,10 +154,8 @@ services:
     ports:
       - "5300:5300"
       - "5301:5301"
-    environment:
-      - ASPNETCORE_URLS=http://+:5300
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__kafka=PLAINTEXT://kafka:9092
+    env_file:
+      - EnvironmentFiles/.env.inventory.api
     depends_on:
       inventory.database:
         condition: service_healthy
@@ -168,7 +166,7 @@ services:
   inventory.database:
     image: postgres:latest
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d inventory" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d app.inventory" ]
       interval: 10s
       retries: 5
       start_period: 30s

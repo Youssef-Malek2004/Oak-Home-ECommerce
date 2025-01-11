@@ -107,6 +107,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EnvironmentFiles", "EnvironmentFiles", "{22FEDF6D-3277-4FDE-8B32-9C83BE684FCE}"
 	ProjectSection(SolutionItems) = preProject
 		EnvironmentFiles\.env.cart.api = EnvironmentFiles\.env.cart.api
+		EnvironmentFiles\.env.inventory.api = EnvironmentFiles\.env.inventory.api
 	EndProjectSection
 EndProject
 Global
