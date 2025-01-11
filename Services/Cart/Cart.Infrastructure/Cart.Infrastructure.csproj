@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\Shared\Abstractions\Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\Shared\Shared.Contracts\Shared.Contracts.csproj" />
       <ProjectReference Include="..\Cart.Application\Cart.Application.csproj" />
       <ProjectReference Include="..\Cart.Domain\Cart.Domain.csproj" />
     </ItemGroup>

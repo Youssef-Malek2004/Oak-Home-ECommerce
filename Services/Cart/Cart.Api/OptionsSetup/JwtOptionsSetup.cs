@@ -1,7 +1,7 @@
 using Cart.Infrastructure.Authentication;
 using Microsoft.Extensions.Options;
 
-namespace Products.Api.OptionsSetup;
+namespace Cart.Api.OptionsSetup;
 
 public class JwtOptionsSetup(IConfiguration configuration) : IConfigureOptions<JwtOptions>
 {
