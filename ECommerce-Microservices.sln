@@ -104,6 +104,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.Domain", "Services\Car
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.Infrastructure", "Services\Cart\Cart.Infrastructure\Cart.Infrastructure.csproj", "{96A212EB-F456-4F7D-93D6-27C12FBB0DA0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EnvironmentFiles", "EnvironmentFiles", "{22FEDF6D-3277-4FDE-8B32-9C83BE684FCE}"
+	ProjectSection(SolutionItems) = preProject
+		EnvironmentFiles\.env.cart.api = EnvironmentFiles\.env.cart.api
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

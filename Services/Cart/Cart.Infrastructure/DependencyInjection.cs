@@ -11,12 +11,13 @@ namespace Cart.Infrastructure;
 
 public static class DependencyInjection
 {
-    private const string DatabaseConnection = "DatabaseLocal";
-    
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
+        var usingDocker = bool.Parse(configuration.GetSection("UsingDocker").Value!);
+        var databaseConnection = usingDocker ? "DatabaseDocker" : "DatabaseLocal";
+        
         services.AddDbContext<ICartDbContext, CartDbContext>(x =>
-            x.UseNpgsql(configuration.GetConnectionString(DatabaseConnection)));
+            x.UseNpgsql(configuration.GetConnectionString(databaseConnection)));
         
         return services;
     }

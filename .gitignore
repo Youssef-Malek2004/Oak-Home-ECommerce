@@ -30,6 +30,8 @@ appsettings.Development.json
 appsettings.Local.json
 appsettings.*.json
 .env
+.env*
+env/
 
 # Ignore logs
 *.log
