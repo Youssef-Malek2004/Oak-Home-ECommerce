@@ -8,10 +8,10 @@ namespace Shared.Contracts.Kafka;
 public class KafkaProducerService : IKafkaProducerService
 {
     private readonly IProducer<string, string> _producer;
-
+    
     public KafkaProducerService(IOptions<KafkaSettings> settings)
     {
-        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
+        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Kafka");
         
         var config = new ProducerConfig
         {

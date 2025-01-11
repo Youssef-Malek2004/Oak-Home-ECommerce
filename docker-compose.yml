@@ -8,10 +8,10 @@
   pgbouncer-data:
 
 services:
-  services.zookeeper:
+  zookeeper:
     image: confluentinc/cp-zookeeper:latest
     hostname: zookeeper
-    container_name: services.zookeeper
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -28,12 +28,12 @@ services:
     networks:
       - proxyBackend
 
-  services.kafka:
+  kafka:
     image: confluentinc/cp-kafka:latest
     hostname: kafka
-    container_name: services.kafka
+    container_name: kafka
     depends_on:
-      - services.zookeeper
+      - zookeeper
     ports:
       - 9092:9092
     environment:
