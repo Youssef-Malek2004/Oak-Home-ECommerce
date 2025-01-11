@@ -63,8 +63,7 @@ public class CartItemRepository(CartDbContext dbContext) : ICartItemRepository
 
             cart.Items.Add(cartItem);
             cart.UpdatedAt = DateTime.UtcNow;
-
-            await dbContext.SaveChangesAsync(cancellationToken);
+            
             return Result.Success();
         }
         catch (Exception ex)
@@ -91,8 +90,7 @@ public class CartItemRepository(CartDbContext dbContext) : ICartItemRepository
             cart.Items.Remove(existingItem);
             cart.Items.Add(cartItem);
             cart.UpdatedAt = DateTime.UtcNow;
-
-            await dbContext.SaveChangesAsync(cancellationToken);
+            
             return Result.Success();
         }
         catch (Exception ex)
@@ -118,8 +116,7 @@ public class CartItemRepository(CartDbContext dbContext) : ICartItemRepository
 
             cart.Items.Remove(item);
             cart.UpdatedAt = DateTime.UtcNow;
-
-            await dbContext.SaveChangesAsync(cancellationToken);
+            
             return Result.Success();
         }
         catch (Exception ex)

@@ -61,7 +61,6 @@ public class CartRepository(CartDbContext dbContext) : ICartRepository
         try
         {
             await dbContext.Carts.AddAsync(cart, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
         }
@@ -81,14 +80,12 @@ public class CartRepository(CartDbContext dbContext) : ICartRepository
 
             if (existingCart is null)
                 return Result.Failure(CartErrors.CartNotFound(cart.CartId));
-
-            // Update the cart properties
+            
             existingCart.UserId = cart.UserId;
             existingCart.TotalPrice = cart.TotalPrice;
             existingCart.Items = cart.Items;
             existingCart.UpdatedAt = DateTime.UtcNow;
-
-            await dbContext.SaveChangesAsync(cancellationToken);
+            
             return Result.Success();
         }
         catch (Exception ex)
@@ -108,7 +105,6 @@ public class CartRepository(CartDbContext dbContext) : ICartRepository
                 return Result.Failure(CartErrors.CartNotFound(id));
 
             dbContext.Carts.Remove(cart);
-            await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
         }
