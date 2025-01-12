@@ -9,6 +9,5 @@ builder.AddProject<Projects.Payments_Api>("api-service-payments").WithEnvironmen
 builder.AddProject<Projects.Cart_Api>("api-service-cart").WithEnvironment("ConnectionStrings__kafka", "localhost:9092");
 
 builder.AddProject<Projects.Gateway_Api>("gateway-api");
-builder.AddProject<Projects.AppTestUI>("app-testing-ui");
 
 builder.Build().Run();
