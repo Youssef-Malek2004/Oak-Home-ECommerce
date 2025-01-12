@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
+builder.AddNpgsqlDataSource("CartDatabase");
+
 builder.Configuration["ConnectionStrings:DatabaseLocal"] = 
     Environment.GetEnvironmentVariable("DATABASE_LOCAL") ?? builder.Configuration["ConnectionStrings:DatabaseLocal"];
 builder.Configuration["ConnectionStrings:DatabaseDocker"] = 
@@ -20,7 +22,8 @@ builder.Configuration["UsingDocker"] =
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddPersistence(builder.Configuration);
+// builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddAspirePersistence();
 
 builder.Services.ConfigureAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();

@@ -12,9 +12,13 @@ public class KafkaInitializationHostedService(IAdminClientService adminClientSer
         {
             Console.WriteLine("Starting Kafka Initialization...");
 
+            var testTopic = Topics.TestingTopic.Name;
+            
+            await adminClientService.CreateTopicAsync(testTopic, 3,1);
+            
             var topic = Topics.InventoryEvents.Name;
 
-            await adminClientService.AddPartitionsAsync(topic, 5);
+            await adminClientService.CreateTopicAsync(topic, 3,1);
             
             var topicCount = await adminClientService.GetPartitionCountAsync(topic);
             

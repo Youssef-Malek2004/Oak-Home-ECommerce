@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Shared.Contracts.Kafka;
 
 namespace Cart.Infrastructure;
@@ -22,6 +23,18 @@ public static class DependencyInjection
         services.AddDbContext<ICartDbContext, CartDbContext>(x =>
             x.UseNpgsql(configuration.GetConnectionString(databaseConnection)));
         
+        return services;
+    }
+    
+    public static IServiceCollection AddAspirePersistence(this IServiceCollection services)
+    {
+        services.AddDbContext<ICartDbContext, CartDbContext>((serviceProvider, options) =>
+        {
+            var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
+            
+            options.UseNpgsql(dataSource);
+        });
+
         return services;
     }
     
@@ -42,6 +55,8 @@ public static class DependencyInjection
         {
             var kafkaSettings = serviceProvider.GetRequiredService<IOptions<KafkaSettings>>().Value;
             var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
+
+            Console.Out.WriteLine(kafkaConnectionString);
 
             var adminClientConfig = new AdminClientConfig
             {

@@ -46,10 +46,11 @@ public static class DependencyInjection
         services.AddSingleton<IAdminClient>(serviceProvider =>
         {
             var kafkaSettings = serviceProvider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+            var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
 
             var adminClientConfig = new AdminClientConfig
             {
-                BootstrapServers = kafkaSettings.BootstrapServers
+                BootstrapServers = kafkaConnectionString ?? kafkaSettings.BootstrapServers
             };
 
             return new AdminClientBuilder(adminClientConfig).Build();

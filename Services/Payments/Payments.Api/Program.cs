@@ -20,10 +20,10 @@ builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
 builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddKafkaAdminClient();
 builder.Services.AddMediatR(cfg => 
     cfg.RegisterServicesFromAssemblyContaining<GetUserPaymentsHandler>());
 
+builder.Services.AddKafkaAdminClient();
 builder.Services.AddSingleton<IKafkaProducerService,KafkaProducerService>();
 builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 builder.Services.AddSingleton<IKafkaNotificationService, KafkaNotificationsService>();

@@ -11,7 +11,7 @@ public class KafkaProducerService : IKafkaProducerService
     
     public KafkaProducerService(IOptions<KafkaSettings> settings)
     {
-        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Kafka");
+        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
         
         var config = new ProducerConfig
         {
