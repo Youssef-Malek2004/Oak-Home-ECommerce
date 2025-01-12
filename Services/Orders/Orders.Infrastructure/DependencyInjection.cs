@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Orders.Application.Services.Data;
 using Orders.Domain;
 using Orders.Domain.Repositories;
@@ -27,6 +28,21 @@ public static class DependencyInjection
         services.AddScoped<IOrdersRepository, OrdersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        return services;
+    }
+    
+    public static IServiceCollection AddAspirePersistence(this IServiceCollection services)
+    {
+        services.AddDbContext<IOrdersDbContext, OrdersDbContext>((serviceProvider, options) =>
+        {
+            var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
+            
+            options.UseNpgsql(dataSource);
+        });
+        
+        services.AddScoped<IOrdersRepository, OrdersRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
         return services;
     }
     

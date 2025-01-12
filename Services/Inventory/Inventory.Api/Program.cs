@@ -26,7 +26,13 @@ builder.Configuration["ConnectionStrings:DatabaseDocker"] =
 builder.Configuration["UsingDocker"] = 
     Environment.GetEnvironmentVariable("USING_DOCKER") ?? builder.Configuration["UsingDocker"];
 
-builder.Services.AddPersistence(builder.Configuration);
+var usingAspire = Environment.GetEnvironmentVariable("Using__Aspire");
+if (usingAspire is not null && usingAspire == "true")
+{
+    builder.AddNpgsqlDataSource("InventoryDatabase");
+    builder.Services.AddAspirePersistence();
+}
+else builder.Services.AddPersistence(builder.Configuration);
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
 builder.Services.AddKafkaAdminClient();

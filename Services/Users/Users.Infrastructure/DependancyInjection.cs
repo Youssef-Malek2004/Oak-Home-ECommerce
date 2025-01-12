@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Shared.Contracts.Kafka;
 using Users.Application.Services;
 using Users.Domain;
@@ -22,10 +23,27 @@ public static class DependancyInjection
     {
         services.AddDbContext<IUsersDbContext, UsersDbContext>(x =>
             x.UseNpgsql(configuration.GetConnectionString("Database")));
+        
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        return services;
+    }
+    
+    public static IServiceCollection AddAspirePersistence(this IServiceCollection services)
+    {
+        services.AddDbContext<IUsersDbContext, UsersDbContext>((serviceProvider, options) =>
+        {
+            var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
+            
+            options.UseNpgsql(dataSource);
+        });
+        
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
         return services;
     }
 

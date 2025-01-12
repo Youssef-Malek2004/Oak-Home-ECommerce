@@ -9,9 +9,9 @@ using Shared.Contracts.Kafka;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Configuration.AddEnvironmentVariables();
-
-builder.AddNpgsqlDataSource("CartDatabase");
 
 builder.Configuration["ConnectionStrings:DatabaseLocal"] = 
     Environment.GetEnvironmentVariable("DATABASE_LOCAL") ?? builder.Configuration["ConnectionStrings:DatabaseLocal"];
@@ -20,10 +20,13 @@ builder.Configuration["ConnectionStrings:DatabaseDocker"] =
 builder.Configuration["UsingDocker"] = 
     Environment.GetEnvironmentVariable("USING_DOCKER") ?? builder.Configuration["UsingDocker"];
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-// builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddAspirePersistence();
+var usingAspire = Environment.GetEnvironmentVariable("Using__Aspire");
+if (usingAspire is not null && usingAspire == "true")
+{
+    builder.AddNpgsqlDataSource("CartDatabase");
+    builder.Services.AddAspirePersistence();
+}
+else builder.Services.AddPersistence(builder.Configuration);
 
 builder.Services.ConfigureAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();

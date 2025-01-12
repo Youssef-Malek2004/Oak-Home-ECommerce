@@ -12,7 +12,24 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddPersistence(builder.Configuration);
+
+builder.Configuration.AddEnvironmentVariables();
+
+builder.Configuration["ConnectionStrings:DatabaseLocal"] = 
+    Environment.GetEnvironmentVariable("DATABASE_LOCAL") ?? builder.Configuration["ConnectionStrings:DatabaseLocal"];
+builder.Configuration["ConnectionStrings:DatabaseDocker"] = 
+    Environment.GetEnvironmentVariable("DATABASE_DOCKER") ?? builder.Configuration["ConnectionStrings:DatabaseDocker"];
+builder.Configuration["UsingDocker"] = 
+    Environment.GetEnvironmentVariable("USING_DOCKER") ?? builder.Configuration["UsingDocker"];
+
+var usingAspire = Environment.GetEnvironmentVariable("Using__Aspire");
+if (usingAspire is not null && usingAspire == "true")
+{
+    builder.AddNpgsqlDataSource("UsersDatabase");
+    builder.Services.AddAspirePersistence();
+}
+else builder.Services.AddPersistence(builder.Configuration);
+
 builder.Services.ConfigureMediatR();
 
 builder.Services.AddAuthenticationAndAuthorization();

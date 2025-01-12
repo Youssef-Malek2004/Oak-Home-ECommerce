@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Shared.Contracts.Kafka;
 using KafkaSettings = Shared.Contracts.Kafka.KafkaSettings;
 
@@ -25,6 +26,22 @@ public static class DependencyInjection
         
         services.AddDbContext<IInventoryDbContext, InventoryDbContext>(x =>
             x.UseNpgsql(configuration.GetConnectionString(databaseConnection)));
+        
+        services.AddScoped<IInventoryRepository, InventoryRepository>();
+        services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        return services;
+    }
+    
+    public static IServiceCollection AddAspirePersistence(this IServiceCollection services)
+    {
+        services.AddDbContext<IInventoryDbContext, InventoryDbContext>((serviceProvider, options) =>
+        {
+            var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
+            
+            options.UseNpgsql(dataSource);
+        });
         
         services.AddScoped<IInventoryRepository, InventoryRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();

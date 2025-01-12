@@ -19,7 +19,8 @@ public class KafkaProducerService : IKafkaProducerService
             AllowAutoCreateTopics = true,
             BatchSize = 16384,
             LingerMs = 5,
-            Acks = Acks.All
+            Acks = Acks.All,
+            SecurityProtocol = SecurityProtocol.Plaintext
         };
         
         _producer = new ProducerBuilder<string, string>(config).Build();

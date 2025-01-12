@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Payments.Application.Services.Data;
+using Payments.Domain;
 using Payments.Domain.Repositories;
 using Payments.Infrastructure.Persistence;
 using Payments.Infrastructure.Persistence.Repositories;
@@ -27,6 +29,21 @@ public static class DependencyInjection
         return services;
     }
     
+    public static IServiceCollection AddAspirePersistence(this IServiceCollection services)
+    {
+        services.AddDbContext<IPaymentDbContext, PaymentDbContext>((serviceProvider, options) =>
+        {
+            var dataSource = serviceProvider.GetRequiredService<NpgsqlDataSource>();
+            
+            options.UseNpgsql(dataSource);
+        });
+        
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
+        return services;
+    }
+    
     public static IServiceCollection ConfigureAuthenticationAndAuthorization(this IServiceCollection services)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,6 +53,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
         return services;
     }
+    
     
     public static IServiceCollection AddKafkaAdminClient(this IServiceCollection services)
     {
