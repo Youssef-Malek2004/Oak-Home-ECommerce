@@ -15,33 +15,40 @@ var paymentsDatabase = postgres.AddDatabase("PaymentsDatabase");
 if (useLocalKafka)
 {
     builder.AddProject<Projects.Users_Api>("api-service-users")
+        .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(usersDatabase)
         .WaitFor(usersDatabase)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Products_Api>("api-service-products")
+        .WithEnvironment("Using__Aspire", usingAspire)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Inventory_Api>("api-service-inventory")
+        .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(inventoryDatabase)
         .WaitFor(inventoryDatabase)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Orders_Api>("api-service-orders")
+        .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(ordersDatabase)
         .WaitFor(ordersDatabase)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Notifications_Api>("api-service-notifications")
+        .WithEnvironment("Using__Aspire", usingAspire)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Payments_Api>("api-service-payments")
         .WithReference(paymentsDatabase)
         .WaitFor(paymentsDatabase)
+        .WithEnvironment("Using__Aspire", usingAspire)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Cart_Api>("api-service-cart")
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString)
+        .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(cartDatabase)
         .WaitFor(cartDatabase);   
 }

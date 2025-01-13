@@ -8,7 +8,20 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("AllowFrontendHttps", policy =>
+    {
+        policy.WithOrigins("https://localhost:5173")
+            .AllowCredentials() 
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        
+        policy.WithOrigins("http://localhost:5173")
+            .AllowCredentials() 
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+    
+    options.AddPolicy("AllowFrontendHttp", policy =>
     {
         policy.WithOrigins("http://localhost:5173")
             .AllowCredentials() 
@@ -16,6 +29,8 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+var usingAspire = Environment.GetEnvironmentVariable("Using__Aspire");
 
 var app = builder.Build();
 
@@ -26,7 +41,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowFrontend");
+if (usingAspire is not null && usingAspire == "true")
+{
+    app.UseCors("AllowFrontendHttps");
+}
+else app.UseCors("AllowFrontendHttp");
+
 
 app.UseHttpsRedirection();
 
