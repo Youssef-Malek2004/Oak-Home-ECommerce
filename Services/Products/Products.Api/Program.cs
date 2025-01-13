@@ -12,9 +12,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Configuration.AddEnvironmentVariables();
+
+builder.Configuration["ConnectionStrings:DatabaseLocal"] = 
+    Environment.GetEnvironmentVariable("DATABASE_LOCAL") ?? builder.Configuration["ConnectionStrings:DatabaseLocal"];
+builder.Configuration["ConnectionStrings:DatabaseDocker"] = 
+    Environment.GetEnvironmentVariable("DATABASE_DOCKER") ?? builder.Configuration["ConnectionStrings:DatabaseDocker"];
+builder.Configuration["UsingDocker"] = 
+    Environment.GetEnvironmentVariable("USING_DOCKER") ?? builder.Configuration["UsingDocker"];
+
+var usingAspire = Environment.GetEnvironmentVariable("Using__Aspire");
+
 builder.Services.ConfigureAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+
+// builder.AddMongoDBClient("ProductsDatabase");
 
 builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection("MongoSettings"));
 builder.Services.AddPersistence();
@@ -33,7 +46,7 @@ builder.Services.AddHostedService<KafkaInitializationHostedService>();
 
 var app = builder.Build();
 
-app.InitializeDatabaseConnection(true, app.Services);
+app.InitializeDatabaseConnection(true, app.Services, usingAspire);
 
 if (app.Environment.IsDevelopment())
 {

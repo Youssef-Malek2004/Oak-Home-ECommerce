@@ -2,15 +2,21 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 const string usingAspire = "true";
 const string kafkaLocalConnectionString = "localhost:9092";
-var useLocalKafka = true;
+var useLocalKafka = false;
 
-var postgres = builder.AddPostgres("postgres").WithPgAdmin().WithPgWeb();
+var postgres = builder.AddPostgres("postgres")
+    .WithPgAdmin()
+    .WithPgWeb();
+
+var mongo = builder.AddMongoDB("mongo")
+    .WithDataVolume();
 
 var cartDatabase = postgres.AddDatabase("CartDatabase");
 var inventoryDatabase = postgres.AddDatabase("InventoryDatabase");
 var ordersDatabase = postgres.AddDatabase("OrdersDatabase");
 var usersDatabase = postgres.AddDatabase("UsersDatabase");
 var paymentsDatabase = postgres.AddDatabase("PaymentsDatabase");
+var productsDatabase = mongo.AddDatabase("ProductsDatabase");
 
 if (useLocalKafka)
 {
@@ -22,6 +28,8 @@ if (useLocalKafka)
     
     builder.AddProject<Projects.Products_Api>("api-service-products")
         .WithEnvironment("Using__Aspire", usingAspire)
+        .WithReference(productsDatabase)
+        .WaitFor(productsDatabase)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Inventory_Api>("api-service-inventory")
@@ -61,23 +69,28 @@ else
     builder.AddProject<Projects.Users_Api>("api-service-users")
         .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(usersDatabase)
+        .WaitFor(usersDatabase)
         .WaitFor(kafka)
         .WithReference(kafka);
 
     builder.AddProject<Projects.Products_Api>("api-service-products")
         .WithEnvironment("Using__Aspire", usingAspire)
+        .WithReference(productsDatabase)
+        .WaitFor(productsDatabase)
         .WaitFor(kafka)
         .WithReference(kafka);
 
     builder.AddProject<Projects.Inventory_Api>("api-service-inventory")
         .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(inventoryDatabase)
+        .WaitFor(inventoryDatabase)
         .WaitFor(kafka)
         .WithReference(kafka);
 
     builder.AddProject<Projects.Orders_Api>("api-service-orders")
         .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(ordersDatabase)
+        .WaitFor(ordersDatabase)
         .WaitFor(kafka)
         .WithReference(kafka);
 
@@ -89,6 +102,7 @@ else
     builder.AddProject<Projects.Payments_Api>("api-service-payments")
         .WithEnvironment("Using__Aspire", usingAspire)
         .WithReference(paymentsDatabase)
+        .WaitFor(paymentsDatabase)
         .WaitFor(kafka)
         .WithReference(kafka);
 

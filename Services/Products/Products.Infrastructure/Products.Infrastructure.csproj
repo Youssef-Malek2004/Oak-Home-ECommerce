@@ -21,8 +21,8 @@
       </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
-      <PackageReference Include="MongoDB.Driver" Version="3.0.0" />
-      <PackageReference Include="MongoDB.Entities" Version="24.0.0" />
+      <PackageReference Include="MongoDB.Driver" Version="2.30.0" />
+      <PackageReference Include="MongoDB.Entities" Version="23.2.0" />
     </ItemGroup>
 
     <ItemGroup>
