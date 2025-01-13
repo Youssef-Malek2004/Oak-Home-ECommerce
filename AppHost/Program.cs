@@ -123,6 +123,7 @@ else
     
 
 builder.AddProject<Projects.Gateway_Api>("gateway-api")
-    .WithEnvironment("Using__Aspire", usingAspire);
+    .WithEnvironment("Using__Aspire", usingAspire)
+    .WithExternalHttpEndpoints();
 
 builder.Build().Run();
