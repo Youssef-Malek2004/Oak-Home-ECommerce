@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
+import { GateWayUrl } from "./GateWayApi";
 
 export interface RegisterPayload {
   username: string;
@@ -17,9 +18,7 @@ export interface UserProfile {
   email: string;
 }
 
-const API_BASE_URL = "http://localhost:5175/users-api/api/users";
-//Docker
-// const API_BASE_URL = "http://localhost:5010/users-api/api/users";
+const API_BASE_URL = `${GateWayUrl}users-api/api/users`;
 
 // Create an Axios instance with default configurations
 const axiosInstance = axios.create({

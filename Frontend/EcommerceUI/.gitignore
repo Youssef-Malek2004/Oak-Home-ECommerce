@@ -23,4 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Ignore all .pem files
+*.pem
+
+# Ignore the ssl folder and its contents
+ssl/
+
 .codegpt

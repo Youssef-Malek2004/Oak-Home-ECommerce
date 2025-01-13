@@ -5,6 +5,7 @@ import VendorNavBar from "../../Components/VendorComponents/VendorNavBar";
 import { Notification } from "../../Components/Shared/Notifications";
 import * as signalR from "@microsoft/signalr";
 import { NotificationsContext } from "../Layout";
+import { GateWayUrl } from "../../api/GateWayApi";
 
 const VendorDashboard: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -14,7 +15,7 @@ const VendorDashboard: React.FC = () => {
 
   useEffect(() => {
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5175/notifications-hub/chat-hub", {
+      .withUrl(`${GateWayUrl}notifications-hub/chat-hub`, {
         accessTokenFactory: () => {
           const authToken = document.cookie
             .split("; ")

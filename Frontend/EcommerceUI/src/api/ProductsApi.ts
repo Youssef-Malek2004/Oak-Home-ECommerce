@@ -4,14 +4,11 @@ import { Product } from "../Interfaces/Product";
 import { CreateProductRequestDto } from "../Interfaces/DTOs/CreateProductDto";
 import { GetProductByIdProductDto } from "../Interfaces/DTOs/Products/GetProductByIdDto";
 import { UpdateProductDto } from "../Interfaces/DTOs/Products/UpdateProductDto";
+import { GateWayUrl } from "./GateWayApi";
 
-const PRODUCTS_API_BASE_URL = "http://localhost:5175/products-api/api/products-async";
-//Docker
-// const PRODUCTS_API_BASE_URL = "http://localhost:5010/products-api/api/products-async";
+const PRODUCTS_API_BASE_URL = `${GateWayUrl}iproducts-api/api/products-async`;
 
-const CATEGORIES_API_BASE_URL = "http://localhost:5175/products-api/api/categories";
-//Docker
-// const CATEGORIES_API_BASE_URL = "http://localhost:5010/products-api/api/categories";
+const CATEGORIES_API_BASE_URL = `${GateWayUrl}products-api/api/categories`;
 
 const axiosProductsInstance = axios.create({
   baseURL: PRODUCTS_API_BASE_URL,

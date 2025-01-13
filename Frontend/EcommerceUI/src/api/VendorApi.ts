@@ -1,9 +1,8 @@
 import axios from "axios";
 import { VendorGetProducts } from "../Interfaces/Product";
+import { GateWayUrl } from "./GateWayApi";
 
-const PRODUCTS_API_BASE_URL = "http://localhost:5175/products-api/api/products-async";
-//Docker
-// const PRODUCTS_API_BASE_URL = "http://localhost:5010/products-api/api/products-async";
+const PRODUCTS_API_BASE_URL = `${GateWayUrl}products-api/api/products-async`;
 
 const axiosProductsInstance = axios.create({
   baseURL: PRODUCTS_API_BASE_URL,

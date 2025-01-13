@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import * as signalR from "@microsoft/signalr";
 import { Notification } from "../Components/Shared/Notifications";
 import LandingPage from "../Components/Shared/LandingPageComponent";
+import { GateWayUrl } from "../api/GateWayApi";
 
 export const NotificationsContext = React.createContext<{
   notifications: Notification[];
@@ -24,9 +25,7 @@ const Layout: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
 
-  const NOTIFICATIONS_HUB_URL = "http://localhost:5175/notifications-hub/chat-hub";
-  //Docker
-  // const NOTIFICATIONS_HUB_URL = "http://localhost:5010/notifications-hub/chat-hub";
+  const NOTIFICATIONS_HUB_URL = `${GateWayUrl}notifications-hub/chat-hub`;
 
   useEffect(() => {
     const newConnection = new signalR.HubConnectionBuilder()
