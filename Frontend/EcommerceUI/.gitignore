@@ -25,6 +25,7 @@ dist-ssr
 
 # Ignore all .pem files
 *.pem
+*.pem.b64
 
 # Ignore the ssl folder and its contents
 ssl/
