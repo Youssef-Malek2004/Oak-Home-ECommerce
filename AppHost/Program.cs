@@ -5,10 +5,15 @@ const string kafkaLocalConnectionString = "localhost:9092";
 var useLocalKafka = false;
 
 var postgres = builder.AddPostgres("postgres")
+    .WithDataVolume()
     .WithPgAdmin()
     .WithPgWeb();
 
 var mongo = builder.AddMongoDB("mongo")
+    .WithDataVolume();
+
+var redis = builder.AddRedis("redis")
+    .WithRedisInsight()
     .WithDataVolume();
 
 var cartDatabase = postgres.AddDatabase("CartDatabase");
@@ -45,6 +50,7 @@ if (useLocalKafka)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
     builder.AddProject<Projects.Notifications_Api>("api-service-notifications")
+        .WithReference(redis)
         .WithEnvironment("Using__Aspire", usingAspire)
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString);
     
@@ -96,6 +102,7 @@ else
 
     builder.AddProject<Projects.Notifications_Api>("api-service-notifications")
         .WithEnvironment("Using__Aspire", usingAspire)
+        .WithReference(redis)
         .WaitFor(kafka)
         .WithReference(kafka);
 

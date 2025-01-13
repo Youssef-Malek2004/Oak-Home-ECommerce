@@ -16,7 +16,7 @@ public class KafkaInitializationHostedService(IAdminClientService adminClientSer
 
             // await adminClientService.CreateTopicAsync(notificationRequestsTopic, 3, 1);
 
-            await adminClientService.AddPartitionsAsync(notificationRequestsTopic, 9);
+            await adminClientService.CreateTopicAsync(notificationRequestsTopic, 9,1);
             
             var topicCount = await adminClientService.GetPartitionCountAsync(notificationRequestsTopic);
             

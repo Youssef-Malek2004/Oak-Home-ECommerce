@@ -18,12 +18,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("Redis"));
+
+var usingAspire = Environment.GetEnvironmentVariable("Using__Aspire");
+var aspireConnectionString = (usingAspire is not null && usingAspire == "true")
+    ? Environment.GetEnvironmentVariable("ConnectionStrings__redis")
+    : "";
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
 {
     var redisSettings = provider.GetRequiredService<IOptions<RedisSettings>>().Value;
-    return ConnectionMultiplexer.Connect(redisSettings.ConnectionStringLocal);
+
+    if (aspireConnectionString != "")
+    {
+        return ConnectionMultiplexer.Connect(aspireConnectionString!);
+    }
+    
+    else return ConnectionMultiplexer.Connect(redisSettings.ConnectionStringLocal);
 });
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
@@ -42,7 +55,11 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddScoped<IRedisService, RedisService>();
 
-builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379,abortConnect=false");
+if(aspireConnectionString != "")
+    builder.Services.AddSignalR().AddStackExchangeRedis($"{aspireConnectionString},abortConnect=false");
+else
+    builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379,abortConnect=false");
+
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
 builder.Services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
 
