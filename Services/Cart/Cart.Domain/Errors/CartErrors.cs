@@ -37,4 +37,7 @@ public static class CartErrors
 
     public static Error FailedToUpdateCart(Guid userId) =>
         new Error($"Failed to update cart in cache for user '{userId}'");
+
+    public static Error CartAlreadyExistsForUser(Guid userId) =>
+        new($"A cart already exists for user with ID '{userId}'");
 }

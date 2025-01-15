@@ -22,7 +22,7 @@ public class CartRepository(CartDbContext dbContext) : ICartRepository
             return Result<IEnumerable<Domain.Entities.Cart>>.Failure(CartErrors.DatabaseOperationFailed(ex.Message));
         }
     }
-    
+
     public async Task<Result<Domain.Entities.Cart?>> GetCartByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         try
@@ -80,12 +80,12 @@ public class CartRepository(CartDbContext dbContext) : ICartRepository
 
             if (existingCart is null)
                 return Result.Failure(CartErrors.CartNotFound(cart.CartId));
-            
+
             existingCart.UserId = cart.UserId;
             existingCart.TotalPrice = cart.TotalPrice;
             existingCart.Items = cart.Items;
             existingCart.UpdatedAt = DateTime.UtcNow;
-            
+
             return Result.Success();
         }
         catch (Exception ex)
@@ -111,6 +111,34 @@ public class CartRepository(CartDbContext dbContext) : ICartRepository
         catch (Exception ex)
         {
             return Result.Failure(new Error($"Error deleting cart with ID '{id}': {ex.Message}"));
+        }
+    }
+
+    public async Task<Result<Domain.Entities.Cart>> CreateCartAsync(Domain.Entities.Cart cart, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Check if a cart already exists for this user
+            var existingCart = await dbContext.Carts
+                .FirstOrDefaultAsync(c => c.UserId == cart.UserId, cancellationToken);
+
+            if (existingCart is not null)
+                return Result<Domain.Entities.Cart>.Failure(CartErrors.CartAlreadyExistsForUser(cart.UserId));
+
+            // Set creation timestamp
+            cart.CreatedAt = DateTime.UtcNow;
+            cart.UpdatedAt = cart.CreatedAt;
+
+            // Add the cart to the context
+            var entry = await dbContext.Carts.AddAsync(cart, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Return the created cart
+            return Result<Domain.Entities.Cart>.Success(entry.Entity);
+        }
+        catch (Exception ex)
+        {
+            return Result<Domain.Entities.Cart>.Failure(CartErrors.DatabaseOperationFailed(ex.Message));
         }
     }
 }
