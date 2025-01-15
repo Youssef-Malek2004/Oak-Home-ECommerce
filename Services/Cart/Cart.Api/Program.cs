@@ -67,7 +67,13 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IRedisService, RedisService>();
 
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var redisSettings = builder.Configuration.GetSection("Redis").Get<RedisSettings>();
+    options.Configuration = !string.IsNullOrEmpty(aspireConnectionString)
+        ? aspireConnectionString
+        : redisSettings?.ConnectionStringLocal;
+});
 
 builder.Services.Configure<DistributedCacheEntryOptions>(options =>
 {

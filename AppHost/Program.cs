@@ -63,6 +63,8 @@ if (useLocalKafka)
     builder.AddProject<Projects.Cart_Api>("api-service-cart")
         .WithEnvironment("ConnectionStrings__kafka", kafkaLocalConnectionString)
         .WithEnvironment("Using__Aspire", usingAspire)
+        .WithReference(redis)
+        .WaitFor(redis)
         .WithReference(cartDatabase)
         .WaitFor(cartDatabase);   
 }
@@ -117,6 +119,8 @@ else
         .WithEnvironment("Using__Aspire", usingAspire)
         .WaitFor(kafka)
         .WithReference(kafka)
+        .WithReference(redis)
+        .WaitFor(redis)
         .WithReference(cartDatabase)
         .WaitFor(cartDatabase);   
 }
