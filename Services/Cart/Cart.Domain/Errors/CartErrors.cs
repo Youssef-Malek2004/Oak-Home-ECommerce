@@ -24,4 +24,17 @@ public static class CartErrors
 
     public static Error CartItemsQueryFailed(string message) =>
         new Error($"Failed to query cart items. Error: {message}");
+
+    // Cache-related errors
+    public static Error FailedToGetCart(Guid userId) =>
+        new Error($"Failed to retrieve cart from cache for user '{userId}'");
+
+    public static Error FailedToSetCart(Guid userId) =>
+        new Error($"Failed to store cart in cache for user '{userId}'");
+
+    public static Error FailedToDeleteCart(Guid userId) =>
+        new Error($"Failed to delete cart from cache for user '{userId}'");
+
+    public static Error FailedToUpdateCart(Guid userId) =>
+        new Error($"Failed to update cart in cache for user '{userId}'");
 }
