@@ -1,5 +1,14 @@
 # E-Commerce Microservices Platform
 
+![.NET](https://img.shields.io/badge/.NET%208-512BD4?style=for-the-badge&logo=.net&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Kafka](https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
 A modern, cloud-native e-commerce platform built with .NET 8 Aspire and React, implementing a microservices architecture for scalability and maintainability.
 
 ## 🏗 Architecture Overview
@@ -57,51 +66,88 @@ builder.AddProject<Projects.Users_Api>("api-service-users")
 builder.AddProject<Projects.Products_Api>("api-service-products")
     .WithReference(productsDatabase)
     .WithReference(kafka);
-
-// ... other services configuration
 ```
 
-#### ASP.NET Core & Entity Framework Core
-
-- RESTful API implementation
-- Entity Framework Core for ORM
-- Code-first migrations
-- Repository pattern implementation
-
-Example service setup:
+#### Microservice Setup (Inventory Service Example)
 
 ```csharp
-public class Startup
+var builder = WebApplication.CreateBuilder(args);
+
+// Service Configuration
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Database Configuration
+var usingAspire = Environment.GetEnvironmentVariable("Using__Aspire");
+if (usingAspire is not null && usingAspire == "true")
 {
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddControllers();
-        services.AddDbContext<AppDbContext>();
-        services.AddKafka(Configuration);
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options => { /* JWT configuration */ });
-    }
+    builder.AddNpgsqlDataSource("InventoryDatabase");
+    builder.Services.AddAspirePersistence();
 }
+else builder.Services.AddPersistence(builder.Configuration);
+
+// Kafka Configuration
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
+builder.Services.AddKafkaAdminClient();
+builder.Services.AddSingleton<IKafkaProducerService,KafkaProducerService>();
+builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
+
+// Authentication & Authorization
+builder.Services.ConfigureAuthenticationAndAuthorization();
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+
+var app = builder.Build();
 ```
 
-#### Apache Kafka
+#### Apache Kafka Implementation
 
-Event-driven architecture implementation:
+Real implementation of Kafka producer service:
 
 ```csharp
-public class OrderCreatedEventHandler : IEventHandler<OrderCreatedEvent>
+public class KafkaProducerService : IKafkaProducerService
 {
     private readonly IProducer<string, string> _producer;
 
-    public async Task HandleAsync(OrderCreatedEvent @event)
+    public KafkaProducerService(IOptions<KafkaSettings> settings)
     {
-        var message = new Message<string, string>
+        var kafkaConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__kafka");
+
+        var config = new ProducerConfig
         {
-            Key = @event.OrderId,
-            Value = JsonSerializer.Serialize(@event)
+            BootstrapServers = kafkaConnectionString ?? settings.Value.BootstrapServers,
+            AllowAutoCreateTopics = true,
+            BatchSize = 16384,
+            LingerMs = 5,
+            Acks = Acks.All,
+            SecurityProtocol = SecurityProtocol.Plaintext
         };
 
-        await _producer.ProduceAsync("orders-topic", message);
+        _producer = new ProducerBuilder<string, string>(config).Build();
+    }
+
+    public async Task SendMessageAsync<T>(string topic, T message, CancellationToken cancellationToken, string eventType)
+    {
+        var serializedMessage = JsonSerializer.Serialize(message);
+
+        try
+        {
+            var result = await _producer.ProduceAsync(topic,
+                new Message<string, string> {
+                    Key= Guid.NewGuid().ToString(),
+                    Value = serializedMessage,
+                    Headers = new Headers {
+                        { "eventType", Encoding.UTF8.GetBytes(eventType) }
+                    }
+                }, cancellationToken);
+            Console.WriteLine($"Message sent to topic {topic}: {result.Value} Offset: {result.Offset}");
+        }
+        catch (ProduceException<string, string> ex)
+        {
+            Console.WriteLine($"Error producing message: {ex.Error.Reason}");
+        }
+
+        _producer.Flush(cancellationToken);
     }
 }
 ```
@@ -184,23 +230,6 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 };
 ```
 
-#### Context API for State Management
-
-```typescript
-const AuthContext = createContext<AuthContextType | null>(null);
-
-export const AuthProvider: React.FC = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-
-  const login = async (credentials: LoginCredentials) => {
-    const response = await axios.post("/api/auth/login", credentials);
-    setUser(response.data);
-  };
-
-  return <AuthContext.Provider value={{ user, login }}>{children}</AuthContext.Provider>;
-};
-```
-
 ### Development Tools
 
 #### Docker Containerization
@@ -262,15 +291,6 @@ cd AppHost
 dotnet run
 ```
 
-This will start:
-
-- All microservices
-- PostgreSQL with PgAdmin
-- MongoDB
-- Redis with RedisInsight
-- Kafka with UI
-- API Gateway
-
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
@@ -294,43 +314,41 @@ npm run dev
 ## 📁 Project Structure
 
 ```
-├── AppHost/                 # Aspire orchestrator
-├── Services/               # Backend microservices
-│   ├── Users_Api/
-│   ├── Products_Api/
-│   ├── Inventory_Api/
-│   ├── Orders_Api/
-│   ├── Cart_Api/
-│   ├── Payments_Api/
-│   └── Notifications_Api/
+├── AppHost/                    # Aspire orchestrator
+│
+├── Services/                   # Microservices
+│   ├── Users_Api/             # User authentication & management
+│   ├── Products_Api/          # Product catalog management
+│   ├── Inventory_Api/         # Stock management
+│   ├── Orders_Api/            # Order processing
+│   ├── Cart_Api/              # Shopping cart
+│   ├── Payments_Api/          # Payment processing
+│   └── Notifications_Api/     # Real-time notifications
+│
+├── Gateway_Api/               # API Gateway & routing
+│
 ├── Frontend/
-│   └── EcommerceUI/       # React frontend
-└── Gateway_Api/           # API Gateway
+│   └── EcommerceUI/          # React frontend
+│       ├── src/
+│       │   ├── Components/   # UI components
+│       │   ├── Pages/        # Page components
+│       │   ├── Services/     # API services
+│       │   └── Assets/       # Static assets
+│       └── public/           # Public assets
+│
+├── Shared/                    # Shared code
+│   └── Shared.Contracts/     # DTOs & interfaces
+│
+└── docker-compose.yml         # Docker configuration
 ```
 
-## 🔒 Security
+Each microservice is structured using clean architecture:
 
-- JWT Authentication
-- HTTPS/SSL encryption
-- Secure communication between services
-- Environment-based configurations
-
-## 🛠 Development
-
-- Microservices architecture
-- Event-driven communication
-- CQRS pattern
-- Real-time notifications
-- Distributed caching
-
-## 📝 License
-
-[Your License Here]
-
-## 👥 Contributors
-
-[Your Contributors Here]
+- Domain models
+- Business logic
+- Data access
+- API endpoints
 
 ---
 
-Made with ❤️ by [Your Team Name]
+Made with ❤️ using .NET 8 Aspire & React
