@@ -1,3 +1,4 @@
+using Cart.Api.Endpoints;
 using Cart.Api.Extensions;
 using Cart.Api.Middlewares;
 using Cart.Api.OptionsSetup;
@@ -5,11 +6,12 @@ using Cart.Infrastructure;
 using Cart.Infrastructure.Kafka;
 using Cart.Application.CQRS.Commands.CreateCart;
 using Cart.Application.Services.Redis;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-
+using Cart.Infrastructure.Persistence.Redis;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 using Shared.Contracts.Entities.NotificationService;
 using Shared.Contracts.Kafka;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +34,10 @@ if (usingAspire is not null && usingAspire == "true")
 }
 else builder.Services.AddPersistence(builder.Configuration);
 
+var aspireConnectionString = (usingAspire is not null && usingAspire == "true")
+    ? Environment.GetEnvironmentVariable("ConnectionStrings__redis")
+    : "";
+
 builder.Services.ConfigureAuthenticationAndAuthorization();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
@@ -47,14 +53,21 @@ builder.Services.AddSingleton<KafkaDispatcher>();
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblyContaining<CreateCartCommandHandler>());
 
-builder.Services.AddStackExchangeRedisCache(options =>
+builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
-    options.InstanceName = "CartService_";
+    var redisSettings = provider.GetRequiredService<IOptions<RedisSettings>>().Value;
+
+    if (aspireConnectionString != "")
+    {
+        return ConnectionMultiplexer.Connect(aspireConnectionString!);
+    }
+    return ConnectionMultiplexer.Connect(redisSettings.ConnectionStringLocal);
 });
 
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IRedisService, RedisService>();
+
+builder.Services.AddDistributedMemoryCache();
 
 builder.Services.Configure<DistributedCacheEntryOptions>(options =>
 {
@@ -80,6 +93,8 @@ app.UseAuthorization();
 app.UseMiddleware<VendorIdMiddleware>();
 
 var endpoints = app.MapGroup("api");
+
+endpoints.MapCartEndpoints();
 
 endpoints.MapGet("testing", (HttpResponse response, HttpContext context) =>
 {

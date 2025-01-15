@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Abstractions.ResultsPattern;
 using Cart.Application.Services.Redis;
-using Cart.Domain.Entities;
 using Cart.Domain.Errors;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,27 +8,18 @@ using Microsoft.Extensions.Options;
 
 namespace Cart.Infrastructure.Persistence.Redis;
 
-public class RedisService : IRedisService
+public class RedisService(
+    IDistributedCache distributedCache,
+    IMemoryCache memoryCache,
+    IOptions<DistributedCacheEntryOptions> cacheOptions)
+    : IRedisService
 {
-    private readonly IDistributedCache _distributedCache;
-    private readonly IMemoryCache _memoryCache;
-    private readonly DistributedCacheEntryOptions _cacheOptions;
-    private readonly MemoryCacheEntryOptions _memoryCacheOptions;
-
-    public RedisService(
-        IDistributedCache distributedCache,
-        IMemoryCache memoryCache,
-        IOptions<DistributedCacheEntryOptions> cacheOptions)
+    private readonly DistributedCacheEntryOptions _cacheOptions = cacheOptions.Value;
+    private readonly MemoryCacheEntryOptions _memoryCacheOptions = new()
     {
-        _distributedCache = distributedCache;
-        _memoryCache = memoryCache;
-        _cacheOptions = cacheOptions.Value;
-        _memoryCacheOptions = new MemoryCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
-            SlidingExpiration = TimeSpan.FromMinutes(2)
-        };
-    }
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+        SlidingExpiration = TimeSpan.FromMinutes(2)
+    };
 
     private static string GetCartKey(Guid userId) => $"cart:user:{userId}";
 
@@ -38,15 +28,13 @@ public class RedisService : IRedisService
         try
         {
             var cacheKey = GetCartKey(userId);
-
-            // Try memory cache first
-            if (_memoryCache.TryGetValue(cacheKey, out Domain.Entities.Cart? memoryCart))
+            
+            if (memoryCache.TryGetValue(cacheKey, out Domain.Entities.Cart? memoryCart))
             {
                 return Result<Domain.Entities.Cart>.Success(memoryCart!);
             }
-
-            // Try distributed cache
-            var cachedCart = await _distributedCache.GetAsync(cacheKey);
+            
+            var cachedCart = await distributedCache.GetAsync(cacheKey);
             if (cachedCart is null)
             {
                 return Result<Domain.Entities.Cart>.Failure(CartErrors.CartNotFoundByUserId(userId));
@@ -57,13 +45,12 @@ public class RedisService : IRedisService
             {
                 return Result<Domain.Entities.Cart>.Failure(CartErrors.CartNotFoundByUserId(userId));
             }
-
-            // Cache in memory for subsequent requests
-            _memoryCache.Set(cacheKey, cart, _memoryCacheOptions);
+            
+            memoryCache.Set(cacheKey, cart, _memoryCacheOptions);
 
             return Result<Domain.Entities.Cart>.Success(cart);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return Result<Domain.Entities.Cart>.Failure(CartErrors.FailedToGetCart(userId));
         }
@@ -77,14 +64,14 @@ public class RedisService : IRedisService
             var serializedCart = JsonSerializer.SerializeToUtf8Bytes(cart);
 
             // Set in distributed cache
-            await _distributedCache.SetAsync(cacheKey, serializedCart, _cacheOptions);
+            await distributedCache.SetAsync(cacheKey, serializedCart, _cacheOptions);
 
             // Set in memory cache
-            _memoryCache.Set(cacheKey, cart, _memoryCacheOptions);
+            memoryCache.Set(cacheKey, cart, _memoryCacheOptions);
 
             return Result.Success();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return Result.Failure(CartErrors.FailedToSetCart(userId));
         }
@@ -101,7 +88,7 @@ public class RedisService : IRedisService
             }
             return Result.Success();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return Result.Failure(CartErrors.FailedToUpdateCart(userId));
         }
@@ -114,14 +101,14 @@ public class RedisService : IRedisService
             var cacheKey = GetCartKey(userId);
 
             // Remove from distributed cache
-            await _distributedCache.RemoveAsync(cacheKey);
+            await distributedCache.RemoveAsync(cacheKey);
 
             // Remove from memory cache
-            _memoryCache.Remove(cacheKey);
+            memoryCache.Remove(cacheKey);
 
             return Result.Success();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return Result.Failure(CartErrors.FailedToDeleteCart(userId));
         }

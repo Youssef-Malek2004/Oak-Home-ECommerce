@@ -1,6 +1,9 @@
 using Cart.Application.Services;
+using Cart.Domain;
+using Cart.Domain.Repositories;
 using Cart.Infrastructure.Authentication;
 using Cart.Infrastructure.Persistence;
+using Cart.Infrastructure.Persistence.Repositories;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +26,10 @@ public static class DependencyInjection
         services.AddDbContext<ICartDbContext, CartDbContext>(x =>
             x.UseNpgsql(configuration.GetConnectionString(databaseConnection)));
         
+        services.AddScoped<ICartRepository, CartRepository>();
+        services.AddScoped<ICartItemRepository, CartItemRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
         return services;
     }
     
@@ -35,6 +42,10 @@ public static class DependencyInjection
             options.UseNpgsql(dataSource);
         });
 
+        services.AddScoped<ICartRepository, CartRepository>();
+        services.AddScoped<ICartItemRepository, CartItemRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
         return services;
     }
     

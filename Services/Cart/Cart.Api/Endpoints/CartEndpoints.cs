@@ -1,8 +1,6 @@
 using Cart.Application.CQRS.Queries;
 using Cart.Application.CQRS.Commands.CreateCart;
-using Cart.Infrastructure.Authentication;
 using MediatR;
-using Shared.Contracts.Authorization;
 
 namespace Cart.Api.Endpoints;
 
@@ -19,9 +17,9 @@ public static class CartEndpoints
         {
             var result = await mediator.Send(new GetCartQuery(userId), cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        }).HasPermission(Permissions.MustBeSameUser.ToString());
+        });
 
-        app.MapPost("/api/cart/{userId:guid}", async (Guid userId, ISender sender, CancellationToken cancellationToken) =>
+        app.MapPost("cart/{userId:guid}", async (Guid userId, ISender sender, CancellationToken cancellationToken) =>
         {
             var command = new CreateCartCommand(userId);
             var result = await sender.Send(command, cancellationToken);
